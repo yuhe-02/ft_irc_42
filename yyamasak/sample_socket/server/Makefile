@@ -3,8 +3,8 @@ CPP_FLAGS = -Wall -Werror -Wextra -std=c++98
 
 PROGRAM_NAME = irc_serv
 
-SRCDIR := ./src
-INCDIR := ./includes
+SRCDIR := ./
+INCDIR := ./
 
 SRC := $(wildcard $(SRCDIR)/*.cpp) \
 

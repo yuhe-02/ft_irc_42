@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <cstdio>
 
 #define BUFFER_SIZE 512
 #define MAX_CLIENTS 10
@@ -35,35 +36,29 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // ソケットオプション設定
     int opt = 1;
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    // サーバーアドレス設定
     struct sockaddr_in server_addr;
     std::memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(port);
 
-    // バインド
     if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("bind");
         close(server_fd);
         return 1;
     }
 
-    // リスン開始
     if (listen(server_fd, MAX_CLIENTS) == -1) {
         perror("listen");
         close(server_fd);
         return 1;
     }
 
-    // ノンブロッキングモード設定
     set_nonblocking(server_fd);
 
-    // pollfd 構造体のリスト
     std::vector<struct pollfd> poll_fds;
     poll_fds.push_back((struct pollfd){server_fd, POLLIN, 0});
 
@@ -91,21 +86,32 @@ int main(int argc, char *argv[]) {
                     set_nonblocking(client_fd);
                     poll_fds.push_back((struct pollfd){client_fd, POLLIN, 0});
 
-                    std::cout << "New client connected: " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
+                    std::cout << "New client connected: " << inet_ntoa(client_addr.sin_addr)
+                              << ":" << ntohs(client_addr.sin_port) << "\n";
                 } else {
                     // クライアントからのデータ受信
                     char buffer[BUFFER_SIZE];
                     std::memset(buffer, 0, BUFFER_SIZE);
                     int bytes_read = recv(poll_fds[i].fd, buffer, BUFFER_SIZE - 1, 0);
-                    if (bytes_read <= 0) {
-                        // クライアントが切断した場合
+
+                    if (bytes_read > 0) {
+                        buffer[bytes_read] = '\0'; // 文字列の終端を追加
+                        std::cout << "Client [" << poll_fds[i].fd << "] says: " << buffer << std::endl;
+
+                        // クライアントにメッセージを送り返す
+                        if (send(poll_fds[i].fd, buffer, bytes_read, 0) == -1) {
+                            perror("send");
+                        }
+                    } else if (bytes_read == 0) {
+                        // クライアントが切断
                         std::cout << "Client disconnected: FD " << poll_fds[i].fd << "\n";
                         close(poll_fds[i].fd);
                         poll_fds.erase(poll_fds.begin() + i);
-                        i--; // ループを正しく処理するために調整
+                        i--; // erase したので index 調整
+                        continue;
                     } else {
-                        // 受信データを標準出力に表示
-                        std::cout << "Received: " << buffer;
+                        // エラーが発生
+                        perror("recv");
                     }
                 }
             }

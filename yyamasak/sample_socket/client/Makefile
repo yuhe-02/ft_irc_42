@@ -1,10 +1,10 @@
 CPP = c++
 CPP_FLAGS = -Wall -Werror -Wextra -std=c++98
 
-PROGRAM_NAME = irc_serv
+PROGRAM_NAME = irc_client
 
-SRCDIR := ./src
-INCDIR := ./includes
+SRCDIR := ./
+INCDIR := ./
 
 SRC := $(wildcard $(SRCDIR)/*.cpp) \
 
