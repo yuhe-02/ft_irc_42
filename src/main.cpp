@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <cstdio>
 
 #define BUFFER_SIZE 512
 #define MAX_CLIENTS 10
