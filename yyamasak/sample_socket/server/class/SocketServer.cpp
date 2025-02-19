@@ -116,29 +116,113 @@ void SocketServer::HandleNewConnection() {
 			  << ":" << ntohs(client_addr.sin_port) << "\n";
 }
 
-void SocketServer::HandleClientMessage(size_t index)
-{
-	char buffer[BUFFER_SIZE];
-	std::memset(buffer, 0, BUFFER_SIZE);
-	int client_fd = poll_fds_[index].fd;
-	int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
+std::string SocketServer::receiveMessage(int fd) {
+    std::string message;
+    int bytesRead;
+    char buffer[BUFFER_SIZE + 1];
 
-	if (bytes_read > 0) {
-		buffer[bytes_read] = '\0';
-		std::cout << "Client [" << client_fd << "] says: " << buffer << std::endl;
-
-		if (!auth_map_[client_fd]) {
-            if (send(client_fd, "You are not allowed to aceess", 30, 0) == -1) {
-                perror("send");
+    while (true) {
+        memset(buffer, 0, BUFFER_SIZE + 1);  
+        bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
+        if (bytesRead < 0) {
+            // 単にデータ送信がないだけの場合
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                continue;
+            } else {
+                perror("recv");
+                break;
             }
-        } else {
-            if (send(client_fd, buffer, bytes_read, 0) == -1) {
-                perror("send");
+        } else if (bytesRead == 0) {
+            break;
+        }
+        buffer[bytesRead] = '\0';
+        message.append(buffer);
+        if (message.find('\n') != std::string::npos) {
+            break;
+        }
+        std::cout << "Received: " << message << std::endl;
+    }
+    return message;
+}
+
+void SocketServer::registerClient(int client_fd) {
+    ClientInfo &client = clients[client_fd];
+    if (client.hasNick && client.hasUser && !client.registered) {
+        client.registered = true;
+
+        // Welcome メッセージ送信
+        std::string welcome = ":server 001 " + client.nick + " :Welcome to the IRC Network\r\n";
+        send(client_fd, welcome.c_str(), welcome.size(), 0);
+
+        std::cout << "Registered client: " << client.nick << std::endl;
+    }
+}
+
+void SocketServer::HandleClientMessage(size_t index) {
+    int client_fd = poll_fds_[index].fd;
+    std::string message = receiveMessage(client_fd);
+    std::istringstream stream(message);
+    std::string line;
+    std::string new_nick;
+    std::string response;
+    bool nick_in_use;
+    
+    if (message.empty()) {
+        CloseClient(index);
+        return;
+    }
+    std::cout << "Client [" << client_fd << "] says: " << message << std::endl;
+    while (std::getline(stream, line)) {
+        if (!line.empty() && line[line.size() - 1] == '\r') {
+            line.erase(line.size() - 1, 1);
+        }
+        ClientInfo &client = clients[client_fd];
+        std::cout << "Processing command: " << line << std::endl;
+        // CAP LS 応答
+        if (line.compare(0, 6, "CAP LS") == 0) {
+            response = ":server CAP * LS :multi-prefix sasl\r\n";
+            send(client_fd, response.c_str(), response.size(), 0);
+        }
+        // CAP REQ 応答
+        else if (line.compare(0, 7, "CAP REQ") == 0) {
+            response = ":server CAP * ACK :" + line.substr(8) + "\r\n";
+            send(client_fd, response.c_str(), response.size(), 0);
+        }
+        // CAP END 応答なし (交渉終了のため)
+        else if (line.compare(0, 7, "CAP END") == 0) {
+            // 何もしない
+        }
+        // NICK 処理
+        else if (line.compare(0, 4, "NICK") == 0) {
+            new_nick = line.substr(5);
+            nick_in_use = false;
+            for (std::map<int, ClientInfo>::iterator it = clients.begin(); it != clients.end(); ++it) {
+                if (it->second.nick == new_nick && it->first != client_fd) {
+                    nick_in_use = true;
+                    break;
+                }
+            }
+            if (nick_in_use) {
+                response = ":server 433 * " + new_nick + " :Nickname is already in use\r\n";
+                send(client_fd, response.c_str(), response.size(), 0);
+            } else {
+                client.nick = new_nick;
+                client.hasNick = true;
+                registerClient(client_fd);
             }
         }
-	} else {
-		CloseClient(index);
-	}
+        // USER 処理
+        else if (line.compare(0, 4, "USER") == 0) {
+            client.user = line.substr(5);
+            client.hasUser = true;
+            registerClient(client_fd);
+        }
+        // PING → PONG 応答
+        else if (line.compare(0, 4, "PING") == 0) {
+            response = ":server PONG" + line.substr(4) + "\r\n";
+            send(client_fd, response.c_str(), response.size(), 0);
+        }
+    }
 }
 
 void SocketServer::CloseClient(size_t index)
