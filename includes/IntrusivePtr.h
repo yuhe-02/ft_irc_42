@@ -44,6 +44,7 @@ public:
 	T* operator->() const { return ptr_; }
 	T& operator*()  const { return *ptr_; }
 	T* get()        const { return ptr_; }
+	bool operator!() const { return (ptr_ == 0); }
 
 private:
 	T* ptr_;
