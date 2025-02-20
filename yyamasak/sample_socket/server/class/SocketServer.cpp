@@ -1,6 +1,6 @@
 #include "../includes/SocketServer.hpp"
 
-void SocketServer::SetNonBlocking(int fd) {
+void SocketServer::setNonBlocking(int fd) {
 	fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
@@ -14,7 +14,7 @@ void SocketServer::SetNonBlocking(int fd) {
  *
  * @return 成功時は true、失敗時は false
  */
-bool SocketServer::InitServer() {
+bool SocketServer::initServer() {
     /**
      * @brief ソケットの作成
      *
@@ -71,7 +71,7 @@ bool SocketServer::InitServer() {
     }
 
     // ノンブロッキングモードを設定
-    SetNonBlocking(server_fd_);
+    setNonBlocking(server_fd_);
 
     /**
      * @brief pfdの初期化、サーバー側に接続要求が来たときに検知する変数の設定(検知を有効化しているわけではない)
@@ -95,7 +95,7 @@ bool SocketServer::InitServer() {
 }
 
 
-void SocketServer::HandleNewConnection() {
+void SocketServer::handleNewConnection() {
 	struct sockaddr_in client_addr;
 	socklen_t client_len = sizeof(client_addr);
 	int client_fd = accept(server_fd_, (struct sockaddr *)&client_addr, &client_len);
@@ -105,7 +105,7 @@ void SocketServer::HandleNewConnection() {
 		perror("accept");
 		return;
 	}
-	SetNonBlocking(client_fd);
+	setNonBlocking(client_fd);
 	pfd.fd = client_fd;
 	pfd.events = POLLIN;
 	pfd.revents = 0;
@@ -171,7 +171,7 @@ void SocketServer::registerClient(int client_fd) {
  * クライアントからのメッセージを処理する。ircのコマンドに応じて処理を行う。
  * 
  */
-void SocketServer::HandleClientMessage(size_t index) {
+void SocketServer::handleClientMessage(size_t index) {
     int client_fd = poll_fds_[index].fd;
     std::string message = receiveMessage(client_fd);
     std::istringstream stream(message);
@@ -182,7 +182,7 @@ void SocketServer::HandleClientMessage(size_t index) {
     
     // クライアントからのメッセージが空の場合、クライアントを切断する
     if (message.empty()) {
-        CloseClient(index);
+        closeClient(index);
         return;
     }
     std::cout << "Client [" << client_fd << "] says: " << message << std::endl;
@@ -245,10 +245,21 @@ void SocketServer::HandleClientMessage(size_t index) {
             response = ":server PONG" + line.substr(4) + "\r\n";
             send(client_fd, response.c_str(), response.size(), 0);
         }
+        else if (line.compare(0, 4, "JOIN") == 0) {
+            // TODO: JOIN処理
+        }
+        else if (line.compare(0, 4, "PRIVMSG") == 0) {
+            // TODO: PRIVMSG処理
+        }
+        else if (line.compare(0, 4, "QUIT") == 0) {
+            // TODO: QUIT処理
+        }
+        else if (line.compare(0, 4, "PART") == 0) {
+        }
     }
 }
 
-void SocketServer::CloseClient(size_t index)
+void SocketServer::closeClient(size_t index)
 {
 	std::cout << "Client disconnected: FD " << poll_fds_[index].fd << "\n";
 	close(poll_fds_[index].fd);
@@ -258,7 +269,7 @@ void SocketServer::CloseClient(size_t index)
 SocketServer::SocketServer(int port, const std::string &password) : port_(port), password_(password), server_fd_(-1) {}
 
 SocketServer::~SocketServer() {
-	CleanUp();
+	cleanUp();
 }
 
 /**
@@ -271,8 +282,8 @@ SocketServer::~SocketServer() {
  * 3. 何か起きたら終了
  *
  */
-void SocketServer::Start() {
-	if (!InitServer()) {
+void SocketServer::start() {
+	if (!initServer()) {
 		return;
 	}
 	while (true) {
@@ -295,16 +306,16 @@ void SocketServer::Start() {
             // なのでAND演算で、その場合でも対応できるようにしている。
 			if (poll_fds_[i].revents & POLLIN) {
 				if (poll_fds_[i].fd == server_fd_) {
-					HandleNewConnection();
+					handleNewConnection();
 				} else {
-					HandleClientMessage(i);
+					handleClientMessage(i);
 				}
 			}
 		}
 	}
 }
 
-void SocketServer::CleanUp() {
+void SocketServer::cleanUp() {
 	for (size_t i = 0; i < poll_fds_.size(); i++) {
 		close(poll_fds_[i].fd);
 	}
