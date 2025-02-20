@@ -25,7 +25,7 @@ private:
 	static IntrusivePtr<Everyone>	instance_;
 	std::map<std::string, int>		everyone_string_id;
 	std::map<int, Someone>			everyone_;
-	int								latest_channel_id_;
+	int								latest_user_id_;
 
 	Everyone();
 	Everyone(const Everyone &other);
@@ -48,7 +48,7 @@ public:
 	int				GetSomeoneID(const std::string &plyer_name) const;
 	bool			AddBlockUser(int plyer_id, int focas);
 	bool			DeleteBlockUser(int plyer_id, int focas);
-	bool			SetHostname(std::string hostname);
-	bool			SetRealname(std::string realname);
-	bool			SetNickname(std::string nickname);
+	bool			SetHostname(int plyer_id, std::string hostname);
+	bool			SetRealname(int plyer_id, std::string realname);
+	bool			SetNickname(int plyer_id, std::string nickname);
 };

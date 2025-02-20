@@ -55,7 +55,7 @@ public:
 	bool				DeleteChannel(int channel_id);
 	const ChannelInfo	GetChannelInfo(int channel_id) const;
 	int					GetChannelID(const std::string &channel) const;
-	bool				InviteToChannel(int from_id, int focas_id);
+	bool				InviteToChannel(int from_id, int focas_id, int channel_id);
 	bool				JoinedChannel(int plyer_id, int channel_id);// Someoneの内容も変更すること(structにchannelの項目がある)
 	bool				LeaveChannel(int plyer_id, int channel_id);// Someoneの内容も変更すること(structにchannelの項目がある)
 	bool				KickChannel(int plyer_id, int channel_id);
@@ -64,6 +64,6 @@ public:
 	bool				DeleteMaster(int plyer_id, int channel_id);
 	bool				AddVoice(int plyer_id, int channel_id);
 	bool				DeleteVoice(int plyer_id, int channel_id);
-	bool				ChangeMode(ChannelMode mode, bool valid);
+	bool				ChangeMode(ChannelMode mode, bool valid, int channel_id);
 };
 
