@@ -35,7 +35,7 @@ class SocketServer {
 		std::string password_;
 		std::vector<struct pollfd> poll_fds_;
 		std::map<int, bool> auth_map_;
-		std::map<int, ClientInfo> clients;
+		std::map<int, ClientInfo> clients_;
 		void SetNonBlocking(int fd);
 		bool InitServer();
 		void HandleNewConnection();
