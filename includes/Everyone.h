@@ -31,6 +31,8 @@ private:
 	Everyone(const Everyone &other);
 	Everyone &operator=(const Everyone &other);
 
+	bool	SaveToFile();
+
 public:
 	~Everyone();
 

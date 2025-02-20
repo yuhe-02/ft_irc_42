@@ -41,6 +41,8 @@ private:
 	Channel(const Channel &other);
 	Channel &operator=(const Channel &other);
 
+	bool	SaveToFile();
+
 public:
 	~Channel();
 	static IntrusivePtr<Channel>	GetInstance()
