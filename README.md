@@ -71,7 +71,13 @@
 4. **リファレンスクライアントを使用して評価を行う。**
 
 ## 8.参考文献
+- [IRC client用プログラム](https://irssi.org/)
 - [wiki: ircとは](https://ja.wikipedia.org/wiki/Internet_Relay_Chat)
 - [qiita: ircとは](https://qiita.com/takesyhi/items/cfde655f5769286a770a)
 - [horse: modern irc](https://modern.ircdocs.horse/)
 - [qiita: socket通信](https://qiita.com/Y-Yoshimura1997/items/752d89c1e6240cfab0ce)
+- [google: cppのコーディング規則](https://ttsuki.github.io/styleguide/cppguide.ja.html)
+- [irc: プロトコルとか](https://qiita.com/gu-chi/items/d14c99f716da6133bce8)
+- [IRCV3(IRCの拡張様式についての取り決め,irssiがこれに則ってるらしい): ネゴシエーション](https://ircv3.net/specs/extensions/capability-negotiation.html)
+- [IRCV3: ルールとか](https://ircv3.net)
+- [IRCV3: multi_prefix](https://ircv3.net/specs/extensions/multi-prefix)

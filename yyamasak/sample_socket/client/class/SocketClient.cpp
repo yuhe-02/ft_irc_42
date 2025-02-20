@@ -76,6 +76,7 @@ void SocketClient::run()
 	{
 		std::cout << "Send message > ";
 		std::getline(std::cin, message);
+		message.append("\n");
 
 		if (message == "exit")
 		{
