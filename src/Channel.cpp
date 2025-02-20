@@ -1,1 +1,1 @@
-#include "../includes/Channe.h"
+#include "../includes/Channel.h"
