@@ -3,4 +3,5 @@ ft_irc
 a.out
 bircd/bircd
 objs
+.vscode
 sample_test
