@@ -2,6 +2,7 @@
 # define __SOCKETSERVER_HPP__
 
 #include <iostream>
+#include <map>
 #include <vector>
 #include <cstring>
 #include <cstdlib>
@@ -19,19 +20,20 @@
 
 class SocketServer {
 	private:
-		int server_fd;
-		int port;
-		std::string password;
-		std::vector<struct pollfd> poll_fds;
-		void setNonBlocking(int fd);
-		bool initializeServer();
-		void handleNewConnection();
-		void handleClientMessage(size_t index);
-		void closeClient(size_t index);
+		int server_fd_;
+		int port_;
+		std::string password_;
+		std::vector<struct pollfd> poll_fds_;
+		std::map<int, bool> auth_map_;
+		void SetNonBlocking(int fd);
+		bool InitServer();
+		void HandleNewConnection();
+		void HandleClientMessage(size_t index);
+		void CloseClient(size_t index);
 	public:
 		SocketServer(int port, const std::string& password);
 		~SocketServer();
-		void start(); 
-		void cleanup();
+		void Start(); 
+		void CleanUp();
 };
 #endif
