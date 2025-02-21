@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 
     std::string password = argv[2];
     SocketServer server(port, password);
-    server.Start();
+    server.start();
 
     return 0;
 }
