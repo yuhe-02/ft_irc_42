@@ -2,15 +2,20 @@
 
 #include "RefCounted.h"
 #include "IntrusivePtr.h"
+#include "ErrorCode.h"
+#include "Channel.h"
 
 #include <string>
 #include <vector>
 #include <map>
 #include <set>
+#include <algorithm>
+#include <climits>
 
+class Channel;
 struct Someone
 {
-	int							plyer_id_;
+	int							player_id_; // if (player_id_ == -1) this struct is error
 	std::string					user_name_;
 	std::string					host_name_;
 	std::string					real_name_;
@@ -25,32 +30,27 @@ private:
 	static IntrusivePtr<Everyone>	instance_;
 	std::map<std::string, int>		everyone_string_id;
 	std::map<int, Someone>			everyone_;
-	int								latest_user_id_;
+	long							latest_user_id_;
 
 	Everyone();
-	Everyone(const Everyone &other);
-	Everyone &operator=(const Everyone &other);
-
-	bool	SaveToFile();
+	Everyone(const Everyone &);
+	Everyone &operator=(const Everyone &);
 
 public:
 	~Everyone();
 
-	static IntrusivePtr<Everyone>	GetInstance()
-	{
-		if (!instance_) {
-			instance_ = IntrusivePtr<Everyone>(new Everyone());
-		}
-		return instance_;
-	}
+	static IntrusivePtr<Everyone>	GetInstance();
+	int								CreateUser(const std::string &name);
+	int								DeleteUser(int player_id);
+	int								GetSomeone(int player_id, Someone &dest) const;
+	int								GetSomeoneID(const std::string &plyer_name) const;
+	int								AddBlockUser(int player_id, int focas);
+	int								DeleteBlockUser(int player_id, int focas);
+	int								AddJoinChannel(int player_id, int focas);
+	int								DeleteJoinChannel(int player_id, int focas);
+	int								SetHostname(int player_id, const std::string &hostname);
+	int								SetRealname(int player_id, const std::string &realname);
+	int								SetNickname(int player_id, const std::string &nickname);
 
-	bool			CreateUser(std::string name);
-	bool			DeleteUser(int plyer_id);
-	const Someone&	GetSomeone(int plyer_id) const;
-	int				GetSomeoneID(const std::string &plyer_name) const;
-	bool			AddBlockUser(int plyer_id, int focas);
-	bool			DeleteBlockUser(int plyer_id, int focas);
-	bool			SetHostname(int plyer_id, std::string hostname);
-	bool			SetRealname(int plyer_id, std::string realname);
-	bool			SetNickname(int plyer_id, std::string nickname);
+	bool							ExistUser(int player_id) const;
 };

@@ -15,6 +15,8 @@ OBJS := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 all: $(PROGRAM_NAME)
 
+obj: $(OBJS)
+
 $(PROGRAM_NAME): $(OBJS)
 	$(CPP) $(CPP_FLAGS) $(INCLUDES) -o $@ $^
 
