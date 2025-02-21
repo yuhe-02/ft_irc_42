@@ -159,8 +159,8 @@ void SocketServer::registerClient(int client_fd) {
     ClientInfo &client = clients_[client_fd];
     if (client.hasNick && client.hasUser && !client.registered) {
         client.registered = true;
-        std::string welcome = ":server 001 " + client.nick + " :Welcome to the IRC Network\r\n";
-        send(client_fd, welcome.c_str(), welcome.size(), 0);
+        std::pair<int, std::string> welcome = Response::getNumberResponse(1, "");
+        send(client_fd, welcome.second.c_str(), welcome.first, 0);
         std::cout << "Registered client: " << client.nick << std::endl;
     }
 }
@@ -177,7 +177,7 @@ void SocketServer::handleClientMessage(size_t index) {
     std::istringstream stream(message);
     std::string line;
     std::string new_nick;
-    std::string response;
+    std::pair<int, std::string> response;
     bool nick_in_use;
     
     // クライアントからのメッセージが空の場合、クライアントを切断する
@@ -185,7 +185,7 @@ void SocketServer::handleClientMessage(size_t index) {
         closeClient(index);
         return;
     }
-    std::cout << "Client [" << client_fd << "] says: " << message << std::endl;
+    std::cout << "Client [" << client_fd << "] says: " << message;
     // メッセージを1行ずつ処理(streamを使用すると、1行ずつ処理できる)
     while (std::getline(stream, line)) {
         // 改行コードを削除（）Windowsの場合は\r\n、Linuxの場合は\nのためgetlineでは、\rがのこる）
@@ -194,17 +194,31 @@ void SocketServer::handleClientMessage(size_t index) {
         }
         ClientInfo &client = clients_[client_fd];
         std::cout << "Processing command: " << line << std::endl;
+        if (line.compare(0, 4, "PASS") == 0) {
+            // TODO: PASS処理
+            if (line.substr(5) == password_) {
+                auth_map_[client_fd] = true;
+            } else {
+                response = Response::getNumberResponse(464, "Password incorrect");
+                send(client_fd, response.second.c_str(), response.first, 0);
+            }
+        }
+        // if (auth_map_[client_fd] == false) {
+        //     response = ":server 451 * :You have not registered\r\n";
+        //     send(client_fd, response.c_str(), response.size(), 0);
+        //     continue;
+        // } 
         // CAP LS 応答
         // サーバー上で利用可能な機能をクライアントに通知する
-        if (line.compare(0, 6, "CAP LS") == 0) {
-            response = ":server CAP * LS :multi-prefix sasl\r\n";
-            send(client_fd, response.c_str(), response.size(), 0);
+        else if (line.compare(0, 6, "CAP LS") == 0) {
+            response = Response::getResponse("CAP * LS", "multi-prefix sasl");
+            send(client_fd, response.second.c_str(), response.first, 0);
         }
         // CAP REQ 応答
         // クライアントがサーバーに対して要求する機能を通知する
         else if (line.compare(0, 7, "CAP REQ") == 0) {
-            response = ":server CAP * ACK :" + line.substr(8) + "\r\n";
-            send(client_fd, response.c_str(), response.size(), 0);
+            response = Response::getResponse("CAP * ACK", line.substr(8));
+            send(client_fd, response.second.c_str(), response.first, 0);
         }
         // CAP END 応答なし (交渉終了のため)
         else if (line.compare(0, 7, "CAP END") == 0) {
@@ -222,8 +236,8 @@ void SocketServer::handleClientMessage(size_t index) {
                 }
             }
             if (nick_in_use) {
-                response = ":server 433 * " + new_nick + " :Nickname is already in use\r\n";
-                send(client_fd, response.c_str(), response.size(), 0);
+                response = Response::getNumberResponse(433, new_nick);
+                send(client_fd, response.second.c_str(), response.first, 0);
             } else {
                 client.nick = new_nick;
                 client.hasNick = true;
@@ -242,19 +256,18 @@ void SocketServer::handleClientMessage(size_t index) {
         // PINGメッセージは、クライアントがサーバーに対して接続が有効であることを確認するために使用される
         // 断続的にクライアントから送られてくる
         else if (line.compare(0, 4, "PING") == 0) {
-            response = ":server PONG" + line.substr(4) + "\r\n";
-            send(client_fd, response.c_str(), response.size(), 0);
+            response = Response::getResponse("PONG", line.substr(4));
+            send(client_fd, response.second.c_str(), response.first, 0);
         }
         else if (line.compare(0, 4, "JOIN") == 0) {
             // TODO: JOIN処理
         }
-        else if (line.compare(0, 4, "PRIVMSG") == 0) {
+        else if (line.compare(0, 7, "PRIVMSG") == 0) {
             // TODO: PRIVMSG処理
         }
         else if (line.compare(0, 4, "QUIT") == 0) {
             // TODO: QUIT処理
-        }
-        else if (line.compare(0, 4, "PART") == 0) {
+            closeClient(index);
         }
     }
 }
