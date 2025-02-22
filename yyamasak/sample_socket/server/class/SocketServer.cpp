@@ -1,6 +1,6 @@
 #include "../includes/SocketServer.hpp"
 
-void SocketServer::SetNonBlocking(int fd) {
+void SocketServer::setNonBlocking(int fd) {
 	fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
@@ -14,7 +14,7 @@ void SocketServer::SetNonBlocking(int fd) {
  *
  * @return 成功時は true、失敗時は false
  */
-bool SocketServer::InitServer() {
+bool SocketServer::initServer() {
     /**
      * @brief ソケットの作成
      *
@@ -71,7 +71,7 @@ bool SocketServer::InitServer() {
     }
 
     // ノンブロッキングモードを設定
-    SetNonBlocking(server_fd_);
+    setNonBlocking(server_fd_);
 
     /**
      * @brief pfdの初期化、サーバー側に接続要求が来たときに検知する変数の設定(検知を有効化しているわけではない)
@@ -95,7 +95,7 @@ bool SocketServer::InitServer() {
 }
 
 
-void SocketServer::HandleNewConnection() {
+void SocketServer::handleNewConnection() {
 	struct sockaddr_in client_addr;
 	socklen_t client_len = sizeof(client_addr);
 	int client_fd = accept(server_fd_, (struct sockaddr *)&client_addr, &client_len);
@@ -105,7 +105,7 @@ void SocketServer::HandleNewConnection() {
 		perror("accept");
 		return;
 	}
-	SetNonBlocking(client_fd);
+	setNonBlocking(client_fd);
 	pfd.fd = client_fd;
 	pfd.events = POLLIN;
 	pfd.revents = 0;
@@ -159,8 +159,8 @@ void SocketServer::registerClient(int client_fd) {
     ClientInfo &client = clients_[client_fd];
     if (client.hasNick && client.hasUser && !client.registered) {
         client.registered = true;
-        std::string welcome = ":server 001 " + client.nick + " :Welcome to the IRC Network\r\n";
-        send(client_fd, welcome.c_str(), welcome.size(), 0);
+        std::pair<int, std::string> welcome = Response::getNumberResponse(1, "");
+        send(client_fd, welcome.second.c_str(), welcome.first, 0);
         std::cout << "Registered client: " << client.nick << std::endl;
     }
 }
@@ -171,21 +171,21 @@ void SocketServer::registerClient(int client_fd) {
  * クライアントからのメッセージを処理する。ircのコマンドに応じて処理を行う。
  * 
  */
-void SocketServer::HandleClientMessage(size_t index) {
+void SocketServer::handleClientMessage(size_t index) {
     int client_fd = poll_fds_[index].fd;
     std::string message = receiveMessage(client_fd);
     std::istringstream stream(message);
     std::string line;
     std::string new_nick;
-    std::string response;
+    std::pair<int, std::string> response;
     bool nick_in_use;
     
     // クライアントからのメッセージが空の場合、クライアントを切断する
     if (message.empty()) {
-        CloseClient(index);
+        closeClient(index);
         return;
     }
-    std::cout << "Client [" << client_fd << "] says: " << message << std::endl;
+    std::cout << "Client [" << client_fd << "] says: " << message;
     // メッセージを1行ずつ処理(streamを使用すると、1行ずつ処理できる)
     while (std::getline(stream, line)) {
         // 改行コードを削除（）Windowsの場合は\r\n、Linuxの場合は\nのためgetlineでは、\rがのこる）
@@ -194,17 +194,31 @@ void SocketServer::HandleClientMessage(size_t index) {
         }
         ClientInfo &client = clients_[client_fd];
         std::cout << "Processing command: " << line << std::endl;
+        if (line.compare(0, 4, "PASS") == 0) {
+            // TODO: PASS処理
+            if (line.substr(5) == password_) {
+                auth_map_[client_fd] = true;
+            } else {
+                response = Response::getNumberResponse(464, "Password incorrect");
+                send(client_fd, response.second.c_str(), response.first, 0);
+            }
+        }
+        // if (auth_map_[client_fd] == false) {
+        //     response = ":server 451 * :You have not registered\r\n";
+        //     send(client_fd, response.c_str(), response.size(), 0);
+        //     continue;
+        // } 
         // CAP LS 応答
         // サーバー上で利用可能な機能をクライアントに通知する
-        if (line.compare(0, 6, "CAP LS") == 0) {
-            response = ":server CAP * LS :multi-prefix sasl\r\n";
-            send(client_fd, response.c_str(), response.size(), 0);
+        else if (line.compare(0, 6, "CAP LS") == 0) {
+            response = Response::getResponse("CAP * LS", "multi-prefix sasl");
+            send(client_fd, response.second.c_str(), response.first, 0);
         }
         // CAP REQ 応答
         // クライアントがサーバーに対して要求する機能を通知する
         else if (line.compare(0, 7, "CAP REQ") == 0) {
-            response = ":server CAP * ACK :" + line.substr(8) + "\r\n";
-            send(client_fd, response.c_str(), response.size(), 0);
+            response = Response::getResponse("CAP * ACK", line.substr(8));
+            send(client_fd, response.second.c_str(), response.first, 0);
         }
         // CAP END 応答なし (交渉終了のため)
         else if (line.compare(0, 7, "CAP END") == 0) {
@@ -222,8 +236,8 @@ void SocketServer::HandleClientMessage(size_t index) {
                 }
             }
             if (nick_in_use) {
-                response = ":server 433 * " + new_nick + " :Nickname is already in use\r\n";
-                send(client_fd, response.c_str(), response.size(), 0);
+                response = Response::getNumberResponse(433, new_nick);
+                send(client_fd, response.second.c_str(), response.first, 0);
             } else {
                 client.nick = new_nick;
                 client.hasNick = true;
@@ -242,13 +256,23 @@ void SocketServer::HandleClientMessage(size_t index) {
         // PINGメッセージは、クライアントがサーバーに対して接続が有効であることを確認するために使用される
         // 断続的にクライアントから送られてくる
         else if (line.compare(0, 4, "PING") == 0) {
-            response = ":server PONG" + line.substr(4) + "\r\n";
-            send(client_fd, response.c_str(), response.size(), 0);
+            response = Response::getResponse("PONG", line.substr(4));
+            send(client_fd, response.second.c_str(), response.first, 0);
+        }
+        else if (line.compare(0, 4, "JOIN") == 0) {
+            // TODO: JOIN処理
+        }
+        else if (line.compare(0, 7, "PRIVMSG") == 0) {
+            // TODO: PRIVMSG処理
+        }
+        else if (line.compare(0, 4, "QUIT") == 0) {
+            // TODO: QUIT処理
+            closeClient(index);
         }
     }
 }
 
-void SocketServer::CloseClient(size_t index)
+void SocketServer::closeClient(size_t index)
 {
 	std::cout << "Client disconnected: FD " << poll_fds_[index].fd << "\n";
 	close(poll_fds_[index].fd);
@@ -258,7 +282,7 @@ void SocketServer::CloseClient(size_t index)
 SocketServer::SocketServer(int port, const std::string &password) : port_(port), password_(password), server_fd_(-1) {}
 
 SocketServer::~SocketServer() {
-	CleanUp();
+	cleanUp();
 }
 
 /**
@@ -271,8 +295,8 @@ SocketServer::~SocketServer() {
  * 3. 何か起きたら終了
  *
  */
-void SocketServer::Start() {
-	if (!InitServer()) {
+void SocketServer::start() {
+	if (!initServer()) {
 		return;
 	}
 	while (true) {
@@ -295,16 +319,16 @@ void SocketServer::Start() {
             // なのでAND演算で、その場合でも対応できるようにしている。
 			if (poll_fds_[i].revents & POLLIN) {
 				if (poll_fds_[i].fd == server_fd_) {
-					HandleNewConnection();
+					handleNewConnection();
 				} else {
-					HandleClientMessage(i);
+					handleClientMessage(i);
 				}
 			}
 		}
 	}
 }
 
-void SocketServer::CleanUp() {
+void SocketServer::cleanUp() {
 	for (size_t i = 0; i < poll_fds_.size(); i++) {
 		close(poll_fds_[i].fd);
 	}
