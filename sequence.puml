@@ -1,4 +1,4 @@
-@startuml
+@startuml sequence
 
 actor クライアント as Client
 participant サーバー as Server
