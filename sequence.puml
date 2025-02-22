@@ -1,0 +1,39 @@
+@startuml
+
+actor クライアント as Client
+participant サーバー as Server
+participant 翻訳機 as Translator
+participant チャンネル as channel
+participant ユーザー as User
+
+Server++
+Client++
+
+Server->channel: 共有インスタンス作成
+channel++
+Server-> User: 共有インスタンス作成
+User++
+Client -> Server: リクエスト送信
+' クライアントが翻訳機へ要求内容の変換・中継
+Server -> Translator: 要求送信
+Translator++
+
+' 翻訳機がサーバーにリクエスト送信
+Translator -> channel: 要求送信
+
+channel->User:ユーザー操作
+User-->channel:結果
+
+' サーバーが処理し、翻訳機へレスポンス返却
+channel --> Translator: 結果
+
+Translator->User:ユーザー操作
+User-->Translator:結果
+' 翻訳機がレスポンスを変換しクライアントに返送
+Translator --> Server: 結果
+Translator--
+
+' クライアントがユーザーへ結果を表示
+Server --> Client: 結果送信
+
+@enduml
