@@ -19,6 +19,8 @@
 #include <utility>
 
 #include "Response.hpp"
+#include "RefCounted.hpp"
+#include "IntrusivePtr.hpp"
 
 #define BUFFER_SIZE 512
 #define MAX_CLIENTS 10

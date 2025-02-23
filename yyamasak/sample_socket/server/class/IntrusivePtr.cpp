@@ -1,4 +1,4 @@
-#include "../includes/IntrusivePtr.h"
+#include "../includes/IntrusivePtr.hpp"
 
 template <typename T>
 IntrusivePtr<T>::IntrusivePtr(T *ptr)
@@ -68,5 +68,5 @@ T *IntrusivePtr<T>::get() const
 template <typename T>
 bool IntrusivePtr<T>::operator!() const
 {
-	return ptr_ == nullptr;
+	return ptr_ == 0;
 }
