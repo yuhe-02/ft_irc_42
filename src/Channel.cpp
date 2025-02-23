@@ -188,6 +188,8 @@ pair<int, std::string>	Channel::DeleteMaster(const std::string &player_str, cons
 
 pair<int, std::string>	Channel::ChangeMode(const std::string &player_str, int mode, bool valid, const std::string& channel_str)
 {
+	if (mode >= 32)
+		return (std::pair<int, std::string>(FATAL, ""));
 	if (!ExistChannel(channel_str))
 		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 	if (!IsJoined(player_str, channel_str))
