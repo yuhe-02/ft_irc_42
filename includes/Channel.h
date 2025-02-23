@@ -20,6 +20,8 @@
 
 class Everyone;
 
+typedef std::pair<int, std::string> ChannelResult;
+
 struct ChannelInfo
 {
 	int						channel_id;
@@ -27,7 +29,7 @@ struct ChannelInfo
 	std::string				password;
 	std::string				topic;
 	int						mode;
-	std::set<std::string>	joined_plyer;
+	std::set<std::string>	joined_player;
 	std::set<std::string>	is_master;
 	int						limit_member;
 };
@@ -47,19 +49,19 @@ private:
 public:
 	~Channel();
 
-	static IntrusivePtr<Channel>	GetInstance();
-	pair<int, std::string>			CreateChannel(const std::string& name, const std::string &player_str, int mode);
-	pair<int, std::string>			DeleteChannel(const std::string& channel_str);
-	pair<int, std::string>			GetChannelInfo(const std::string& channel_str, ChannelInfo &dest) const;
-	pair<int, std::string>			InviteToChannel(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
-	pair<int, std::string>			JoinedChannel(const std::string &player_str, const std::string& channel_str, int flag = 0);
-	pair<int, std::string>			LeaveChannel(const std::string &player_str, const std::string& channel_str);
-	pair<int, std::string>			KickChannel(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
-	pair<int, std::string>			ChangeTopic(const std::string &player_str, const std::string& channel_str, const std::string &topic);
-	pair<int, std::string>			AddMaster(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
-	pair<int, std::string>			DeleteMaster(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
-	pair<int, std::string>			ChangeMode(const std::string &player_str, int mode, bool valid, const std::string& channel_str);
-	pair<int, std::string>			SendMessageToChannel(const std::string &player_str, const std::string& channel_str);
+	static IntrusivePtr<Channel>		GetInstance();
+	std::pair<int, std::string>			CreateChannel(const std::string& name, const std::string &player_str, int mode);
+	std::pair<int, std::string>			DeleteChannel(const std::string& channel_str);
+	std::pair<int, std::string>			GetChannelInfo(const std::string& channel_str, ChannelInfo &dest) const;
+	std::pair<int, std::string>			InviteToChannel(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
+	std::pair<int, std::string>			JoinedChannel(const std::string &player_str, const std::string& channel_str, int flag = 0);
+	std::pair<int, std::string>			LeaveChannel(const std::string &player_str, const std::string& channel_str);
+	std::pair<int, std::string>			KickChannel(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
+	std::pair<int, std::string>			ChangeTopic(const std::string &player_str, const std::string& channel_str, const std::string &topic);
+	std::pair<int, std::string>			AddMaster(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
+	std::pair<int, std::string>			DeleteMaster(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str);
+	std::pair<int, std::string>			ChangeMode(const std::string &player_str, int mode, bool valid, const std::string& channel_str);
+	std::pair<int, std::string>			SendMessageToChannel(const std::string &player_str, const std::string& channel_str);
 
 	bool							ExistChannel(const std::string& channel_str) const;
 	bool							IsOperator(const std::string &player_str, const std::string& channel_str) const;
