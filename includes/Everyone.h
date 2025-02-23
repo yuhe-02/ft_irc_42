@@ -15,6 +15,9 @@
 #include <sstream>
 
 class Channel;
+
+typedef std::pair<int, std::string> ChannelResult;
+
 struct Someone
 {
 	int							player_id; // if (player_id == -1) this struct is error

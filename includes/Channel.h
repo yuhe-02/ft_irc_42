@@ -20,6 +20,8 @@
 
 class Everyone;
 
+typedef std::pair<int, std::string> ChannelResult;
+
 struct ChannelInfo
 {
 	int						channel_id;
@@ -27,7 +29,7 @@ struct ChannelInfo
 	std::string				password;
 	std::string				topic;
 	int						mode;
-	std::set<std::string>	joined_plyer;
+	std::set<std::string>	joined_player;
 	std::set<std::string>	is_master;
 	int						limit_member;
 };

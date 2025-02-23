@@ -151,7 +151,7 @@ enum IrcReservedCode {
 #include <utility>
 using namespace std;
 
-pair<int, std::string> create_code_message(int code, string str1, string str2 = "", string str3 = "") {
+inline pair<int, std::string> create_code_message(int code, string str1, string str2 = "", string str3 = "") {
     switch(code) {
         // --- エラーコード ---
         case ERR_NOSUCHNICK:
