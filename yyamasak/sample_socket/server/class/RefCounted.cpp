@@ -1,4 +1,4 @@
-#include "../includes/RefCounted.hpp"
+#include "../includes/RefCounted.h"
 
 RefCounted::RefCounted() : ref_count_(0)
 {

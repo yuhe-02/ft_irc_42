@@ -2,8 +2,8 @@
 # define ___PARSER_HPP__
 
 #include <string>
-#include "RefCounted.hpp"
-#include "IntrusivePtr.hpp"
+#include "./RefCounted.h"
+#include "./IntrusivePtr.h"
 
 class Parser : public RefCounted {
 	private:
