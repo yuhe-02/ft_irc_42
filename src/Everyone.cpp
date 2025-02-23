@@ -43,26 +43,24 @@ ChannelResult	Everyone::CreateUser(const std::string &username, const std::strin
 
 	Someone tmp;
 	int user_id = static_cast<int>(latest_user_id_);
-
+	std::string nick(nickname);
 	tmp.player_id = user_id;
 	tmp.user_name = username;
 	tmp.host_name = hostname;
 	tmp.real_name = realname;
 	tmp.password = password;
-	if (nickname != "")
-	{
-		tmp.nick_name.push_back(nickname);
-		nick_list.insert(nickname);
-	}
-	else
+	if (nickname == "")
 	{
 		std::stringstream	str;
-		str << user_id;
-		tmp.nick_name.push_back(std::string("Guest") + str.str());
-		nick_list.insert(std::string("Guest") + str.str());
+		str << latest_user_id_;
+		nick = std::string("Guest") + str.str();
+		if (nick_list.find(nick) != nick_list.end())
+			return (ChannelResult(ERR_NICKNAMEINUSE, nick));
 	}
-	everyone_itos_[user_id] = username;
-	everyone_[username] = tmp;
+	tmp.nick_name.push_back(nick);
+	nick_list.insert(nick);
+	everyone_itos_[user_id] = nick;
+	everyone_[tmp.nick_name.back()] = tmp;
 	latest_user_id_++;
 	return (ChannelResult(1, ""));
 }
@@ -181,8 +179,8 @@ ChannelResult	Everyone::SetPassword(const std::string &player_str, const std::st
 
 bool	Everyone::ExistUser(const std::string &player_str) const
 {
-	std::set<std::string>::const_iterator it = nick_list.find(player_str);
-	if (it == nick_list.end())
+	std::map<std::string, Someone>::const_iterator it = everyone_.find(player_str);
+	if (it == everyone_.end())
 		return (false);
 	return (true);
 }
