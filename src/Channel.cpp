@@ -45,10 +45,9 @@ ChannelResult	Channel::CreateChannel(const std::string& name, const std::string 
 	tmp.is_master.insert(player_str);
 	tmp.mode = mode;
 	tmp.limit_member = LIMIT_MEMBER;
-	tmp.joined_player.insert(player_str);
-	JoinedChannel(player_str, name);
 	channels_[name] = tmp;
 	channels_itos_[chan_id] = name;
+	JoinedChannel(player_str, name);
 	latest_channel_id_++;
 	return (ChannelResult(1, ""));
 }
@@ -115,15 +114,16 @@ ChannelResult	Channel::LeaveChannel(const std::string &player_str, const std::st
 		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 	if (!IsJoined(player_str, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
-	if (channels_[channel_str].is_master.size() == 1 && channels_[channel_str].is_master.find(player_str) != channels_[channel_str].is_master.end())
+	if (channels_[channel_str].is_master.size() == 1 && channels_[channel_str].is_master.find(player_str) != channels_[channel_str].is_master.end() && channels_[channel_str].joined_player.size() != 1)
 		return (ChannelResult(FATAL, ""));
 	channels_[channel_str].joined_player.erase(player_str);
+	channels_[channel_str].is_master.erase(player_str);
 	if (channels_[channel_str].joined_player.size() == 0)
 	{
 		channels_itos_.erase(channels_[channel_str].channel_id);
+		channels_[channel_str].is_master.erase(player_str);
 		channels_.erase(channel_str);
 	}
-	channels_[channel_str].is_master.erase(player_str);
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	tmp->DeleteJoinChannel(player_str, channel_str);
 	return (ChannelResult(1, ""));
