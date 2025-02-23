@@ -45,6 +45,7 @@ ChannelResult	Channel::CreateChannel(const std::string& name, const std::string 
 	tmp.is_master.insert(player_str);
 	tmp.mode = mode;
 	tmp.limit_member = LIMIT_MEMBER;
+	tmp.joined_player.insert(player_str);
 	JoinedChannel(player_str, name);
 	channels_[name] = tmp;
 	channels_itos_[chan_id] = name;

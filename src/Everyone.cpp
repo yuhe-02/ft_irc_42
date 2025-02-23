@@ -50,12 +50,16 @@ ChannelResult	Everyone::CreateUser(const std::string &username, const std::strin
 	tmp.real_name = realname;
 	tmp.password = password;
 	if (nickname != "")
+	{
 		tmp.nick_name.push_back(nickname);
+		nick_list.insert(nickname);
+	}
 	else
 	{
 		std::stringstream	str;
 		str << user_id;
 		tmp.nick_name.push_back(std::string("Guest") + str.str());
+		nick_list.insert(std::string("Guest") + str.str());
 	}
 	everyone_itos_[user_id] = username;
 	everyone_[username] = tmp;
@@ -177,8 +181,8 @@ ChannelResult	Everyone::SetPassword(const std::string &player_str, const std::st
 
 bool	Everyone::ExistUser(const std::string &player_str) const
 {
-	std::map<std::string, Someone>::const_iterator it = everyone_.find(player_str);
-	if (it == everyone_.end())
+	std::set<std::string>::const_iterator it = nick_list.find(player_str);
+	if (it == nick_list.end())
 		return (false);
 	return (true);
 }
