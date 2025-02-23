@@ -3,7 +3,7 @@
 
 Channel::Channel() : RefCounted(), latest_channel_id_(0)
 {
-	channel_string_id.clear();
+	channels_itos_.clear();
 	channels_.clear();
 }
 
@@ -30,10 +30,12 @@ IntrusivePtr<Channel>	Channel::GetInstance()
 	return instance_;
 }
 
-int	Channel::CreateChannel(std::string name, int player_id, int mode)
+pair<int, std::string>	Channel::CreateChannel(const std::string& name, const std::string &player_str, int mode)
 {
 	if (latest_channel_id_ >= INT_MAX)
-		return (OUT_OF_RANGE);
+		return (pair<int, std::string>(FATAL, 0));
+	if (channels_.find(name) == channels_.end())
+		return (pair<int, std::string>(FATAL, 0));
 
 	ChannelInfo tmp;
 	int chan_id = static_cast<int>(latest_channel_id_);
@@ -43,174 +45,189 @@ int	Channel::CreateChannel(std::string name, int player_id, int mode)
 
 	tmp.channel_id = chan_id;
 	tmp.channel_name = name;
-	tmp.is_master.insert(player_id);
+	tmp.is_master.insert(player_str);
 	tmp.mode = mode;
 	tmp.limit_member = LIMIT_MEMBER;
-	JoinedChannel(player_id, chan_id);
-	channel_string_id[name] = chan_id;
-	channels_[chan_id] = tmp;
+	JoinedChannel(player_str, name);
+	channels_[name] = tmp;
+	channels_itos_[chan_id] = name;
 	latest_channel_id_++;
-	return (TRUE);
+	return (std::pair<int, std::string>(1, ""));
 }
 
-int	Channel::DeleteChannel(int channel_id)
+pair<int, std::string>	Channel::DeleteChannel(const std::string& channel_str)
 {
-	std::map<int, ChannelInfo>::const_iterator it = channels_.find(channel_id);
-	if (it == channels_.end())
-		return (NO_CHANNEL);
+	if (channels_.find(channel_str) == channels_.end())
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 
-	const ChannelInfo	tmp = channels_[channel_id];
+	const ChannelInfo	tmp = channels_[channel_str];
 
-	// std::for_each(tmp.joined_plyer.begin(), tmp.joined_plyer.end(), [channel_id, this](int value){
-	// 	LeaveChannel(channel_id, value);
-	// });
-	for (std::set<int>::iterator i = tmp.joined_plyer.begin(); i != tmp.joined_plyer.end(); i++)
-		LeaveChannel(channel_id, *i);
-	channel_string_id.erase(tmp.channel_name);
-	channels_.erase(channel_id);
-	return (TRUE);
+	for (std::set<std::string>::iterator i = tmp.joined_plyer.begin(); i != tmp.joined_plyer.end(); i++)
+		LeaveChannel(*i, channel_str);
+	channels_itos_.erase(tmp.channel_id);
+	channels_.erase(channel_str);
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::GetChannelInfo(int channel_id, ChannelInfo &dest) const
+pair<int, std::string>	Channel::GetChannelInfo(const std::string& channel_str, ChannelInfo &dest) const
 {
-	std::map<int, ChannelInfo>::const_iterator it = channels_.find(channel_id);
+	std::map<std::string, ChannelInfo>::const_iterator it = channels_.find(channel_str);
 	if (it == channels_.end())
-		return (NO_CHANNEL);
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 
 	dest = it->second;
-	return (TRUE);
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::GetChannelID(const std::string &channel) const
+pair<int, std::string>	Channel::InviteToChannel(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str)
 {
-	std::map<std::string, int>::const_iterator it = channel_string_id.find(channel);
-	if (it == channel_string_id.end())
-		return (NO_CHANNEL);
-	return (it->second);
+	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
+	if (tmp->ExistUser(focas_user_str))
+	{
+		tmp->release();
+		return (create_code_message(ERR_NOSUCHNICK, focas_user_str));
+	}
+	tmp->release();
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	if (!IsOperator(player_str, channel_str))
+		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
+	if (IsJoined(focas_user_str, channel_str))
+		return (create_code_message(ERR_USERONCHANNEL, focas_user_str, channel_str));
+	return (JoinedChannel(focas_user_str, channel_str, 1));
 }
 
-int	Channel::InviteToChannel(int from_id, int focas_id, int channel_id)
-{
-	if (!IsOperator(from_id, channel_id))
-		return (NO_AUTHORITY);
-	int err = JoinedChannel(focas_id, channel_id, 1);
-	if (err < 0)
-		return (err);
-	return (TRUE);
-}
-
-int	Channel::JoinedChannel(int player_id, int channel_id, int flag)
+pair<int, std::string>	Channel::JoinedChannel(const std::string &player_str, const std::string& channel_str, int flag)
 {
 	if (flag < 0)
-		return (UNKNOWN);
-	if (!ExistChannel(channel_id))
-		return (NO_CHANNEL);
-	if (IsJoined(player_id, channel_id))
-		return (ALREADY_JOINED);
-	if (flag && (channels_[channel_id].mode & MOD_INVITE))
-		return (NO_AUTHORITY);
-	channels_[channel_id].joined_plyer.insert(player_id);
+		return (std::pair<int, std::string>(FATAL, ""));
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_USERONCHANNEL, player_str, channel_str));
+	if (flag == 0 && (channels_[channel_str].mode & MOD_INVITE))
+		return (create_code_message(ERR_INVITEONLYCHAN, channel_str));
+	channels_[channel_str].joined_plyer.insert(player_str);
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
-	tmp->AddJoinChannel(player_id, channel_id);
+	tmp->AddJoinChannel(player_str, channel_str);
 	tmp->release();
-	return (TRUE);
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::LeaveChannel(int player_id, int channel_id)
+pair<int, std::string>	Channel::LeaveChannel(const std::string &player_str, const std::string& channel_str)
 {
-	if (!ExistChannel(channel_id))
-		return (NO_CHANNEL);
-	if (!IsJoined(player_id, channel_id))
-		return (ALREADY_LEAVE);
-	if (channels_[channel_id].is_master.size() == 1)
-		return (LAST_OPERATOR);
-	channels_[channel_id].joined_plyer.erase(player_id);
-	channels_[channel_id].is_master.erase(player_id);
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	if (channels_[channel_str].is_master.size() == 1)
+		return (pair<int, std::string>(FATAL, ""));
+	channels_[channel_str].joined_plyer.erase(channel_str);
+	channels_[channel_str].is_master.erase(channel_str);
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
-	tmp->DeleteJoinChannel(player_id, channel_id);
+	tmp->DeleteJoinChannel(player_str, channel_str);
 	tmp->release();
-	return (TRUE);
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::KickChannel(int player_id, int focas_id, int channel_id)
+pair<int, std::string>	Channel::KickChannel(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str)
 {
-	if (!ExistChannel(channel_id))
-		return (NO_CHANNEL);
-	if (!IsOperator(player_id, channel_id))
-		return (NO_AUTHORITY);
-	LeaveChannel(focas_id, channel_id);
-	return (TRUE);
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	if (!IsOperator(player_str, channel_str))
+		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
+	if (!IsJoined(focas_user_str, channel_str))
+		return (create_code_message(ERR_USERNOTINCHANNEL, focas_user_str, channel_str));
+	LeaveChannel(focas_user_str, channel_str);
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::ChangeTopic(int player_id, int channel_id, const std::string &topic)
+pair<int, std::string>	Channel::ChangeTopic(const std::string &player_str, const std::string& channel_str, const std::string &topic)
 {
-	if (!ExistChannel(channel_id))
-		return (NO_CHANNEL);
-	if (!IsJoined(player_id, channel_id))
-		return (NO_JOINED);
-	if ((channels_[channel_id].mode & MOD_TOPIC) && !IsOperator(player_id, channel_id))
-		return (NO_AUTHORITY);
-	channels_[channel_id].topic = topic;
-	return (TRUE);
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	if ((channels_[channel_str].mode & MOD_TOPIC) && !IsOperator(player_str, channel_str))
+		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
+	channels_[channel_str].topic = topic;
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::AddMaster(int player_id, int focas, int channel_id)
+pair<int, std::string>	Channel::AddMaster(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str)
 {
-	if (!ExistChannel(channel_id))
-		return (NO_CHANNEL);
-	if (!IsOperator(player_id, channel_id))
-		return (NO_AUTHORITY);
-	if (!IsJoined(focas, channel_id))
-		return (NO_JOINED);
-	channels_[channel_id].is_master.insert(focas);
-	return (TRUE);
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	if (!IsOperator(player_str, channel_str))
+		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
+	if (!IsJoined(focas_user_str, channel_str))
+		return (create_code_message(ERR_USERNOTINCHANNEL, focas_user_str, channel_str));
+	channels_[channel_str].is_master.insert(focas_user_str);
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::DeleteMaster(int player_id, int focas, int channel_id)
+pair<int, std::string>	Channel::DeleteMaster(const std::string &player_str, const std::string &focas_user_str, const std::string& channel_str)
 {
-	if (!ExistChannel(channel_id))
-		return (NO_CHANNEL);
-	if (!IsOperator(player_id, channel_id) || !IsOperator(focas, channel_id))
-		return (NO_AUTHORITY);
-	channels_[channel_id].is_master.insert(focas);
-	return (TRUE);
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	if (!IsJoined(focas_user_str, channel_str))
+		return (create_code_message(ERR_USERNOTINCHANNEL, focas_user_str, channel_str));
+	if (!IsOperator(player_str, channel_str) || !IsOperator(player_str, channel_str))
+		return (std::pair<int, std::string>(FATAL, ""));
+	channels_[channel_str].is_master.insert(focas_user_str);
+	return (pair<int, std::string>(1, ""));
 }
 
-int	Channel::ChangeMode(int player_id, int mode, bool valid, int channel_id)
+pair<int, std::string>	Channel::ChangeMode(const std::string &player_str, int mode, bool valid, const std::string& channel_str)
 {
-	if (!ExistChannel(channel_id))
-		return (NO_CHANNEL);
-	if (!IsOperator(player_id, channel_id))
-		return (NO_AUTHORITY);
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	if (!IsOperator(player_str, channel_str))
+		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
 
 	if (valid)
-		channels_[channel_id].mode = channels_[channel_id].mode | mode;
+		channels_[channel_str].mode = channels_[channel_str].mode | mode;
 	else
-		channels_[channel_id].mode = channels_[channel_id].mode & ~mode;
-	return (TRUE);
+		channels_[channel_str].mode = channels_[channel_str].mode & ~mode;
+	return (pair<int, std::string>(1, ""));
 }
 
-
-bool	Channel::ExistChannel(int channel_id) const
+pair<int, std::string> Channel::SendMessageToChannel(const std::string &player_str, const std::string& channel_str)
 {
-	std::map<int, ChannelInfo>::const_iterator it = channels_.find(channel_id);
-	if (it == channels_.end())
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+	if (!IsJoined(player_str, channel_str))
+		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
+	return (pair<int, std::string>(1, ""));
+}
+
+bool	Channel::ExistChannel(const std::string& channel_str) const
+{
+	if (channels_.find(channel_str) == channels_.end())
 		return (false);
 	return (true);
 }
 
-bool	Channel::IsOperator(int player_id, int channel_id) const
+bool	Channel::IsOperator(const std::string &player_str, const std::string& channel_str) const
 {
-	std::set<int>::iterator it = channels_.find(channel_id)->second.is_master.find(player_id);
-	if (it == channels_.find(channel_id)->second.is_master.end())
+	if (channels_.find(channel_str)->second.is_master.find(player_str) == channels_.find(channel_str)->second.is_master.end())
 		return (false);
 	return (true);
 }
 
-bool	Channel::IsJoined(int player_id, int channel_id) const
+bool	Channel::IsJoined(const std::string &player_str, const std::string& channel_str) const
 {
-	std::set<int>::iterator it = channels_.find(channel_id)->second.joined_plyer.find(player_id);
-	if (it == channels_.find(channel_id)->second.joined_plyer.end())
+	if (channels_.find(channel_str)->second.joined_plyer.find(player_str) == channels_.find(channel_str)->second.joined_plyer.end())
 		return (false);
 	return (true);
 }
