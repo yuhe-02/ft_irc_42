@@ -55,7 +55,7 @@ ChannelResult	Everyone::CreateUser(const std::string &username, const std::strin
 		str << latest_user_id_;
 		nick = std::string("Guest") + str.str();
 		if (nick_list.find(nick) != nick_list.end())
-			return (ChannelResult(ERR_NICKNAMEINUSE, nick));
+			return (ChannelResult(FATAL, ""));
 	}
 	tmp.nick_name.push_back(nick);
 	nick_list.insert(nick);
@@ -163,6 +163,10 @@ ChannelResult	Everyone::SetNickname(const std::string &player_str, const std::st
 		return (ChannelResult(FATAL, ""));
 	if (nick_list.find(nickname) != nick_list.end())
 		return (create_code_message(ERR_NICKNAMEINUSE, nickname));
+	everyone_[nickname] = everyone_[player_str];
+	everyone_.erase(player_str);
+	everyone_itos_[everyone_[nickname].player_id] = nickname;
+
 	nick_list.erase(everyone_[player_str].nick_name.back());
 	everyone_[player_str].nick_name.push_back(nickname);
 	nick_list.insert(nickname);
