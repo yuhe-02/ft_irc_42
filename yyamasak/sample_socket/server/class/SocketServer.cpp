@@ -110,7 +110,6 @@ void SocketServer::handleNewConnection() {
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	poll_fds_.push_back(pfd);
-    auth_map_[client_fd] = false;
 
 	std::cout << "New client connected: " << inet_ntoa(client_addr.sin_addr)
 			  << ":" << ntohs(client_addr.sin_port) << "\n";
@@ -159,6 +158,7 @@ void SocketServer::registerClient(int client_fd) {
     ClientInfo &client = clients_[client_fd];
     if (client.hasNick && client.hasUser && !client.registered) {
         client.registered = true;
+        client.isLoggedIn = false;
         std::pair<int, std::string> welcome = Response::getNumberResponse(1, "");
         send(client_fd, welcome.second.c_str(), welcome.first, 0);
         std::cout << "Registered client: " << client.nick << std::endl;
@@ -197,7 +197,7 @@ void SocketServer::handleClientMessage(size_t index) {
         if (line.compare(0, 4, "PASS") == 0) {
             // TODO: PASS処理
             if (line.substr(5) == password_) {
-                auth_map_[client_fd] = true;
+                client.isLoggedIn = true;
             } else {
                 response = Response::getNumberResponse(464, "Password incorrect");
                 send(client_fd, response.second.c_str(), response.first, 0);

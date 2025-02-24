@@ -32,6 +32,7 @@ struct ClientInfo
 	bool hasNick;
 	bool hasUser;
 	bool registered;
+	bool isLoggedIn;
 };
 
 class SocketServer
@@ -41,7 +42,6 @@ private:
 	int port_;
 	std::string password_;
 	std::vector<struct pollfd> poll_fds_;
-	std::map<int, bool> auth_map_;
 	std::map<int, ClientInfo> clients_;
 	void setNonBlocking(int fd);
 	bool initServer();
