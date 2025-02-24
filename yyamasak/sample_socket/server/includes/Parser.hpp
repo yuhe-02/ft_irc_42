@@ -1,5 +1,5 @@
 #ifndef __PARSER_HPP__
-# define ___PARSER_HPP__
+# define __PARSER_HPP__
 
 #include <string>
 #include <iostream>
@@ -18,17 +18,13 @@
 #include <cerrno>
 #include <sstream>
 #include <utility>
-#include "./RefCounted.h"
-#include "./IntrusivePtr.h"
+#include "RefCounted.h"
+#include "IntrusivePtr.h"
+#include "ErrorCode.h"
+#include "SocketServer.hpp"
 
-struct ClientInfo
-{
-	std::string nick;
-	std::string user;
-	bool hasNick;
-	bool hasUser;
-	bool registered;
-};
+class SocketServer;
+struct ClientInfo;
 
 class Parser : public RefCounted {
 	private:
@@ -40,7 +36,9 @@ class Parser : public RefCounted {
 		Parser &operator=(const Parser &other);
 		~Parser();
 		static IntrusivePtr<Parser>	GetInstance();
-		void action(const std::string &str);
+		void registerClient(int client_fd);
+		void action(const std::string &line, int client_fd, const std::string &password);
+		bool isExist(int client_fd);
 
 };
 # endif
