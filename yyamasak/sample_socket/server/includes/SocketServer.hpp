@@ -19,9 +19,14 @@
 #include <utility>
 
 #include "Response.hpp"
+#include "Parser.hpp"
+#include "RefCounted.h"
+#include "IntrusivePtr.h"
 
 #define BUFFER_SIZE 512
 #define MAX_CLIENTS 10
+
+class Parser;
 
 struct ClientInfo
 {
@@ -30,6 +35,7 @@ struct ClientInfo
 	bool hasNick;
 	bool hasUser;
 	bool registered;
+	bool isLoggedIn;
 };
 
 class SocketServer
@@ -39,8 +45,8 @@ private:
 	int port_;
 	std::string password_;
 	std::vector<struct pollfd> poll_fds_;
-	std::map<int, bool> auth_map_;
 	std::map<int, ClientInfo> clients_;
+	IntrusivePtr<Parser>	parser;
 	void setNonBlocking(int fd);
 	bool initServer();
 	void handleNewConnection();
