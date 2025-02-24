@@ -25,19 +25,19 @@ IntrusivePtr<Parser>	Parser::GetInstance()
 	return instance_;
 }
 
-void Parser::action(const std::string &str)
+void Parser::action(const std::string &line, const ClientInfo &client, int client_fd)
 {
 	// ClientInfo &client = clients_[client_fd];
 	// std::cout << "Processing command: " << line << std::endl;
-	// if (line.compare(0, 4, "PASS") == 0) {
-	// 	// TODO: PASS処理
-	// 	if (line.substr(5) == password_) {
-	// 		auth_map_[client_fd] = true;
-	// 	} else {
-	// 		response = Response::getNumberResponse(464, "Password incorrect");
-	// 		send(client_fd, response.second.c_str(), response.first, 0);
-	// 	}
-	// }
+	if (line.compare(0, 4, "PASS") == 0) {
+		// TODO: PASS処理
+		if (line.substr(5) == password_) {
+			auth_map_[client_fd] = true;
+		} else {
+			response = Response::getNumberResponse(464, "Password incorrect");
+			send(client_fd, response.second.c_str(), response.first, 0);
+		}
+	}
 	// // if (auth_map_[client_fd] == false) {
 	// //     response = ":server 451 * :You have not registered\r\n";
 	// //     send(client_fd, response.c_str(), response.size(), 0);
