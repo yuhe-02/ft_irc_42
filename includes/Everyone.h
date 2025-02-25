@@ -16,28 +16,33 @@
 
 class Channel;
 
-typedef std::pair<int, std::string> ChannelResult;
+enum FLAGREGISTER
+{
+	NICK = 0,
+	USER = 1,
+	REGISTER = 2,
+};
 
 struct Someone
 {
-	int							player_id; // if (player_id == -1) this struct is error
+	int							player_fd;
+	int							level[3];
 	std::string					user_name;
 	std::string					host_name;
+	std::string					server_name;
 	std::string					real_name;
 	std::vector<std::string>	nick_name;
-	std::set<std::string>		block_user;
 	std::set<std::string>		join_channel;
-	std::string					password;
 };
 
 class Everyone : public RefCounted
 {
 private:
 	static IntrusivePtr<Everyone>	instance_;
-	std::map<std::string, Someone>	everyone_;
-	std::map<int, std::string>		everyone_itos_;
-	std::set<std::string>			nick_list;
-	long							latest_user_id_;
+	std::map<std::string, Someone*>	everyone_username_;
+	std::map<std::string, Someone*>	everyone_nickname_;
+	std::map<int, Someone*>			everyone_id_;
+	std::set<std::string>			nick_list_;
 
 	Everyone();
 	Everyone(const Everyone &);
@@ -46,18 +51,20 @@ private:
 public:
 	~Everyone();
 	static IntrusivePtr<Everyone>	GetInstance();
-	std::pair<int, std::string>		CreateUser(const std::string &username, const std::string &password, const std::string &hostname, const std::string &nickname = "", const std::string &realname = "");
-	std::pair<int, std::string>		DeleteUser(const std::string &player_str);
-	std::pair<int, std::string>		GetSomeone(const std::string &player_str, Someone &dest) const;
-	std::pair<int, std::string>		AddBlockUser(const std::string &player_str, const std::string& focas);
-	std::pair<int, std::string>		DeleteBlockUser(const std::string &player_str, const std::string& focas);
-	std::pair<int, std::string>		AddJoinChannel(const std::string &player_str, const std::string& focas);
-	std::pair<int, std::string>		DeleteJoinChannel(const std::string &player_str, const std::string& focas);
-	std::pair<int, std::string>		SetUsername(const std::string &player_str, const std::string &username);
-	std::pair<int, std::string>		SetHostname(const std::string &player_str, const std::string &hostname);
-	std::pair<int, std::string>		SetRealname(const std::string &player_str, const std::string &realname);
-	std::pair<int, std::string>		SetNickname(const std::string &player_str, const std::string &nickname);
-	std::pair<int, std::string>		SetPassword(const std::string &player_str, const std::string &password);
+	ChannelResult		CreateUser(int player_fd);
+	ChannelResult		DeleteUser(int player_fd);
+	const Someone&		GetSomeone(int player_fd) const;
+	ChannelResult		AddBlockUser(int player_fd, const std::string& focas);
+	ChannelResult		DeleteBlockUser(int player_fd, const std::string& focas);
+	ChannelResult		AddJoinChannel(int player_fd, const std::string& focas);
+	ChannelResult		DeleteJoinChannel(int player_fd, const std::string& focas);
+	ChannelResult		SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
+	ChannelResult		SetNickname(int player_fd, const std::string &nickname);
 
-	bool							ExistUser(const std::string &player_str) const;
+	int								GetUserIdNick(const std::string &nick_str) const;
+	int								GetUserIdUser(const std::string &user_str) const;
+	bool							ExistUserUser(const std::string &user_str) const;
+	bool							ExistUserNick(const std::string &user_str) const;
+	bool							IsRegister(int player_fd);
 };
+
