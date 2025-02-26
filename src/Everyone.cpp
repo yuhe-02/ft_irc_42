@@ -33,6 +33,8 @@ IntrusivePtr<Everyone>	Everyone::GetInstance()
 
 ChannelResult	Everyone::CreateUser(int player_fd)
 {
+	if (everyone_id_.find(player_fd) != everyone_id_.end())
+		return (create_code_message(ERR_ALREADYREGISTRED, everyone_id_[player_fd]->user_name));
 	Someone *tmp = new Someone;
 	tmp->player_fd = player_fd;
 	tmp->level[NICK] = 0;
@@ -76,7 +78,7 @@ ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& foca
 
 ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname)
 {
-	if (!IsRegister(player_fd))
+	if (IsRegister(player_fd))
 		return (create_code_message(ERR_ALREADYREGISTRED));
 	everyone_id_[player_fd]->user_name = username;
 	everyone_id_[player_fd]->host_name = hostname;
