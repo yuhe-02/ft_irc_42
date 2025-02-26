@@ -35,9 +35,18 @@ void Parser::registerClient(int client_fd)
 	if (client.hasNick && client.hasUser && !client.registered)
 	{
 		client.registered = true;
-		client.isLoggedIn = false;
-		std::pair<int, std::string> welcome = Response::getNumberResponse(1, "");
-		send(client_fd, welcome.second.c_str(), welcome.first, 0);
+		client.isLoggedIn = true;
+		std::string server_name = "ft_irc";
+		std::string nick = client.nick;
+		std::string welcome_msg = ":" + server_name + " 001 " + nick + " :Welcome to the ft_irc server!\r\n";
+		send(client_fd, welcome_msg.c_str(), welcome_msg.length(), 0);
+		std::string your_host_msg = ":" + server_name + " 002 " + nick + " :Your host is " + server_name + ", running version 1.0\r\n";
+		send(client_fd, your_host_msg.c_str(), your_host_msg.length(), 0);
+		std::string created_msg = ":" + server_name + " 003 " + nick + " :This server was created today\r\n";
+		send(client_fd, created_msg.c_str(), created_msg.length(), 0);
+		std::string myinfo_msg = ":" + server_name + " 004 " + nick + " " + server_name + " 1.0 o o\r\n";
+		send(client_fd, myinfo_msg.c_str(), myinfo_msg.length(), 0);
+
 		std::cout << "Registered client: " << client.nick << std::endl;
 	}
 }
@@ -67,15 +76,21 @@ void Parser::action(const std::string &line, int client_fd, const std::string &p
 	// サーバー上で利用可能な機能をクライアントに通知する
 	else if (line.compare(0, 6, "CAP LS") == 0)
 	{
-		response = Response::getResponse("CAP * LS", "multi-prefix sasl");
-		send(client_fd, response.second.c_str(), response.first, 0);
-	}
+		std::string capabilities = ":multi-prefix sasl";
+		std::string response_msg = ": ft_irc CAP * LS :" + capabilities + "\r\n";
+	
+		response = std::pair<int, std::string>(response_msg.length(), response_msg);
+		send(client_fd, response.second.c_str(), response.second.length(), 0);
+	}	
 	// CAP REQ 応答
 	// クライアントがサーバーに対して要求する機能を通知する
 	else if (line.compare(0, 7, "CAP REQ") == 0)
 	{
-		response = Response::getResponse("CAP * ACK", line.substr(8));
-		send(client_fd, response.second.c_str(), response.first, 0);
+		std::string requested_cap = line.substr(8); // "CAP REQ "の後ろを取得
+		requested_cap.erase(requested_cap.find_last_not_of("\r\n") + 1); // 末尾の改行削除
+		std::string response_msg = ": ft_irc CAP * ACK :" + requested_cap + "\r\n";
+		response = std::pair<int, std::string>(response_msg.length(), response_msg);
+		send(client_fd, response.second.c_str(), response.second.length(), 0);
 	}
 	// CAP END 応答なし (交渉終了のため)
 	else if (line.compare(0, 7, "CAP END") == 0)
@@ -98,8 +113,8 @@ void Parser::action(const std::string &line, int client_fd, const std::string &p
 		}
 		if (nick_in_use)
 		{
-			response = create_code_message(433, new_nick, "Nickname is already in use");
-			send(client_fd, response.second.c_str(), response.first, 0);
+			response = std::pair<int, std::string>(433, ":ft_irc 433 *" + new_nick + " :Nickname is already in use\r\n");
+			send(client_fd, response.second.c_str(), response.second.length(), 0);
 		}
 		else
 		{
@@ -122,8 +137,8 @@ void Parser::action(const std::string &line, int client_fd, const std::string &p
 	// 断続的にクライアントから送られてくる
 	else if (line.compare(0, 4, "PING") == 0)
 	{
-		response = Response::getResponse("PONG", line.substr(4));
-		send(client_fd, response.second.c_str(), response.first, 0);
+		response = std::pair<int, std::string>(1, ":ft_irc PONG : PING\r\n");
+		send(client_fd, response.second.c_str(), response.second.length(), 0);
 	}
 	else if (line.compare(0, 4, "JOIN") == 0)
 	{
