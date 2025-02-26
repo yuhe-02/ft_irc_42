@@ -33,6 +33,7 @@ struct Someone
 	std::string					real_name;
 	std::vector<std::string>	nick_name;
 	std::set<std::string>		join_channel;
+	bool						master;
 };
 
 class Everyone : public RefCounted
