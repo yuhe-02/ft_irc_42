@@ -129,9 +129,9 @@ std::string SocketServer::receiveMessage(int fd) {
         memset(buffer, 0, BUFFER_SIZE + 1);  
         bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
         if (bytesRead < 0) {
-            // 単にデータ送信がないだけの場合
+            // 途中送信
             if (errno == EWOULDBLOCK || errno == EAGAIN) {
-                continue;
+                break;
             } else {
                 perror("recv");
                 break;
@@ -144,25 +144,9 @@ std::string SocketServer::receiveMessage(int fd) {
         if (message.find('\n') != std::string::npos) {
             break;
         }
-        std::cout << "Received: " << message << std::endl;
     }
+    std::cout << "Received: " << message << std::endl;
     return message;
-}
-
-/**
- * @brief クライアントの登録
- *
- * クライアントがニックネームとユーザー名を登録しているか確認し、登録されていればクライアントを登録する。
- */
-void SocketServer::registerClient(int client_fd) {
-    ClientInfo &client = clients_[client_fd];
-    if (client.hasNick && client.hasUser && !client.registered) {
-        client.registered = true;
-        client.isLoggedIn = false;
-        std::pair<int, std::string> welcome = Response::getNumberResponse(1, "");
-        send(client_fd, welcome.second.c_str(), welcome.first, 0);
-        std::cout << "Registered client: " << client.nick << std::endl;
-    }
 }
 
 /**
@@ -174,21 +158,22 @@ void SocketServer::registerClient(int client_fd) {
 void SocketServer::handleClientMessage(size_t index) {
     int client_fd = poll_fds_[index].fd;
     std::string message = receiveMessage(client_fd);
-    std::istringstream stream(message);
-    std::string line;
-    std::string new_nick;
-    std::pair<int, std::string> response;
-    bool nick_in_use;
-    
-    // クライアントからのメッセージが空の場合、クライアントを切断する
+
+    // クライアント切断処理
     if (message.empty()) {
+        message_buffer_[client_fd].clear();
         closeClient(index);
         return;
     }
-    std::cout << "Client [" << client_fd << "] says: " << message;
-    // メッセージを1行ずつ処理(streamを使用すると、1行ずつ処理できる)
-    while (std::getline(stream, line)) {
-        // 改行コードを削除（）Windowsの場合は\r\n、Linuxの場合は\nのためgetlineでは、\rがのこる）
+    // バッファに追記
+    message_buffer_[client_fd] += message;
+    std::string &buffer = message_buffer_[client_fd];
+    size_t pos;
+    // 終端記号（\r\n または \n）検出時に処理
+    while ((pos = buffer.find('\n')) != std::string::npos) {
+        std::string line = buffer.substr(0, pos);  // 1行分抽出
+        buffer.erase(0, pos + 1);                  // バッファ更新
+        // \r削除（Windows互換用）
         if (!line.empty() && line[line.size() - 1] == '\r') {
             line.erase(line.size() - 1, 1);
         }
@@ -249,7 +234,7 @@ void SocketServer::start() {
 					handleNewConnection();
 				} else {
 					handleClientMessage(i);
-                    if (!(parser->isExist(poll_fds_[i].fd))) {
+                    if ((message_buffer_[poll_fds_[i].fd].size() == 0) && !(parser->isExist(poll_fds_[i].fd))) {
                         indices_to_remove.push_back(i);
                     }
 				}

@@ -18,7 +18,6 @@
 #include <sstream>
 #include <utility>
 
-#include "Response.hpp"
 #include "Parser.hpp"
 #include "RefCounted.h"
 #include "IntrusivePtr.h"
@@ -45,7 +44,7 @@ private:
 	int port_;
 	std::string password_;
 	std::vector<struct pollfd> poll_fds_;
-	std::map<int, ClientInfo> clients_;
+	std::map<int, std::string> message_buffer_;
 	IntrusivePtr<Parser>	parser;
 	void setNonBlocking(int fd);
 	bool initServer();
