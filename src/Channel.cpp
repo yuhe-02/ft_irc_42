@@ -38,6 +38,14 @@ ChannelResult	Channel::CreateChannel(int player_fd, const std::string& name)
 		return (ChannelResult(FATAL, ""));
 	if (name.size() > 200)
 		return (ChannelResult(FATAL, ""));
+	if (name != "" && (name[0] == '#' || name[0] == '&'))
+		return (ChannelResult(FATAL, ""));
+	if (name.find(' ') != std::string::npos)
+		return (ChannelResult(FATAL, ""));
+	if (name.find(',') != std::string::npos)
+		return (ChannelResult(FATAL, ""));
+	if (name.find(7) != std::string::npos)
+		return (ChannelResult(FATAL, ""));
 
 	ChannelInfo tmp;
 
@@ -78,7 +86,7 @@ ChannelResult	Channel::InviteToChannel(int player_fd, const std::string &focas_u
 		return (create_code_message(ERR_USERONCHANNEL, focas_user_str, channel_str));
 	if (!IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
-	if (channels_[channel_str].joined_player.size() == channels_[channel_str].limit_member)
+	if (channels_[channel_str].joined_player.size() == static_cast<size_t>(channels_[channel_str].limit_member))
 		return (create_code_message(ERR_CHANNELISFULL, channel_str));
 	JoinedChannel(tmp->GetUserIdNick(focas_user_str), channel_str, 1);
 	return (create_code_message(RPL_AWAY, focas_user_str));
@@ -88,12 +96,12 @@ ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_s
 {
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	if (!ExistChannel(channel_str))
-		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
+		return (CreateChannel(player_fd, channel_str));
 	if (IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_USERONCHANNEL, tmp->GetSomeone(player_fd).nick_name.back(), channel_str));
 	if (flag == 0 && channels_[channel_str].is_invite)
 		return (create_code_message(ERR_INVITEONLYCHAN, channel_str));
-	if (channels_[channel_str].is_limit && channels_[channel_str].joined_player.size() == channels_[channel_str].limit_member)
+	if (channels_[channel_str].is_limit && channels_[channel_str].joined_player.size() == static_cast<size_t>(channels_[channel_str].limit_member))
 		return (create_code_message(ERR_CHANNELISFULL, channel_str));
 	if (tmp->GetSomeone(player_fd).join_channel.size() > 10)
 		return (create_code_message(ERR_TOOMANYCHANNELS, channel_str));
@@ -145,7 +153,7 @@ ChannelResult	Channel::ChangeTopic(int player_fd, const std::string& channel_str
 	return (ChannelResult(1, ""));
 }
 
-ChannelResult	Channel::ChangeChannelMode(int player_fd, std::string &focas_user_str, std::string& mode,
+ChannelResult	Channel::ChangeChannelMode(int player_fd, const std::string& mode,
 		bool valid, const std::string& channel_str, std::string key)
 {
 	if (!ExistChannel(channel_str))
@@ -156,7 +164,7 @@ ChannelResult	Channel::ChangeChannelMode(int player_fd, std::string &focas_user_
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
 
 	std::set<char> box;
-	for (std::string::iterator i = mode.begin(); i != mode.end(); i++)
+	for (std::string::const_iterator i = mode.begin(); i != mode.end(); i++)
 		box.insert(*i);
 	int mod = 0;
 	if (box.find('o') != box.end())
@@ -202,7 +210,7 @@ ChannelResult	Channel::ChangeChannelMode(int player_fd, std::string &focas_user_
 			channels_[channel_str].limit_member = num;
 		}
 		if (mod & MOD_OPERATOR)
-			ChangeOperator(player_fd, focas_user_str, channel_str, 1);
+			ChangeOperator(player_fd, key, channel_str, 1);
 	}
 	else
 	{
@@ -215,7 +223,7 @@ ChannelResult	Channel::ChangeChannelMode(int player_fd, std::string &focas_user_
 		if (mod & MOD_LIMITED)
 			channels_[channel_str].is_invite = false;
 		if (mod & MOD_OPERATOR)
-			ChangeOperator(player_fd, focas_user_str, channel_str, 0);
+			ChangeOperator(player_fd, key, channel_str, 0);
 	}
 
 	return (ChannelResult(1, ""));
@@ -239,6 +247,7 @@ ChannelResult Channel::ChangeOperator(int player_fd, std::string &focas_user_str
 		channels_[channel_str].is_master.insert(tmp->GetUserIdNick(focas_user_str));
 	else
 		channels_[channel_str].is_master.erase(tmp->GetUserIdNick(focas_user_str));
+	return (ChannelResult(1, ""));
 }
 
 ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& channel_str)
@@ -269,4 +278,11 @@ bool	Channel::IsJoined(int player_fd, const std::string& channel_str) const
 	if (channels_.find(channel_str)->second.joined_player.find(player_fd) == channels_.find(channel_str)->second.joined_player.end())
 		return (false);
 	return (true);
+}
+
+ChannelResult	Channel::GetTopic(const std::string& channel_str)
+{
+	if (channels_[channel_str].topic == "")
+		return (create_code_message(RPL_NOTOPIC, channels_[channel_str].topic));
+	return (create_code_message(RPL_TOPIC, channels_[channel_str].topic));
 }

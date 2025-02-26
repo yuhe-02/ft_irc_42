@@ -33,7 +33,6 @@ struct Someone
 	std::string					real_name;
 	std::vector<std::string>	nick_name;
 	std::set<std::string>		join_channel;
-	bool						master;
 };
 
 class Everyone : public RefCounted
@@ -52,15 +51,13 @@ private:
 public:
 	~Everyone();
 	static IntrusivePtr<Everyone>	GetInstance();
-	ChannelResult		CreateUser(int player_fd);
-	ChannelResult		DeleteUser(int player_fd);
-	const Someone&		GetSomeone(int player_fd) const;
-	ChannelResult		AddBlockUser(int player_fd, const std::string& focas);
-	ChannelResult		DeleteBlockUser(int player_fd, const std::string& focas);
-	ChannelResult		AddJoinChannel(int player_fd, const std::string& focas);
-	ChannelResult		DeleteJoinChannel(int player_fd, const std::string& focas);
-	ChannelResult		SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
-	ChannelResult		SetNickname(int player_fd, const std::string &nickname);
+	ChannelResult					CreateUser(int player_fd);
+	ChannelResult					DeleteUser(int player_fd);
+	const Someone&					GetSomeone(int player_fd) const;
+	ChannelResult					AddJoinChannel(int player_fd, const std::string& focas);
+	ChannelResult					DeleteJoinChannel(int player_fd, const std::string& focas);
+	ChannelResult					SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
+	ChannelResult					SetNickname(int player_fd, const std::string &nickname);
 
 	int								GetUserIdNick(const std::string &nick_str) const;
 	int								GetUserIdUser(const std::string &user_str) const;
