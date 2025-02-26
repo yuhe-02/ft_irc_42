@@ -2,10 +2,46 @@
 
 MessageTranslator::MessageTranslator()
 {
-	func_["UNKNOWN"] = &Unknown;
-	func_["PASS"] = &Pass;
-	func_["NICK"] = &Nick;
-	func_["USER"] = &User;
+	func_["UNKNOWN"]   = &MessageTranslator::Unknown;
+	func_["PASS"]      = &MessageTranslator::Pass;
+	func_["NICK"]      = &MessageTranslator::Nick;
+	func_["USER"]      = &MessageTranslator::User;
+	func_["SERVER"]    = &MessageTranslator::Server;
+	func_["OPER"]      = &MessageTranslator::Oper;
+	func_["QUIT"]      = &MessageTranslator::Quit;
+	func_["SQUIT"]     = &MessageTranslator::Squit;
+	func_["JOIN"]      = &MessageTranslator::Join;
+	func_["PART"]      = &MessageTranslator::Part;
+	func_["MODE"]      = &MessageTranslator::Mode;
+	func_["TOPIC"]     = &MessageTranslator::Topic;
+	func_["NAMES"]     = &MessageTranslator::Names;
+	func_["LIST"]      = &MessageTranslator::List;
+	func_["INVITE"]    = &MessageTranslator::Invite;
+	func_["KICK"]      = &MessageTranslator::Kick;
+	func_["VERSION"]   = &MessageTranslator::Version;
+	func_["STATS"]     = &MessageTranslator::Stats;
+	func_["LINKS"]     = &MessageTranslator::Links;
+	func_["TIME"]      = &MessageTranslator::Time;
+	func_["CONNECT"]   = &MessageTranslator::Connect;
+	func_["TRACE"]     = &MessageTranslator::Trace;
+	func_["ADMIN"]     = &MessageTranslator::Admin;
+	func_["INFO"]      = &MessageTranslator::Info;
+	func_["PRIVMSG"]   = &MessageTranslator::Privmsg;
+	func_["NOTICE"]    = &MessageTranslator::Notice;
+	func_["WHO"]       = &MessageTranslator::Who;
+	func_["WHOIS"]     = &MessageTranslator::Whois;
+	func_["WHOWAS"]    = &MessageTranslator::Whowas;
+	func_["KILL"]      = &MessageTranslator::Kill;
+	func_["PING"]      = &MessageTranslator::Ping;
+	func_["PONG"]      = &MessageTranslator::Pong;
+	func_["ERROR"]     = &MessageTranslator::Error;
+	func_["AWAY"]      = &MessageTranslator::Away;
+	func_["REHASH"]    = &MessageTranslator::Rehash;
+	func_["RESTART"]   = &MessageTranslator::Restart;
+	func_["SUMMON"]    = &MessageTranslator::Summon;
+	func_["USERS"]     = &MessageTranslator::Users;
+	func_["WALLOPS"]   = &MessageTranslator::Wallops;
+	func_["USERHOST"]  = &MessageTranslator::Userhost;
 }
 
 MessageTranslator::MessageTranslator(const MessageTranslator& other)
