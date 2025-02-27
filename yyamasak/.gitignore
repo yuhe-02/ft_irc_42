@@ -3,3 +3,6 @@ irc_serv
 objs
 irssi
 gomi
+sample_socket/server/class/ErrorCode.cpp
+sample_socket/server/class/MessageTranslator.cpp
+sample_socket/server/includes/MessageTranslator.h

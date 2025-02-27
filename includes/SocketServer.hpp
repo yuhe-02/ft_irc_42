@@ -18,14 +18,13 @@
 #include <sstream>
 #include <utility>
 
-#include "Parser.hpp"
+#include "MessageTranslator.h"
 #include "RefCounted.h"
+#include "Everyone.h"
 #include "IntrusivePtr.h"
 
 #define BUFFER_SIZE 512
 #define MAX_CLIENTS 10
-
-class Parser;
 
 struct ClientInfo
 {
@@ -40,12 +39,13 @@ struct ClientInfo
 class SocketServer
 {
 private:
-	int server_fd_;
 	int port_;
 	std::string password_;
+	int server_fd_;
+	MessageTranslator	*translator_;
 	std::vector<struct pollfd> poll_fds_;
 	std::map<int, std::string> message_buffer_;
-	IntrusivePtr<Parser>	parser;
+	IntrusivePtr<Everyone>	everyone_;
 	void setNonBlocking(int fd);
 	bool initServer();
 	void handleNewConnection();
