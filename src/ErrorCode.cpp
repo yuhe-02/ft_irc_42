@@ -120,6 +120,54 @@ std::pair<int, std::string> create_code_message(int code, std::string str1, std:
 			return std::make_pair(code, ":End of /LIST");
 		case RPL_CHANNELMODEIS:
 			return std::make_pair(code, str1 + " " + str2 + " " + str3);
+		case RPL_NOTOPIC:
+			return std::make_pair(code, str1 + " :No topic is set");
+		case RPL_TOPIC:
+			return std::make_pair(code, str1 + " :" + str2);
+		case RPL_INVITING:
+			return std::make_pair(code, str1 + " " + str2);
+		case RPL_SUMMONING:
+			return std::make_pair(code, str1 + " :Summoning user to IRC");
+		case RPL_VERSION:
+			return std::make_pair(code, str1 + " " + str2 + " :" + str3);
+		case RPL_WHOREPLY:
+			return std::make_pair(code, str1 + " " + str2 + " " + str3);
+		case RPL_NAMREPLY:
+			return std::make_pair(code, str1 + " :" + str2);
+		case RPL_ENDOFNAMES:
+			return std::make_pair(code, str1 + " :End of /NAMES list");
+		case RPL_LINKS:
+			return std::make_pair(code, str1 + " " + str2 + " :" + str3);
+		case RPL_ENDOFLINKS:
+			return std::make_pair(code, str1 + " :End of /LINKS list");
+		case RPL_BANLIST:
+			return std::make_pair(code, str1 + " " + str2);
+		case RPL_ENDOFBANLIST:
+			return std::make_pair(code, str1 + " :End of channel ban list");
+		case RPL_INFO:
+			return std::make_pair(code, ":" + str1);
+		case RPL_ENDOFINFO:
+			return std::make_pair(code, ":End of /INFO list");
+		case RPL_MOTDSTART:
+			return std::make_pair(code, str1 + " Message of the day - ");
+		case RPL_MOTD:
+			return std::make_pair(code, ":- " + str1);
+		case RPL_ENDOFMOTD:
+			return std::make_pair(code, ":End of /MOTD command");
+		case RPL_YOUREOPER:
+			return std::make_pair(code, ":You are now an IRC operator");
+		case RPL_REHASHING:
+			return std::make_pair(code, str1 + " :Rehashing");
+		case RPL_TIME:
+			return std::make_pair(code, str1 + " :" + str2);
+		case RPL_USERSSTART:
+			return std::make_pair(code, ":UserID   Terminal  Host");
+		case RPL_USERS:
+			return std::make_pair(code, ":" + str1);
+		case RPL_ENDOFUSERS:
+			return std::make_pair(code, ":End of users");
+		case RPL_NOUSERS:
+			return std::make_pair(code, ":Nobody logged in");
 		default:
 			return std::make_pair(code, ":Unknown response code");
 	}
