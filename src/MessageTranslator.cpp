@@ -200,6 +200,7 @@ void MessageTranslator::OutputLog()
 	std::cout << "------------------------------------LOG----------------------------------------" << std::endl << std::endl;
 	user_->OutputLog();
 	channel_->OutputLog();
+	std::cout << "----------------------------------ENDLOG---------------------------------------" << std::endl << std::endl;
 }
 
 // 一応残してるけどいらないでしょこれ。
