@@ -31,7 +31,7 @@ IntrusivePtr<Everyone>	Everyone::GetInstance()
 	return instance_;
 }
 
-ChannelResult	Everyone::CreateUser(int player_fd)
+ChannelResult	Everyone::CreateUser(int player_fd, int flag)
 {
 	if (everyone_id_.find(player_fd) != everyone_id_.end())
 		return (create_code_message(ERR_ALREADYREGISTRED, everyone_id_[player_fd]->user_name));
@@ -40,6 +40,10 @@ ChannelResult	Everyone::CreateUser(int player_fd)
 	tmp->level[NICK] = 0;
 	tmp->level[USER] = 0;
 	tmp->level[REGISTER] = 0;
+	if (flag)
+		tmp->is_admin = true;
+	else
+		tmp->is_admin = false;
 	everyone_id_[player_fd] = tmp;
 	return (ChannelResult(1, ""));
 }
@@ -49,7 +53,8 @@ ChannelResult	Everyone::DeleteUser(int player_fd)
 	Someone					*tmp = everyone_id_[player_fd];
 	IntrusivePtr<Channel>	channel = Channel::GetInstance();
 
-	for (std::set<std::string>::iterator i = tmp->join_channel.begin(); i != tmp->join_channel.end(); i++)
+	std::set<std::string> copy = tmp->join_channel;
+	for (std::set<std::string>::iterator i = copy.begin(); i != copy.end(); i++)
 		channel->LeaveChannel(player_fd, *i);
 	nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
 	Someone *del = everyone_id_[player_fd];
@@ -85,6 +90,7 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 	everyone_id_[player_fd]->server_name = servername;
 	everyone_id_[player_fd]->real_name = realname;
 	everyone_id_[player_fd]->level[USER] = 1;
+	everyone_username_[username] = everyone_id_[player_fd];
 	IsRegister(player_fd);
 	return (ChannelResult(1, ""));
 }
@@ -98,12 +104,40 @@ ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 	if (nick_list_.find(nickname) != nick_list_.end())
 		return (create_code_message(ERR_NICKNAMEINUSE, nickname));
 
-	nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
+	if (everyone_id_[player_fd]->nick_name.size() > 0)
+		nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
 	nick_list_.insert(nickname);
 	everyone_id_[player_fd]->nick_name.push_back(nickname);
 	everyone_id_[player_fd]->level[NICK] = 1;
+	everyone_nickname_[nickname] = everyone_id_[player_fd];
 	IsRegister(player_fd);
 	return (ChannelResult(1, ""));
+}
+
+void Everyone::OutputLog()
+{
+	std::cout << "--------USERS--------" << std::endl;
+	for (std::map<int, Someone*>::iterator it = everyone_id_.begin(); it != everyone_id_.end(); it++)
+	{
+		std::cout << "player_fd: " << it->second->player_fd << std::endl;
+		std::cout << "level: " << it->second->level[0] << ", " << it->second->level[1] << ", " << it->second->level[2] << std::endl;
+		std::cout << "user_name: " << it->second->user_name << std::endl;
+		std::cout << "server_name: " << it->second->server_name << std::endl;
+		std::cout << "real_name: " << it->second->real_name << std::endl;
+		std::cout << "nick name:";
+		for (std::vector<std::string>::iterator ite = it->second->nick_name.begin(); ite != it->second->nick_name.end(); ite++)
+			std::cout << " " << *ite;
+		std::cout << std::endl;
+		std::cout << "join channel:";
+		for (std::set<std::string>::iterator ite = it->second->join_channel.begin(); ite != it->second->join_channel.end(); ite++)
+			std::cout << " " << *ite;
+		std::cout << std::endl;
+		std::cout << "is_admin: " << it->second->is_admin << std::endl << std::endl;
+	}
+	std::cout << "--------nicklist--------" << std::endl;
+	for (std::set<std::string>::iterator ite = nick_list_.begin(); ite != nick_list_.end(); ite++)
+		std::cout << " " << *ite;
+	std::cout << std::endl << std::endl;
 }
 
 bool	Everyone::ExistUserUser(const std::string &user_str) const
