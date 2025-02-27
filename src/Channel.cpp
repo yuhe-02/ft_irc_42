@@ -38,7 +38,7 @@ ChannelResult	Channel::CreateChannel(int player_fd, const std::string& name)
 		return (ChannelResult(FATAL, ""));
 	if (name.size() > 200)
 		return (ChannelResult(FATAL, ""));
-	if (name != "" && (name[0] == '#' || name[0] == '&'))
+	if (name == "" || !(name[0] == '#' || name[0] == '&'))
 		return (ChannelResult(FATAL, ""));
 	if (name.find(' ') != std::string::npos)
 		return (ChannelResult(FATAL, ""));
@@ -59,8 +59,10 @@ ChannelResult	Channel::CreateChannel(int player_fd, const std::string& name)
 	tmp.is_master.insert(player_fd);
 	tmp.joined_player.insert(player_fd);
 	channels_[name] = tmp;
-	JoinedChannel(player_fd, name);
-	return (ChannelResult(1, ""));
+	IntrusivePtr<Everyone> tmpe = Everyone::GetInstance();
+	channels_[name].joined_player.insert(player_fd);
+	tmpe->AddJoinChannel(player_fd, name);
+	return (create_code_message(RPL_TOPIC, channels_[name].topic));
 }
 
 ChannelResult	Channel::DeleteChannel(const std::string& channel_str)
