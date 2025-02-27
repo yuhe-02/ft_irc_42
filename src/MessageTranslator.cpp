@@ -104,8 +104,9 @@ ChannelResult	MessageTranslator::MessageTranslator::Pass(std::vector<std::string
 		return (create_code_message(ERR_NEEDMOREPARAMS, "PASS"));
 	if (av[1] == pass_)
 		return (user_->CreateUser(player_fd));
-	if (av[1] == pass_)
+	if (av[1] == operator_pass_)
 		return (user_->CreateUser(player_fd, 1));
+	return (ChannelResult(FATAL, ""));
 }
 
 ChannelResult	MessageTranslator::MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
@@ -183,7 +184,7 @@ ChannelResult	MessageTranslator::Kick(std::vector<std::string> av, int player_fd
 	return (channel_->KickChannel(player_fd, av[2], av[1]));
 }
 
-ChannelResult	MessageTranslator::Quit(std::vector<std::string> av, int player_fd)
+ChannelResult	MessageTranslator::Quit(std::vector<std::string>, int player_fd)
 {
 	return (user_->DeleteUser(player_fd));
 }
