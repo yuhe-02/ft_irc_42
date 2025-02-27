@@ -79,8 +79,8 @@ std::vector<std::string> MessageTranslator::Translate(std::string str)
 void	MessageTranslator::Execute(std::string message, int user_fd)
 {
 	std::vector<std::string> box;
-
 	box = Translate(message);
+	std::cout <<box[0]<< std::endl;
 	if (!box.size() || func_.find(box[0]) == func_.end())
 	{
 		(this->*(func_["UNKNOWN"]))(box, user_fd);
