@@ -61,6 +61,7 @@ public:
 	ChannelResult					SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
 	ChannelResult					SetNickname(int player_fd, const std::string &nickname);
 	void							OutputLog();
+	void							Clear(int n);
 
 	int								GetUserIdNick(const std::string &nick_str) const;
 	int								GetUserIdUser(const std::string &user_str) const;

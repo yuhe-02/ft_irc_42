@@ -31,8 +31,9 @@ OBJS := $(OBJS_PROD) $(OBJS_TEST)
 
 all: $(PROGRAM_NAME)
 
-debug: $(OBJS)
-	$(CPP) $(DEBUG_FLAGS) $(INCLUDES) -o debug $^ $(TEST_LIBS)
+debug:
+	$(CPP) $(DEBUG_FLAGS) $(INCLUDES) -o debug $(SRC) $(TEST_LIBS)
+
 
 # ルール: プログラムをリンク
 $(PROGRAM_NAME): $(OBJS)
