@@ -208,3 +208,8 @@ bool Everyone::IsRegister(int player_fd)
 	}
 	return (false);
 }
+
+bool Everyone::IsCreated(int player_fd)
+{
+	return (!(everyone_id_.find(player_fd) == everyone_id_.end()));
+}

@@ -188,7 +188,7 @@ void SocketServer::closeClient(size_t index)
 	poll_fds_.erase(poll_fds_.begin() + index);
 }
 
-SocketServer::SocketServer(int port, const std::string &password) : port_(port), password_(password), server_fd_(-1), translator_(new MessageTranslator(password_)){
+SocketServer::SocketServer(int port, const std::string &password) : port_(port), password_(password), server_fd_(-1), translator_(new MessageTranslator(password)){
     everyone_ = Everyone::GetInstance();
 }
 
@@ -235,7 +235,7 @@ void SocketServer::start() {
 				} else {
 					handleClientMessage(i);
                     // Everyoneクラスでユーザーが作成されないと即時切断するようにしてるけどどうしようかな
-                    if ((message_buffer_[poll_fds_[i].fd].size() == 0) && !(everyone_->IsRegister(poll_fds_[i].fd))) {
+                    if ((message_buffer_[poll_fds_[i].fd].size() == 0) && !(everyone_->IsCreated(poll_fds_[i].fd))) {
                         indices_to_remove.push_back(i);
                     }
 				}
