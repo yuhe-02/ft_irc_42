@@ -286,3 +286,28 @@ ChannelResult	Channel::GetTopic(const std::string& channel_str)
 		return (create_code_message(RPL_NOTOPIC, channels_[channel_str].topic));
 	return (create_code_message(RPL_TOPIC, channels_[channel_str].topic));
 }
+
+void Channel::OutputLog()
+{
+	std::cout << "--------Channel--------" << std::endl;
+	for (std::map<std::string, ChannelInfo>::iterator it = channels_.begin(); it != channels_.end(); it++)
+	{
+		std::cout << "channel_name: " << it->second.channel_name << std::endl;
+		std::cout << "password: " << it->second.password << std::endl;
+		std::cout << "topic: " << it->second.topic << std::endl;
+		std::cout << "is_invite: " << it->second.is_invite << std::endl;
+		std::cout << "is_topic: " << it->second.is_topic << std::endl;
+		std::cout << "is_key: " << it->second.is_key << std::endl;
+		std::cout << "is_limit: " << it->second.is_limit << std::endl;
+		std::cout << "limit_member: " << it->second.limit_member << std::endl;
+		std::cout << "joined player:";
+		for (std::set<int>::iterator ite = it->second.joined_player.begin(); ite != it->second.joined_player.end(); ite++)
+			std::cout << " " << *ite;
+		std::cout << std::endl;
+		std::cout << "is master:";
+		for (std::set<int>::iterator ite = it->second.is_master.begin(); ite != it->second.is_master.end(); ite++)
+			std::cout << " " << *ite;
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
