@@ -81,7 +81,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	std::vector<std::string> box;
 
 	box = Translate(message);
-	if (func_.find(box[0]) == func_.end())
+	if (!box.size() || func_.find(box[0]) == func_.end())
 	{
 		(this->*(func_["UNKNOWN"]))(box, user_fd);
 		return ;
@@ -90,6 +90,11 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	#ifdef DEBUG
 		OutputLog();
 	#endif
+}
+
+void MessageTranslator::SetOpePass(std::string pass)
+{
+	operator_pass_ = pass;
 }
 
 ChannelResult	MessageTranslator::Unknown(std::vector<std::string>, int)

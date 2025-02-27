@@ -63,6 +63,7 @@ public:
 	ChannelResult					ChangeOperator(int player_fd, std::string &focas_user_str, const std::string& channel_str, bool valid);
 	ChannelResult					GetTopic(const std::string& channel_str);
 	void							OutputLog();
+	void							Clear(int n);
 
 	bool							ExistChannel(const std::string& channel_str) const;
 	bool							IsOperator(int player_fd, const std::string& channel_str) const;

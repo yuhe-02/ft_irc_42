@@ -50,13 +50,16 @@ ChannelResult	Everyone::CreateUser(int player_fd, int flag)
 
 ChannelResult	Everyone::DeleteUser(int player_fd)
 {
+	if (everyone_id_.find(player_fd) == everyone_id_.end())
+		return (ChannelResult(FATAL, ""));
 	Someone					*tmp = everyone_id_[player_fd];
 	IntrusivePtr<Channel>	channel = Channel::GetInstance();
 
 	std::set<std::string> copy = tmp->join_channel;
 	for (std::set<std::string>::iterator i = copy.begin(); i != copy.end(); i++)
 		channel->LeaveChannel(player_fd, *i);
-	nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
+	if (everyone_id_[player_fd]->nick_name.size())
+		nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
 	Someone *del = everyone_id_[player_fd];
 	delete (del);
 	everyone_id_.erase(player_fd);
@@ -140,6 +143,30 @@ void Everyone::OutputLog()
 	std::cout << std::endl << std::endl;
 }
 
+void Everyone::Clear(int n)
+{
+	if (n)
+	{
+		everyone_nickname_.clear();
+		everyone_username_.clear();
+		nick_list_.clear();
+		for (std::map<int, Someone *>::iterator i = everyone_id_.begin(); i != everyone_id_.end(); i++)
+			delete (i->second);
+		everyone_id_.clear();
+	}
+	else
+	{
+		IntrusivePtr<Channel> tmp = Channel::GetInstance();
+		tmp->Clear(1);
+		everyone_nickname_.clear();
+		everyone_username_.clear();
+		nick_list_.clear();
+		for (std::map<int, Someone *>::iterator i = everyone_id_.begin(); i != everyone_id_.end(); i++)
+			delete (i->second);
+		everyone_id_.clear();
+	}
+}
+
 bool	Everyone::ExistUserUser(const std::string &user_str) const
 {
 	std::map<std::string, Someone*>::const_iterator it = everyone_username_.find(user_str);
@@ -175,6 +202,9 @@ bool Everyone::IsRegister(int player_fd)
 	if (everyone_id_[player_fd]->level[REGISTER])
 		return (true);
 	if (everyone_id_[player_fd]->level[NICK] && everyone_id_[player_fd]->level[USER])
+	{
 		everyone_id_[player_fd]->level[REGISTER] = 1;
+		return (true);
+	}
 	return (false);
 }

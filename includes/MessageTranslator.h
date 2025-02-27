@@ -33,7 +33,6 @@ private:
 	ChannelResult				Invite(std::vector<std::string> av, int player_fd);
 	ChannelResult				Kick(std::vector<std::string> av, int player_fd);
 	ChannelResult				Quit(std::vector<std::string> av, int player_fd);
-	void						OutputLog();
 	// ChannelResult				Names(std::vector<std::string> av, int player_fd);
 	// ChannelResult				List(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Version(std::vector<std::string> av, int player_fd);
@@ -72,4 +71,6 @@ public:
 	~MessageTranslator();
 
 	void	Execute(std::string message, int user_fd);
+	void	SetOpePass(std::string pass);
+	void						OutputLog();
 };
