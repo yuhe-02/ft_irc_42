@@ -74,18 +74,24 @@ const Someone	&Everyone::GetSomeone(int player_fd) const
 
 ChannelResult Everyone::AddJoinChannel(int player_fd, const std::string& focas)
 {
+	if (everyone_id_.find(player_fd) == everyone_id_.end())
+		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.insert(focas);
 	return (ChannelResult(1, ""));
 }
 
 ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& focas)
 {
+	if (everyone_id_.find(player_fd) == everyone_id_.end())
+		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.erase(focas);
 	return (ChannelResult(1, ""));
 }
 
 ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname)
 {
+	if (everyone_id_.find(player_fd) == everyone_id_.end())
+		return (ChannelResult(FATAL, ""));
 	if (IsRegister(player_fd))
 		return (create_code_message(ERR_ALREADYREGISTRED));
 	everyone_id_[player_fd]->user_name = username;
@@ -100,6 +106,8 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 
 ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 {
+	if (everyone_id_.find(player_fd) == everyone_id_.end())
+		return (ChannelResult(FATAL, ""));
 	if (nickname == "")
 		return (ChannelResult(create_code_message(ERR_NONICKNAMEGIVEN)));
 	if (!is_nick(nickname))
