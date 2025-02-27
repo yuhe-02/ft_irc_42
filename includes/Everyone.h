@@ -68,5 +68,6 @@ public:
 	bool							ExistUserUser(const std::string &user_str) const;
 	bool							ExistUserNick(const std::string &user_str) const;
 	bool							IsRegister(int player_fd);
+	bool							IsCreated(int player_fd);
 };
 
