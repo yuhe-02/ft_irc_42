@@ -13,6 +13,7 @@
 #include <climits>
 #include <utility>
 #include <sstream>
+#include <iostream>
 
 class Channel;
 
@@ -33,6 +34,7 @@ struct Someone
 	std::string					real_name;
 	std::vector<std::string>	nick_name;
 	std::set<std::string>		join_channel;
+	bool						is_admin;
 };
 
 class Everyone : public RefCounted
@@ -51,13 +53,14 @@ private:
 public:
 	~Everyone();
 	static IntrusivePtr<Everyone>	GetInstance();
-	ChannelResult					CreateUser(int player_fd);
+	ChannelResult					CreateUser(int player_fd, int flag = 0);
 	ChannelResult					DeleteUser(int player_fd);
 	const Someone&					GetSomeone(int player_fd) const;
 	ChannelResult					AddJoinChannel(int player_fd, const std::string& focas);
 	ChannelResult					DeleteJoinChannel(int player_fd, const std::string& focas);
 	ChannelResult					SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
 	ChannelResult					SetNickname(int player_fd, const std::string &nickname);
+	void							OutputLog();
 
 	int								GetUserIdNick(const std::string &nick_str) const;
 	int								GetUserIdUser(const std::string &user_str) const;

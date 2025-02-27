@@ -10,6 +10,7 @@
 #include <map>
 #include <bitset>
 #include <climits>
+#include <iostream>
 
 #define LIMIT_MEMBER 10000
 #define MOD_INVITE 1	//0d00001
@@ -61,6 +62,7 @@ public:
 	ChannelResult					SendMessageToChannel(int player_fd, const std::string& channel_str);
 	ChannelResult					ChangeOperator(int player_fd, std::string &focas_user_str, const std::string& channel_str, bool valid);
 	ChannelResult					GetTopic(const std::string& channel_str);
+	void							OutputLog();
 
 	bool							ExistChannel(const std::string& channel_str) const;
 	bool							IsOperator(int player_fd, const std::string& channel_str) const;

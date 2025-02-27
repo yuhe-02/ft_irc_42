@@ -32,7 +32,8 @@ private:
 	ChannelResult				Topic(std::vector<std::string> av, int player_fd);
 	ChannelResult				Invite(std::vector<std::string> av, int player_fd);
 	ChannelResult				Kick(std::vector<std::string> av, int player_fd);
-	// ChannelResult				Quit(std::vector<std::string> av, int player_fd);
+	ChannelResult				Quit(std::vector<std::string> av, int player_fd);
+	void						OutputLog();
 	// ChannelResult				Names(std::vector<std::string> av, int player_fd);
 	// ChannelResult				List(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Version(std::vector<std::string> av, int player_fd);
@@ -62,9 +63,10 @@ private:
 	// ChannelResult				Users(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Wallops(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Userhost(std::vector<std::string> av, int player_fd);
+	MessageTranslator();
 
 public:
-	MessageTranslator();
+	MessageTranslator(std::string pass);
 	MessageTranslator(const MessageTranslator& other);
 	MessageTranslator& operator=(const MessageTranslator& other);
 	~MessageTranslator();

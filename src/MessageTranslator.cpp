@@ -14,9 +14,9 @@ MessageTranslator::MessageTranslator()
 	func_["TOPIC"]     = &MessageTranslator::Topic;
 	func_["INVITE"]    = &MessageTranslator::Invite;
 	func_["KICK"]      = &MessageTranslator::Kick;
+	func_["QUIT"]      = &MessageTranslator::Quit;
 	// func_["SERVER"]    = &MessageTranslator::Server;
 	// func_["OPER"]      = &MessageTranslator::Oper;
-	// func_["QUIT"]      = &MessageTranslator::Quit;
 	// func_["SQUIT"]     = &MessageTranslator::Squit;
 	// func_["NAMES"]     = &MessageTranslator::Names;
 	// func_["LIST"]      = &MessageTranslator::List;
@@ -46,7 +46,12 @@ MessageTranslator::MessageTranslator()
 	// func_["USERHOST"]  = &MessageTranslator::Userhost;
 }
 
-MessageTranslator::MessageTranslator(const MessageTranslator&)
+MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
+{
+
+}
+
+MessageTranslator::MessageTranslator(const MessageTranslator &)
 {
 
 }
@@ -83,6 +88,9 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		return ;
 	}
 	(this->*(func_[box[0]]))(box, user_fd);
+	#ifdef DEBUG
+		OutputLog();
+	#endif
 }
 
 ChannelResult	MessageTranslator::MessageTranslator::Unknown(std::vector<std::string>, int)
@@ -92,9 +100,12 @@ ChannelResult	MessageTranslator::MessageTranslator::Unknown(std::vector<std::str
 
 ChannelResult	MessageTranslator::MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
 {
-	if (av.size() < 2 || av[1] != pass_)
+	if (av.size() < 2 || (av[1] != pass_ && av[1] != operator_pass_))
 		return (create_code_message(ERR_NEEDMOREPARAMS, "PASS"));
-	return (user_->CreateUser(player_fd));
+	if (av[1] == pass_)
+		return (user_->CreateUser(player_fd));
+	if (av[1] == pass_)
+		return (user_->CreateUser(player_fd, 1));
 }
 
 ChannelResult	MessageTranslator::MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
@@ -172,6 +183,17 @@ ChannelResult	MessageTranslator::Kick(std::vector<std::string> av, int player_fd
 	return (channel_->KickChannel(player_fd, av[2], av[1]));
 }
 
+ChannelResult	MessageTranslator::Quit(std::vector<std::string> av, int player_fd)
+{
+	return (user_->DeleteUser(player_fd));
+}
+
+void MessageTranslator::OutputLog()
+{
+	user_->OutputLog();
+	channel_->OutputLog();
+}
+
 // 一応残してるけどいらないでしょこれ。
 // /// @brief
 // /// @param av
@@ -210,11 +232,7 @@ ChannelResult	MessageTranslator::Kick(std::vector<std::string> av, int player_fd
 
 
 
-// ChannelResult	MessageTranslator::Quit(std::vector<std::string> av, int player_fd) {
-// 	if (player_fd == ADMIN)
-// 		std::exit(0);
-// 	return (ChannelResult(FATAL, ""));
-// }
+
 // ChannelResult	MessageTranslator::Who(std::vector<std::string> av, int player_fd) {
 	// 	return ChannelResult();
 	// }
