@@ -53,7 +53,8 @@ ChannelResult	Everyone::DeleteUser(int player_fd)
 	Someone					*tmp = everyone_id_[player_fd];
 	IntrusivePtr<Channel>	channel = Channel::GetInstance();
 
-	for (std::set<std::string>::iterator i = tmp->join_channel.begin(); i != tmp->join_channel.end(); i++)
+	std::set<std::string> copy = tmp->join_channel;
+	for (std::set<std::string>::iterator i = copy.begin(); i != copy.end(); i++)
 		channel->LeaveChannel(player_fd, *i);
 	nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
 	Someone *del = everyone_id_[player_fd];
@@ -89,6 +90,7 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 	everyone_id_[player_fd]->server_name = servername;
 	everyone_id_[player_fd]->real_name = realname;
 	everyone_id_[player_fd]->level[USER] = 1;
+	everyone_username_[username] = everyone_id_[player_fd];
 	IsRegister(player_fd);
 	return (ChannelResult(1, ""));
 }
@@ -102,10 +104,12 @@ ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 	if (nick_list_.find(nickname) != nick_list_.end())
 		return (create_code_message(ERR_NICKNAMEINUSE, nickname));
 
-	nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
+	if (everyone_id_[player_fd]->nick_name.size() > 0)
+		nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
 	nick_list_.insert(nickname);
 	everyone_id_[player_fd]->nick_name.push_back(nickname);
 	everyone_id_[player_fd]->level[NICK] = 1;
+	everyone_nickname_[nickname] = everyone_id_[player_fd];
 	IsRegister(player_fd);
 	return (ChannelResult(1, ""));
 }

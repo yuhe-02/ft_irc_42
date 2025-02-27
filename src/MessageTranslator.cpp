@@ -2,6 +2,10 @@
 
 MessageTranslator::MessageTranslator()
 {
+}
+
+MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
+{
 	channel_ = Channel::GetInstance();
 	user_ = Everyone::GetInstance();
 	func_["UNKNOWN"]   = &MessageTranslator::Unknown;
@@ -46,11 +50,6 @@ MessageTranslator::MessageTranslator()
 	// func_["USERHOST"]  = &MessageTranslator::Userhost;
 }
 
-MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
-{
-
-}
-
 MessageTranslator::MessageTranslator(const MessageTranslator &)
 {
 
@@ -93,12 +92,12 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	#endif
 }
 
-ChannelResult	MessageTranslator::MessageTranslator::Unknown(std::vector<std::string>, int)
+ChannelResult	MessageTranslator::Unknown(std::vector<std::string>, int)
 {
 	return (ChannelResult(FATAL, ""));
 }
 
-ChannelResult	MessageTranslator::MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
+ChannelResult	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2 || (av[1] != pass_ && av[1] != operator_pass_))
 		return (create_code_message(ERR_NEEDMOREPARAMS, "PASS"));
@@ -109,14 +108,14 @@ ChannelResult	MessageTranslator::MessageTranslator::Pass(std::vector<std::string
 	return (ChannelResult(FATAL, ""));
 }
 
-ChannelResult	MessageTranslator::MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
+ChannelResult	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
 		return (create_code_message(ERR_NONICKNAMEGIVEN, "NICK"));
 	return (user_->SetNickname(player_fd, av[1]));
 }
 
-ChannelResult	MessageTranslator::MessageTranslator::User(std::vector<std::string> av, int player_fd)
+ChannelResult	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 5)
 		return (create_code_message(ERR_NEEDMOREPARAMS, "USER"));
@@ -131,7 +130,9 @@ ChannelResult	MessageTranslator::MessageTranslator::User(std::vector<std::string
 ChannelResult	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
-	return (create_code_message(ERR_NEEDMOREPARAMS, "JOIN"));
+		return (create_code_message(ERR_NEEDMOREPARAMS, "JOIN"));
+	if (av.size() == 2)
+		return (channel_->JoinedChannel(player_fd, av[1]));
 	return (channel_->JoinedChannel(player_fd, av[1], 0, av[2]));
 }
 
@@ -180,7 +181,7 @@ ChannelResult	MessageTranslator::Invite(std::vector<std::string> av, int player_
 ChannelResult	MessageTranslator::Kick(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 3)
-	return (create_code_message(ERR_NEEDMOREPARAMS, "KICK"));
+		return (create_code_message(ERR_NEEDMOREPARAMS, "KICK"));
 	return (channel_->KickChannel(player_fd, av[2], av[1]));
 }
 
@@ -191,6 +192,7 @@ ChannelResult	MessageTranslator::Quit(std::vector<std::string>, int player_fd)
 
 void MessageTranslator::OutputLog()
 {
+	std::cout << "------------------------------------LOG----------------------------------------" << std::endl << std::endl;
 	user_->OutputLog();
 	channel_->OutputLog();
 }
