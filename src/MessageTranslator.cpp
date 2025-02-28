@@ -84,7 +84,6 @@ ChannelResult	MessageTranslator::Execute(std::string message, int user_fd)
 		return (ChannelResult(FATAL, ""));
 	std::vector<std::string> box;
 	box = Translate(message);
-	std::cout <<box[0]<< std::endl;
 	if (!box.size() || func_.find(box[0]) == func_.end())
 		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
 	ChannelResult result = (this->*(func_[box[0]]))(box, user_fd);

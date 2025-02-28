@@ -11,7 +11,7 @@ INCDIR := ../../includes
 
 # ---------- 修正1: ソースの列挙を分離 ----------
 # 既存のソース(.cpp)をSRCに入れる
-SRC_PROD := $(wildcard $(SRCDIR)/*.cpp)
+SRC_PROD := ../../src/Channel.cpp ../../src/ErrorCode.cpp ../../src/Everyone.cpp ../../src/MessageTranslator.cpp ../../src/RefCounted.cpp
 # テスト用コード(TranslatorTest.cpp)はパターンルールとディレクトリが異なるため分離
 SRC_TEST := TranslatorTest.cpp
 SRC := $(SRC_PROD) $(SRC_TEST)
