@@ -60,6 +60,8 @@ ChannelResult	Everyone::DeleteUser(int player_fd)
 		channel->LeaveChannel(player_fd, *i);
 	if (everyone_id_[player_fd]->nick_name.size())
 		nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
+	everyone_nickname_.erase(everyone_id_[player_fd]->nick_name.back());
+	everyone_username_.erase(everyone_id_[player_fd]->user_name);
 	Someone *del = everyone_id_[player_fd];
 	delete (del);
 	everyone_id_.erase(player_fd);
@@ -221,4 +223,11 @@ bool Everyone::IsRegister(int player_fd)
 bool Everyone::IsCreated(int player_fd)
 {
 	return (everyone_id_.find(player_fd) != everyone_id_.end());
+}
+
+bool Everyone::IsAdmin(int player_fd)
+{
+	if (!IsCreated(player_fd))
+		return (false);
+	return (everyone_id_[player_fd]->is_admin);
 }

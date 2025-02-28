@@ -112,15 +112,17 @@ ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_s
 		return (CreateChannel(player_fd, channel_str));
 	if (IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_USERONCHANNEL, tmp->GetSomeone(player_fd).nick_name.back(), channel_str));
-	if (flag == 0 && channels_[channel_str].is_invite)
-		return (create_code_message(ERR_INVITEONLYCHAN, channel_str));
-	if (channels_[channel_str].is_limit && channels_[channel_str].joined_player.size() == static_cast<size_t>(channels_[channel_str].limit_member))
-		return (create_code_message(ERR_CHANNELISFULL, channel_str));
-	if (tmp->GetSomeone(player_fd).join_channel.size() > 10)
-		return (create_code_message(ERR_TOOMANYCHANNELS, channel_str));
-	if (channels_[channel_str].is_key && channels_[channel_str].password != pass)
-		return (create_code_message(ERR_BADCHANNELKEY, channel_str));
-
+	if (!tmp->IsAdmin(player_fd))
+	{
+		if (flag == 0 && channels_[channel_str].is_invite)
+			return (create_code_message(ERR_INVITEONLYCHAN, channel_str));
+		if (channels_[channel_str].is_limit && channels_[channel_str].joined_player.size() == static_cast<size_t>(channels_[channel_str].limit_member))
+			return (create_code_message(ERR_CHANNELISFULL, channel_str));
+		if (tmp->GetSomeone(player_fd).join_channel.size() > 10)
+			return (create_code_message(ERR_TOOMANYCHANNELS, channel_str));
+		if (channels_[channel_str].is_key && channels_[channel_str].password != pass)
+			return (create_code_message(ERR_BADCHANNELKEY, channel_str));
+	}
 	channels_[channel_str].joined_player.insert(player_fd);
 	tmp->AddJoinChannel(player_fd, channel_str);
 	return (create_code_message(RPL_TOPIC, channels_[channel_str].topic));
@@ -147,11 +149,13 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str)
 {
 	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
+	if (!eve->ExistUserNick(focas_user_str))
+		return (create_code_message(ERR_NOSUCHNICK, focas_user_str));
 	if (!eve->IsRegister(player_fd))
 		return (create_code_message(ERR_NOTREGISTERED));
 	if (!ExistChannel(channel_str))
 		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
-	if (!IsJoined(player_fd, channel_str))
+	if (!eve->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if (!IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
@@ -167,7 +171,7 @@ ChannelResult	Channel::ChangeTopic(int player_fd, const std::string& channel_str
 		return (create_code_message(ERR_NOTREGISTERED));
 	if (!ExistChannel(channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
-	if (!IsJoined(player_fd, channel_str))
+	if (!eve->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if ((channels_[channel_str].is_topic) && !IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
@@ -183,7 +187,7 @@ ChannelResult	Channel::ChangeChannelMode(int player_fd, const std::string& mode,
 		return (create_code_message(ERR_NOTREGISTERED));
 	if (!ExistChannel(channel_str))
 		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
-	if (!IsJoined(player_fd, channel_str))
+	if (!eve->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if (!IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
@@ -256,20 +260,17 @@ ChannelResult	Channel::ChangeChannelMode(int player_fd, const std::string& mode,
 
 ChannelResult Channel::ChangeOperator(int player_fd, std::string &focas_user_str, const std::string &channel_str, bool valid)
 {
-	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
-	if (!eve->IsRegister(player_fd))
+	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
+	if (!tmp->IsRegister(player_fd))
 		return (create_code_message(ERR_NOTREGISTERED));
 	if (!ExistChannel(channel_str))
 		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
-	if (!IsJoined(player_fd, channel_str))
+	if (!tmp->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if (!IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
-	if (!IsJoined(player_fd, channel_str))
-		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
-	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
-	if (IsJoined(player_fd, channel_str))
-		return (create_code_message(ERR_USERSDONTMATCH, tmp->GetSomeone(player_fd).nick_name.back(), channel_str));
+	if (!IsJoined(tmp->GetUserIdNick(focas_user_str), channel_str))
+		return (create_code_message(ERR_USERSDONTMATCH));
 
 	if (valid)
 		channels_[channel_str].is_master.insert(tmp->GetUserIdNick(focas_user_str));
@@ -285,7 +286,7 @@ ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& ch
 		return (create_code_message(ERR_NOTREGISTERED));
 	if (!ExistChannel(channel_str))
 		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
-	if (!IsJoined(player_fd, channel_str))
+	if (!eve->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	return (ChannelResult(1, ""));
 }
@@ -299,6 +300,8 @@ bool	Channel::ExistChannel(const std::string& channel_str) const
 
 bool	Channel::IsOperator(int player_fd, const std::string& channel_str) const
 {
+	if (Everyone::GetInstance()->IsAdmin(player_fd))
+		return (true);
 	if (channels_.find(channel_str)->second.is_master.find(player_fd) == channels_.find(channel_str)->second.is_master.end())
 		return (false);
 	return (true);
