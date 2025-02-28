@@ -194,7 +194,6 @@ class ChannelTest : public ::testing::Test {
 TEST(MessageTranslatorTest, PassNickUserFlow) {
     // テスト用の MessageTranslator を生成。仮のサーバーパスワードを "secretpass" とする
 	MessageTranslator translator("secretpass");
-
     // user_fd はソケットのファイルディスクリプタを想定。テストなのでダミー値とする
     int user_fd = 100;
 
@@ -212,7 +211,6 @@ TEST(MessageTranslatorTest, PassNickUserFlow) {
 
     // 3) USER コマンド
     translator.Execute("USER user host server RealName", user_fd);
-	translator.OutputLog();
     // ここまで完了すると登録完了 (IsRegister == true) のはず
     EXPECT_TRUE(everyone->IsRegister(user_fd))
         << "PASS, NICK, USER がすべて揃ったので登録状態になるはず";
