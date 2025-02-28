@@ -75,7 +75,7 @@ bool SocketServer::initServer() {
 
     /**
      * @brief pfdの初期化、サーバー側に接続要求が来たときに検知する変数の設定(検知を有効化しているわけではない)
-     * 
+     *
      * pollで、fdを監視してイベントを通知してくれる
      * pfdメンバ変数:
      *   - `server_fd_`: 監視するfd
@@ -126,7 +126,7 @@ std::string SocketServer::receiveMessage(int fd) {
     char buffer[BUFFER_SIZE + 1];
 
     while (true) {
-        memset(buffer, 0, BUFFER_SIZE + 1);  
+        memset(buffer, 0, BUFFER_SIZE + 1);
         bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
         if (bytesRead < 0) {
             // 途中送信
@@ -153,7 +153,7 @@ std::string SocketServer::receiveMessage(int fd) {
  * @brief クライアントからのメッセージ処理
  *
  * クライアントからのメッセージを処理する。ircのコマンドに応じて処理を行う。
- * 
+ *
  */
 void SocketServer::handleClientMessage(size_t index) {
     int client_fd = poll_fds_[index].fd;
@@ -242,7 +242,7 @@ void SocketServer::start() {
 			}
 
 		}
-        for (std::vector<int>::reverse_iterator it = indices_to_remove.rbegin(); 
+        for (std::vector<int>::reverse_iterator it = indices_to_remove.rbegin();
             it != indices_to_remove.rend(); ++it) {
             std::cout << "Client disconnected: FD " << poll_fds_[*it].fd << "\n";
             close(poll_fds_[*it].fd);

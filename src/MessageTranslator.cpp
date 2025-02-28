@@ -6,6 +6,7 @@ MessageTranslator::MessageTranslator()
 
 MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
 {
+	operator_pass_ = "admin";
 	channel_ = Channel::GetInstance();
 	user_ = Everyone::GetInstance();
 	func_["UNKNOWN"]   = &MessageTranslator::Unknown;
@@ -76,20 +77,20 @@ std::vector<std::string> MessageTranslator::Translate(std::string str)
 	return (box);
 }
 
-void	MessageTranslator::Execute(std::string message, int user_fd)
+ChannelResult	MessageTranslator::Execute(std::string message, int user_fd)
 {
+	if (message == "")
+		return (ChannelResult(FATAL, ""));
 	std::vector<std::string> box;
 	box = Translate(message);
 	std::cout <<box[0]<< std::endl;
 	if (!box.size() || func_.find(box[0]) == func_.end())
-	{
-		(this->*(func_["UNKNOWN"]))(box, user_fd);
-		return ;
-	}
-	(this->*(func_[box[0]]))(box, user_fd);
+		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
+	ChannelResult result = (this->*(func_[box[0]]))(box, user_fd);
 	#ifdef DEBUG
 		OutputLog();
 	#endif
+	return (result);
 }
 
 void MessageTranslator::SetOpePass(std::string pass)

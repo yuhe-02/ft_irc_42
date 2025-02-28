@@ -70,7 +70,7 @@ public:
 	MessageTranslator& operator=(const MessageTranslator& other);
 	~MessageTranslator();
 
-	void	Execute(std::string message, int user_fd);
-	void	SetOpePass(std::string pass);
-	void						OutputLog();
+	ChannelResult	Execute(std::string message, int user_fd);
+	void			SetOpePass(std::string pass);
+	void			OutputLog();
 };
