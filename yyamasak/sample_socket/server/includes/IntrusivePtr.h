@@ -38,7 +38,6 @@ public:
 	{
 		if (ptr_) {
 			ptr_->release();
-			ptr_ = 0;
 		}
 	}
 

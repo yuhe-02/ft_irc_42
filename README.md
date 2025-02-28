@@ -81,3 +81,4 @@
 - [IRCV3(IRCの拡張様式についての取り決め,irssiがこれに則ってるらしい): ネゴシエーション](https://ircv3.net/specs/extensions/capability-negotiation.html)
 - [IRCV3: ルールとか](https://ircv3.net)
 - [IRCV3: multi_prefix](https://ircv3.net/specs/extensions/multi-prefix)
+- [iterm: pain](https://atsum.in/mac/iterm-multi-pane-broadcast/)

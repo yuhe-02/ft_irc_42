@@ -1,7 +1,9 @@
 *.o
 ft_irc
+irc_serv
 a.out
 bircd/bircd
 objs
 .vscode
 sample_test
+debug
