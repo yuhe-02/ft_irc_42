@@ -33,6 +33,7 @@ private:
 	ChannelResult				Invite(std::vector<std::string> av, int player_fd);
 	ChannelResult				Kick(std::vector<std::string> av, int player_fd);
 	ChannelResult				Quit(std::vector<std::string> av, int player_fd);
+	ChannelResult				Exit(std::vector<std::string>, int);
 	// ChannelResult				Names(std::vector<std::string> av, int player_fd);
 	// ChannelResult				List(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Version(std::vector<std::string> av, int player_fd);

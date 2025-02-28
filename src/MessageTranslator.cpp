@@ -20,6 +20,7 @@ MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
 	func_["INVITE"]    = &MessageTranslator::Invite;
 	func_["KICK"]      = &MessageTranslator::Kick;
 	func_["QUIT"]      = &MessageTranslator::Quit;
+	func_["EXIT"]      = &MessageTranslator::Exit;
 	// func_["SERVER"]    = &MessageTranslator::Server;
 	// func_["OPER"]      = &MessageTranslator::Oper;
 	// func_["SQUIT"]     = &MessageTranslator::Squit;
@@ -202,6 +203,13 @@ void MessageTranslator::OutputLog()
 	user_->OutputLog();
 	channel_->OutputLog();
 	std::cout << "----------------------------------ENDLOG---------------------------------------" << std::endl << std::endl;
+}
+
+ChannelResult	MessageTranslator::Exit(std::vector<std::string>, int player_fd)
+{
+	if (Everyone::GetInstance()->GetSomeone(player_fd).is_admin)
+		exit(0);
+	return (ChannelResult(FATAL, ""));
 }
 
 // 一応残してるけどいらないでしょこれ。
