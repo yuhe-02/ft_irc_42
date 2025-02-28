@@ -90,6 +90,10 @@ ChannelResult	MessageTranslator::Execute(std::string message, int user_fd)
 	ChannelResult result = (this->*(func_[box[0]]))(box, user_fd);
 	#ifdef DEBUG
 		OutputLog();
+		if (result.first == FATAL)
+			std::cout << "FATAL" << std::endl;
+		else
+			std::cout << result.second << std::endl;
 	#endif
 	return (result);
 }

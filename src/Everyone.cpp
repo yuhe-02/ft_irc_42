@@ -50,7 +50,7 @@ ChannelResult	Everyone::CreateUser(int player_fd, int flag)
 
 ChannelResult	Everyone::DeleteUser(int player_fd)
 {
-	if (IsCreated(player_fd))
+	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	Someone					*tmp = everyone_id_[player_fd];
 	IntrusivePtr<Channel>	channel = Channel::GetInstance();
@@ -74,7 +74,7 @@ const Someone	&Everyone::GetSomeone(int player_fd) const
 
 ChannelResult Everyone::AddJoinChannel(int player_fd, const std::string& focas)
 {
-	if (IsCreated(player_fd))
+	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.insert(focas);
 	return (ChannelResult(1, ""));
@@ -82,7 +82,7 @@ ChannelResult Everyone::AddJoinChannel(int player_fd, const std::string& focas)
 
 ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& focas)
 {
-	if (IsCreated(player_fd))
+	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.erase(focas);
 	return (ChannelResult(1, ""));
@@ -90,7 +90,7 @@ ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& foca
 
 ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname)
 {
-	if (IsCreated(player_fd))
+	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	if (IsRegister(player_fd))
 		return (create_code_message(ERR_ALREADYREGISTRED));
@@ -106,7 +106,7 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 
 ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 {
-	if (IsCreated(player_fd))
+	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	if (nickname == "")
 		return (ChannelResult(create_code_message(ERR_NONICKNAMEGIVEN)));
@@ -206,7 +206,7 @@ int Everyone::GetUserIdUser(const std::string &user_str) const
 
 bool Everyone::IsRegister(int player_fd)
 {
-	if (IsCreated(player_fd))
+	if (!IsCreated(player_fd))
 		return (false);
 	if (everyone_id_[player_fd]->level[REGISTER])
 		return (true);
@@ -220,5 +220,5 @@ bool Everyone::IsRegister(int player_fd)
 
 bool Everyone::IsCreated(int player_fd)
 {
-	return (!(everyone_id_.find(player_fd) == everyone_id_.end()));
+	return (everyone_id_.find(player_fd) != everyone_id_.end());
 }
