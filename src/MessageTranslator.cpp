@@ -90,6 +90,10 @@ ChannelResult	MessageTranslator::Execute(std::string message, int user_fd)
 	ChannelResult result = (this->*(func_[box[0]]))(box, user_fd);
 	#ifdef DEBUG
 		OutputLog();
+		if (result.first == FATAL)
+			std::cout << "FATAL" << std::endl;
+		else
+			std::cout << result.second << std::endl;
 	#endif
 	return (result);
 }
@@ -207,7 +211,7 @@ void MessageTranslator::OutputLog()
 
 ChannelResult	MessageTranslator::Exit(std::vector<std::string>, int player_fd)
 {
-	if (!Everyone::GetInstance()->IsRegister(player_fd))
+	if (!Everyone::GetInstance()->IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	if (Everyone::GetInstance()->GetSomeone(player_fd).is_admin)
 		exit(0);
