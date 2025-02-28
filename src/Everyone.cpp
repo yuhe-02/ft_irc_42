@@ -133,6 +133,7 @@ void Everyone::OutputLog()
 		std::cout << "player_fd: " << it->second->player_fd << std::endl;
 		std::cout << "level: " << it->second->level[0] << ", " << it->second->level[1] << ", " << it->second->level[2] << std::endl;
 		std::cout << "user_name: " << it->second->user_name << std::endl;
+		std::cout << "host_name: " << it->second->host_name << std::endl;
 		std::cout << "server_name: " << it->second->server_name << std::endl;
 		std::cout << "real_name: " << it->second->real_name << std::endl;
 		std::cout << "nick name:";
