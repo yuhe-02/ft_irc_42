@@ -207,7 +207,7 @@ void MessageTranslator::OutputLog()
 
 ChannelResult	MessageTranslator::Exit(std::vector<std::string>, int player_fd)
 {
-	if (everyone_id_.find(player_fd) == everyone_id_.end())
+	if (!Everyone::GetInstance()->IsRegister(player_fd))
 		return (ChannelResult(FATAL, ""));
 	if (Everyone::GetInstance()->GetSomeone(player_fd).is_admin)
 		exit(0);
