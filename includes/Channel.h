@@ -55,11 +55,11 @@ public:
 	ChannelResult					InviteToChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str);
 	ChannelResult					JoinedChannel(int player_fd, const std::string& channel_str, int flag = 0, std::string pass = "");
 	ChannelResult					LeaveChannel(int player_fd, const std::string& channel_str);
-	ChannelResult					KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str);
+	ChannelResult					KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str, const std::string& message));
 	ChannelResult					ChangeTopic(int player_fd, const std::string& channel_str, const std::string &topic);
 	ChannelResult					ChangeChannelMode(int player_fd, const std::string& mode,
 										bool valid, const std::string& channel_str, std::string key = "");
-	ChannelResult					SendMessageToChannel(int player_fd, const std::string& channel_str);
+	ChannelResult					SendMessageToChannel(int player_fd, const std::string& channel_str, const std::string& message);
 	ChannelResult					ChangeOperator(int player_fd, std::string &focas_user_str, const std::string& channel_str, bool valid);
 	ChannelResult					GetTopic(const std::string& channel_str);
 	void							OutputLog();

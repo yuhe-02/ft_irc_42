@@ -16,12 +16,14 @@ MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
 	func_["USER"]      = &MessageTranslator::User;
 	func_["JOIN"]      = &MessageTranslator::Join;
 	func_["PART"]      = &MessageTranslator::Part;
+	func_["PRIVMSG"]   = &MessageTranslator::Privmsg;
 	func_["MODE"]      = &MessageTranslator::Mode;
 	func_["TOPIC"]     = &MessageTranslator::Topic;
 	func_["INVITE"]    = &MessageTranslator::Invite;
 	func_["KICK"]      = &MessageTranslator::Kick;
 	func_["QUIT"]      = &MessageTranslator::Quit;
 	func_["EXIT"]      = &MessageTranslator::Exit;
+	func_["LOG"]       = &MessageTranslator::Log;
 	// func_["SERVER"]    = &MessageTranslator::Server;
 	// func_["OPER"]      = &MessageTranslator::Oper;
 	// func_["SQUIT"]     = &MessageTranslator::Squit;
@@ -133,29 +135,44 @@ void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 	sender_.SendMessage(user_->SetUser(player_fd, av[1], av[2], av[3], av[4]), player_fd);
 }
 
-
-/// @brief
-/// @param av
-/// @param player_fd 複数チャンネル選択できない、、、#または&で始まるからそれで識別するべき
-/// @return
 void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "JOIN"), player_fd);
-	if (av.size() == 2)
-		sender_.SendMessage(channel_->JoinedChannel(player_fd, av[1]), player_fd);
-	sender_.SendMessage(channel_->JoinedChannel(player_fd, av[1], 0, av[2]), player_fd);
+
+	std::stringstream ss(av[1]);
+	std::string tmp;
+
+	while (std::getline(ss, tmp, ','))
+	{
+		if (av.size() == 2)
+			sender_.SendMessage(channel_->JoinedChannel(player_fd, tmp), player_fd);
+		sender_.SendMessage(channel_->JoinedChannel(player_fd, tmp, 0, av[2]), player_fd);
+	}
 }
 
-/// @brief
-/// @param av
-/// @param player_fd 複数チャンネル選択できない、、、#または&で始まるからそれで識別するべき
-/// @return
 void	MessageTranslator::Part(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "PART"), player_fd);
-	sender_.SendMessage(channel_->LeaveChannel(player_fd, av[1]), player_fd);
+
+	std::stringstream ss(av[1]);
+	std::string tmp;
+
+	while (std::getline(ss, tmp, ','))
+		sender_.SendMessage(channel_->LeaveChannel(player_fd, tmp), player_fd);
+}
+
+void MessageTranslator::Privmsg(std::vector<std::string> av, int player_fd)
+{
+	if (av.size() < 3)
+		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "PRIVMSG"), player_fd);
+
+	std::stringstream ss(av[1]);
+	std::string tmp;
+
+	while (std::getline(ss, tmp, ','))
+		sender_.SendMessage(channel_->SendMessageToChannel(player_fd, tmp, av[2]), player_fd);
 }
 
 void	MessageTranslator::Mode(std::vector<std::string> av, int player_fd)
@@ -177,7 +194,6 @@ void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd)
 	sender_.SendMessage(channel_->ChangeTopic(player_fd, av[1], av[2]), player_fd);
 }
 
-
 void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 3)
@@ -185,10 +201,6 @@ void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
 	sender_.SendMessage(channel_->InviteToChannel(player_fd, av[1], av[2]), player_fd);
 }
 
-/// @brief
-/// @param av
-/// @param player_fd 第三引数コメント未実装, 複数ユーザー未実装
-/// @return
 void	MessageTranslator::Kick(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 3)
@@ -217,6 +229,18 @@ void	MessageTranslator::Exit(std::vector<std::string>, int player_fd)
 	{
 		sender_.SendMessage(ChannelResult(1, ""), player_fd);
 		exit(0);
+	}
+	sender_.SendMessage(ChannelResult(FATAL, ""), player_fd);
+}
+
+void MessageTranslator::Log(std::vector<std::string>, int)
+{
+	if (!Everyone::GetInstance()->IsCreated(player_fd))
+		sender_.SendMessage(ChannelResult(FATAL, ""), player_fd);
+	if (Everyone::GetInstance()->GetSomeone(player_fd).is_admin)
+	{
+		sender_.SendMessage(ChannelResult(1, ""), player_fd);
+		OutputLog();
 	}
 	sender_.SendMessage(ChannelResult(FATAL, ""), player_fd);
 }

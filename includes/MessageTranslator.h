@@ -30,12 +30,14 @@ private:
 	void						User(std::vector<std::string> av, int player_fd);
 	void						Join(std::vector<std::string> av, int player_fd);
 	void						Part(std::vector<std::string> av, int player_fd);
+	void						Privmsg(std::vector<std::string> av, int player_fd);
 	void						Mode(std::vector<std::string> av, int player_fd);
 	void						Topic(std::vector<std::string> av, int player_fd);
 	void						Invite(std::vector<std::string> av, int player_fd);
 	void						Kick(std::vector<std::string> av, int player_fd);
 	void						Quit(std::vector<std::string> av, int player_fd);
 	void						Exit(std::vector<std::string>, int);
+	void						Log(std::vector<std::string>, int);
 	// ChannelResult				Names(std::vector<std::string> av, int player_fd);
 	// ChannelResult				List(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Version(std::vector<std::string> av, int player_fd);
