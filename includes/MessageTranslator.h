@@ -5,6 +5,7 @@
 #include <sstream>
 #include <map>
 #include <utility>
+#include <cstdlib>
 
 #include "ErrorCode.h"
 #include "Channel.h"
@@ -22,6 +23,7 @@ private:
 	IntrusivePtr<Channel>	channel_;
 	IntrusivePtr<Everyone>	user_;
 	Sender					sender_;
+	int						tester_;
 
 	std::vector<std::string>	Translate(std::string str);
 	void						Unknown(std::vector<std::string> av, int player_fd);
@@ -32,7 +34,7 @@ private:
 	void						Part(std::vector<std::string> av, int player_fd);
 	void						Privmsg(std::vector<std::string> av, int player_fd, std::string str);
 	void						Mode(std::vector<std::string> av, int player_fd);
-	void						Topic(std::vector<std::string> av, int player_fd);
+	void						Topic(std::vector<std::string> av, int player_fd, std::string str);
 	void						Invite(std::vector<std::string> av, int player_fd);
 	void						Kick(std::vector<std::string> av, int player_fd);
 	void						Quit(std::vector<std::string> av, int player_fd);

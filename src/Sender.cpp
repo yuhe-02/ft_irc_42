@@ -26,6 +26,7 @@ void	Sender::SendMessage(ChannelResult result, int fd) const
 	ssize_t		byte_send;
 	std::string	message;
 
+	std::cout << result.second << std::endl;
 	if (fd < 0)
 	{
 		std::cerr << "Error: send" << std::endl;
