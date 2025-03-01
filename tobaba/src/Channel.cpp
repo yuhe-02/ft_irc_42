@@ -146,7 +146,7 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 	return (ChannelResult(1, ""));
 }
 
-ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str)
+ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str, const std::string& message)
 {
 	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
 	if (!eve->ExistUserNick(focas_user_str))
@@ -161,7 +161,7 @@ ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	LeaveChannel(tmp->GetUserIdNick(focas_user_str), channel_str);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, message));
 }
 
 ChannelResult	Channel::ChangeTopic(int player_fd, const std::string& channel_str, const std::string &topic)
@@ -255,7 +255,12 @@ ChannelResult	Channel::ChangeChannelMode(int player_fd, const std::string& mode,
 			ChangeOperator(player_fd, key, channel_str, 0);
 	}
 
-	return (ChannelResult(1, ""));
+	std::string mode_m;
+	if (valid)
+		mode_m = std::string("+") + mode;
+	else
+		mode_m = std::string("-") + mode;
+	return (create_code_message(RPL_CHANNELMODEIS, channel_str, mode_m, key));
 }
 
 ChannelResult Channel::ChangeOperator(int player_fd, std::string &focas_user_str, const std::string &channel_str, bool valid)
@@ -279,7 +284,7 @@ ChannelResult Channel::ChangeOperator(int player_fd, std::string &focas_user_str
 	return (ChannelResult(1, ""));
 }
 
-ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& channel_str)
+ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& channel_str, const std::string& message)
 {
 	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
 	if (!eve->IsRegister(player_fd))
@@ -288,7 +293,7 @@ ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& ch
 		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 	if (!eve->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
-	return (ChannelResult(1, ""));
+	return (create_code_message(RPL_AWAY, eve->GetSomeone(player_fd).nick_name.back() ,message));
 }
 
 bool	Channel::ExistChannel(const std::string& channel_str) const

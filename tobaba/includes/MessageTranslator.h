@@ -18,23 +18,26 @@ class MessageTranslator
 private:
 	std::string pass_;
 	std::string operator_pass_;
-	std::map<std::string, ChannelResult (MessageTranslator::*)(std::vector<std::string>, int)> func_;
+	std::map<std::string, void (MessageTranslator::*)(std::vector<std::string>, int)> func_;
 	IntrusivePtr<Channel>	channel_;
 	IntrusivePtr<Everyone>	user_;
+	Sender					sender_;
 
 	std::vector<std::string>	Translate(std::string str);
-	ChannelResult				Unknown(std::vector<std::string> av, int player_fd);
-	ChannelResult				Pass(std::vector<std::string> av, int player_fd);
-	ChannelResult				Nick(std::vector<std::string> av, int player_fd);
-	ChannelResult				User(std::vector<std::string> av, int player_fd);
-	ChannelResult				Join(std::vector<std::string> av, int player_fd);
-	ChannelResult				Part(std::vector<std::string> av, int player_fd);
-	ChannelResult				Mode(std::vector<std::string> av, int player_fd);
-	ChannelResult				Topic(std::vector<std::string> av, int player_fd);
-	ChannelResult				Invite(std::vector<std::string> av, int player_fd);
-	ChannelResult				Kick(std::vector<std::string> av, int player_fd);
-	ChannelResult				Quit(std::vector<std::string> av, int player_fd);
-	ChannelResult				Exit(std::vector<std::string>, int);
+	void						Unknown(std::vector<std::string> av, int player_fd);
+	void						Pass(std::vector<std::string> av, int player_fd);
+	void						Nick(std::vector<std::string> av, int player_fd);
+	void						User(std::vector<std::string> av, int player_fd);
+	void						Join(std::vector<std::string> av, int player_fd);
+	void						Part(std::vector<std::string> av, int player_fd);
+	void						Privmsg(std::vector<std::string> av, int player_fd);
+	void						Mode(std::vector<std::string> av, int player_fd);
+	void						Topic(std::vector<std::string> av, int player_fd);
+	void						Invite(std::vector<std::string> av, int player_fd);
+	void						Kick(std::vector<std::string> av, int player_fd);
+	void						Quit(std::vector<std::string> av, int player_fd);
+	void						Exit(std::vector<std::string>, int);
+	void						Log(std::vector<std::string>, int);
 	// ChannelResult				Names(std::vector<std::string> av, int player_fd);
 	// ChannelResult				List(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Version(std::vector<std::string> av, int player_fd);
@@ -72,7 +75,7 @@ public:
 	MessageTranslator& operator=(const MessageTranslator& other);
 	~MessageTranslator();
 
-	ChannelResult	Execute(std::string message, int user_fd);
+	void			Execute(std::string message, int user_fd);
 	void			SetOpePass(std::string pass);
 	void			OutputLog();
 };

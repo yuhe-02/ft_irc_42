@@ -9,15 +9,12 @@
 
 class Sender
 {
-	private:
-		int				client_fd_;
 	public:
 		Sender(void);
-		Sender(int fd);
 		~Sender(void);
 		Sender(const Sender& copy);
 		Sender& operator=(const Sender& src);
-		void SendMessage(ChannelResult result);
+		void SendMessage(ChannelResult result, int fd);
 };
 
 #endif
