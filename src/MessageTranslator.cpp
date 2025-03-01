@@ -98,7 +98,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	}
 	if (message == "SKIP")
 	{
-		user_->CreateUser(user_fd, 1);
+		user_->CreateUser(user_fd);
 		std::string tester("user");
 		for (int n = 0; n < tester_; n++)
 			tester += "0";
