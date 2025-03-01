@@ -17,12 +17,12 @@ MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
 	func_["JOIN"]      = &MessageTranslator::Join;
 	func_["PART"]      = &MessageTranslator::Part;
 	func_["MODE"]      = &MessageTranslator::Mode;
-	func_["TOPIC"]     = &MessageTranslator::Topic;
 	func_["INVITE"]    = &MessageTranslator::Invite;
 	func_["KICK"]      = &MessageTranslator::Kick;
 	func_["QUIT"]      = &MessageTranslator::Quit;
 	func_["EXIT"]      = &MessageTranslator::Exit;
 	func_["LOG"]       = &MessageTranslator::Log;
+	tester_ = 1;
 	// func_["SERVER"]    = &MessageTranslator::Server;
 	// func_["OPER"]      = &MessageTranslator::Oper;
 	// func_["SQUIT"]     = &MessageTranslator::Squit;
@@ -84,12 +84,48 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 {
 	if (message == "")
 		return ;
+	if (message == "ASKIP")
+	{
+		user_->CreateUser(user_fd, 1);
+		std::string tester("admin");
+		for (int n = 0; n < tester_; n++)
+			tester += "0";
+		user_->SetNickname(user_fd, tester);
+		user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
+		std::cout << "ADMIN is comming" << std::endl;
+		tester_++;
+		return ;
+	}
+	if (message == "SKIP")
+	{
+		user_->CreateUser(user_fd, 1);
+		std::string tester("user");
+		for (int n = 0; n < tester_; n++)
+			tester += "0";
+		user_->SetNickname(user_fd, tester);
+		user_->SetUser(user_fd, "user", "user", "user", "user");
+		std::cout << "USER is comming" << std::endl;
+		tester_++;
+		return ;
+	}
 	std::vector<std::string> box;
 	box = Translate(message);
-	if (!box.size() || func_.find(box[0]) == func_.end())
+	if (!box.size() || (func_.find(box[0]) == func_.end() && box[0] != "TOPIC" && box[0] != "PRIVMSG"))
 		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
+	if (box[0] == "PASS")
+	{
+		Pass(box, user_fd);
+		return ;
+	}
+	if (!user_->IsCreated(user_fd))
+	{
+		sender_.SendMessage(create_code_message(ERR_NOTREGISTERED), user_fd);
+		return ;
+	}
 	if (box[0] == "PRIVMSG")
 		Privmsg(box, user_fd, message);
+	else if (box[0] == "TOPIC")
+		Topic(box, user_fd, message);
 	else
 		(this->*(func_[box[0]]))(box, user_fd);
 	#ifdef DEBUG
@@ -225,11 +261,11 @@ void	MessageTranslator::Mode(std::vector<std::string> av, int player_fd)
 	sender_.SendMessage(channel_->ChangeChannelMode(player_fd, tmp, av[2][0] == '+', av[1], av[3]), player_fd);
 }
 
-void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd, std::string str)
 {
 	if (av.size() < 2)
 	{
-		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "TOPIC"), player_fd);
+	sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "TOPIC"), player_fd);
 		return ;
 	}
 	if (av.size() == 2)
@@ -237,7 +273,9 @@ void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(channel_->GetTopic(av[1]), player_fd);
 		return ;
 	}
-	sender_.SendMessage(channel_->ChangeTopic(player_fd, av[1], av[2]), player_fd);
+	std::string tmp2 = str.substr(str.find(' ', str.find(' ') + 1) + 1);
+	std::cout << tmp2 << std::endl;
+	sender_.SendMessage(channel_->ChangeTopic(player_fd, av[1], tmp2), player_fd);
 }
 
 void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
