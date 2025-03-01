@@ -14,7 +14,7 @@ class Sender
 		~Sender(void);
 		Sender(const Sender& copy);
 		Sender& operator=(const Sender& src);
-		void SendMessage(ChannelResult result, int fd);
+		void SendMessage(ChannelResult result, int fd) const;
 };
 
 #endif

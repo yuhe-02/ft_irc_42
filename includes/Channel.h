@@ -4,7 +4,7 @@
 #include "RefCounted.h"
 #include "IntrusivePtr.h"
 #include "ErrorCode.h"
-#include "sender.hpp"
+#include "Sender.hpp"
 
 #include <vector>
 #include <set>
@@ -21,6 +21,7 @@
 #define MOD_OPERATOR 16	//0d10000
 
 class Everyone;
+class Sender;
 
 struct ChannelInfo
 {
@@ -60,7 +61,7 @@ public:
 	ChannelResult					ChangeTopic(int player_fd, const std::string& channel_str, const std::string &topic);
 	ChannelResult					ChangeChannelMode(int player_fd, const std::string& mode,
 										bool valid, const std::string& channel_str, std::string key = "");
-	ChannelResult					SendMessageToChannel(int player_fd, const std::string& channel_str, const std::string& message, const Sender& setnder);
+	ChannelResult					SendMessageToChannel(int player_fd, const std::string& channel_str, const std::string& message, const Sender& sender);
 	ChannelResult					ChangeOperator(int player_fd, std::string &focas_user_str, const std::string& channel_str, bool valid);
 	ChannelResult					GetTopic(const std::string& channel_str);
 	void							OutputLog();
