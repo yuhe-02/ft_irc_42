@@ -298,13 +298,13 @@ ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& ch
 		if (!eve->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 			return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 		for (std::set<int>::iterator it = channels_[channel_str].joined_player.begin(); it != channels_[channel_str].joined_player.end(); it++)
-			sender.SendMessage(create_code_message(RPL_AWAY, eve->GetSomeone(player_fd).nick_name.back(), message), *it);
+			sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message), *it);
 		return (create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message));
 	}
 
 	if (!eve->ExistUserNick(channel_str))
 		return (create_code_message(ERR_NOSUCHNICK, channel_str));
-	sender.SendMessage(create_code_message(RPL_AWAY, eve->GetSomeone(player_fd).nick_name.back(), message), eve->GetUserIdNick(channel_str));
+	sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message), eve->GetUserIdNick(channel_str));
 	return (create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message));
 }
 
