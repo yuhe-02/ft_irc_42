@@ -248,11 +248,11 @@ ChannelResult	Channel::ChangeChannelMode(int player_fd, const std::string& mode,
 		if (mod & MOD_INVITE)
 			channels_[channel_str].is_invite = false;
 		if (mod & MOD_TOPIC)
-			channels_[channel_str].is_invite = false;
+			channels_[channel_str].is_topic = false;
 		if (mod & MOD_KEYWORD)
-			channels_[channel_str].is_invite = false;
+			channels_[channel_str].is_key = false;
 		if (mod & MOD_LIMITED)
-			channels_[channel_str].is_invite = false;
+			channels_[channel_str].is_limit = false;
 		if (mod & MOD_OPERATOR)
 			ChangeOperator(player_fd, key, channel_str, 0);
 	}
