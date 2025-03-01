@@ -30,7 +30,7 @@ private:
 	void						User(std::vector<std::string> av, int player_fd);
 	void						Join(std::vector<std::string> av, int player_fd);
 	void						Part(std::vector<std::string> av, int player_fd);
-	void						Privmsg(std::vector<std::string> av, int player_fd);
+	void						Privmsg(std::vector<std::string> av, int player_fd, std::string str);
 	void						Mode(std::vector<std::string> av, int player_fd);
 	void						Topic(std::vector<std::string> av, int player_fd);
 	void						Invite(std::vector<std::string> av, int player_fd);

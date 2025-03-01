@@ -27,10 +27,10 @@ Sender& Sender::operator=(const Sender& src)
 	return (*this);
 }
 
-void	Sender::SendMessage(std::string message)
+void	Sender::SendMessage(ChannelResult message, int ew) const
 {
 	ssize_t	byte_send;
-
+	(void)ew;
 	if (client_fd_ == -1)
 	{
 		std::cerr << "Error: send" << std::endl;
