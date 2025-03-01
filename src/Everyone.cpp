@@ -1,4 +1,3 @@
-#include "../includes/Everyone.h"
 #include "Everyone.h"
 
 IntrusivePtr<Everyone> Everyone::instance_ = IntrusivePtr<Everyone>(static_cast<Everyone*>(NULL));
