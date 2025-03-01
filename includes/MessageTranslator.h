@@ -21,7 +21,7 @@ private:
 	std::map<std::string, void (MessageTranslator::*)(std::vector<std::string>, int)> func_;
 	IntrusivePtr<Channel>	channel_;
 	IntrusivePtr<Everyone>	user_;
-	Sender					sender_
+	Sender					sender_;
 
 	std::vector<std::string>	Translate(std::string str);
 	void						Unknown(std::vector<std::string> av, int player_fd);
