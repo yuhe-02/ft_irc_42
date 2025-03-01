@@ -113,7 +113,7 @@ ChannelResult	MessageTranslator::Pass(std::vector<std::string> av, int player_fd
 	if (av.size() < 2 || (av[1] != pass_ && av[1] != operator_pass_))
 	{
 		ChannelResult errorResult = create_code_message(ERR_NEEDMOREPARAMS, "PASS");
-		sender.SendMessage(errorResult.second);
+		sender.SendMessage(errorResult);
 		return (errorResult);
 	}
 	if (av[1] == pass_)
@@ -125,8 +125,14 @@ ChannelResult	MessageTranslator::Pass(std::vector<std::string> av, int player_fd
 
 ChannelResult	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 {
+	Sender sender(player_fd);
 	if (av.size() < 2)
-		return (create_code_message(ERR_NONICKNAMEGIVEN, "NICK"));
+	{
+		ChannelResult errorResult = create_code_message(ERR_NONICKNAMEGIVEN, "NICK");
+		sender.SendMessage(errorResult);
+		return (errorResult);
+	}
+		// return (create_code_message(ERR_NONICKNAMEGIVEN, "NICK"));
 	return (user_->SetNickname(player_fd, av[1]));
 }
 

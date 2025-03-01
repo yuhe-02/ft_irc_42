@@ -3,18 +3,21 @@
 
 # include <iostream>
 # include <sys/socket.h>
+#include "ErrorCode.h"
+#include "Channel.h"
+#include "Everyone.h"
 
 class Sender
 {
 	private:
-		int client_fd_;
+		int				client_fd_;
 	public:
 		Sender(void);
 		Sender(int fd);
 		~Sender(void);
 		Sender(const Sender& copy);
 		Sender& operator=(const Sender& src);
-		void SendMessage(std::string message);
+		void SendMessage(ChannelResult result);
 };
 
 #endif
