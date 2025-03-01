@@ -21,7 +21,7 @@ Sender& Sender::operator=(const Sender& src)
 	return (*this);
 }
 
-void	Sender::SendMessage(ChannelResult result, int fd)
+void	Sender::SendMessage(ChannelResult result, int fd) const
 {
 	ssize_t		byte_send;
 	std::string	message;
