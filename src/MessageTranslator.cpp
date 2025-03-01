@@ -139,9 +139,9 @@ void MessageTranslator::SetOpePass(std::string pass)
 	operator_pass_ = pass;
 }
 
-void	MessageTranslator::Unknown(std::vector<std::string>, int player_fd)
+void	MessageTranslator::Unknown(std::vector<std::string> av, int player_fd)
 {
-	sender_.SendMessage(ChannelResult(FATAL, ""), player_fd);
+	sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
 }
 
 void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
