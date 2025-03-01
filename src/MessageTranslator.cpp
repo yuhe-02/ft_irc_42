@@ -78,7 +78,7 @@ std::vector<std::string> MessageTranslator::Translate(std::string str)
 	return (box);
 }
 
-ChannelResult	MessageTranslator::Execute(std::string message, int user_fd)
+void	MessageTranslator::Execute(std::string message, int user_fd)
 {
 	if (message == "")
 		return (ChannelResult(FATAL, ""));
@@ -86,7 +86,7 @@ ChannelResult	MessageTranslator::Execute(std::string message, int user_fd)
 	box = Translate(message);
 	if (!box.size() || func_.find(box[0]) == func_.end())
 		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
-	ChannelResult result = (this->*(func_[box[0]]))(box, user_fd);
+	(this->*(func_[box[0]]))(box, user_fd);
 	#ifdef DEBUG
 		OutputLog();
 		if (result.first == FATAL)
@@ -94,7 +94,7 @@ ChannelResult	MessageTranslator::Execute(std::string message, int user_fd)
 		else
 			std::cout << result.second << std::endl;
 	#endif
-	return (result);
+	return ;
 }
 
 void MessageTranslator::SetOpePass(std::string pass)
@@ -102,12 +102,13 @@ void MessageTranslator::SetOpePass(std::string pass)
 	operator_pass_ = pass;
 }
 
-ChannelResult	MessageTranslator::Unknown(std::vector<std::string>, int)
+void	MessageTranslator::Unknown(std::vector<std::string>, int)
 {
+	sender_.SendMessage(ChannelResult(FATAL, ""));
 	return (ChannelResult(FATAL, ""));
 }
 
-ChannelResult	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2 || (av[1] != pass_ && av[1] != operator_pass_))
 		return (create_code_message(ERR_NEEDMOREPARAMS, "PASS"));
@@ -118,14 +119,14 @@ ChannelResult	MessageTranslator::Pass(std::vector<std::string> av, int player_fd
 	return (ChannelResult(FATAL, ""));
 }
 
-ChannelResult	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
 		return (create_code_message(ERR_NONICKNAMEGIVEN, "NICK"));
 	return (user_->SetNickname(player_fd, av[1]));
 }
 
-ChannelResult	MessageTranslator::User(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 5)
 		return (create_code_message(ERR_NEEDMOREPARAMS, "USER"));
@@ -137,7 +138,7 @@ ChannelResult	MessageTranslator::User(std::vector<std::string> av, int player_fd
 /// @param av
 /// @param player_fd 複数チャンネル選択できない、、、#または&で始まるからそれで識別するべき
 /// @return
-ChannelResult	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
 		return (create_code_message(ERR_NEEDMOREPARAMS, "JOIN"));
@@ -150,14 +151,14 @@ ChannelResult	MessageTranslator::Join(std::vector<std::string> av, int player_fd
 /// @param av
 /// @param player_fd 複数チャンネル選択できない、、、#または&で始まるからそれで識別するべき
 /// @return
-ChannelResult	MessageTranslator::Part(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Part(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
 	return (create_code_message(ERR_NEEDMOREPARAMS, "PART"));
 	return (channel_->LeaveChannel(player_fd, av[1]));
 }
 
-ChannelResult	MessageTranslator::Mode(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Mode(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 3)
 	return (create_code_message(ERR_NEEDMOREPARAMS, "MODE"));
@@ -167,7 +168,7 @@ ChannelResult	MessageTranslator::Mode(std::vector<std::string> av, int player_fd
 	return (channel_->ChangeChannelMode(player_fd, tmp, av[2][0] == '+', av[1], av[3]));
 }
 
-ChannelResult	MessageTranslator::Topic(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 2)
 	return (create_code_message(ERR_NEEDMOREPARAMS, "TOPIC"));
@@ -177,7 +178,7 @@ ChannelResult	MessageTranslator::Topic(std::vector<std::string> av, int player_f
 }
 
 
-ChannelResult	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 3)
 	return (create_code_message(ERR_NEEDMOREPARAMS, "INVITE"));
@@ -188,14 +189,14 @@ ChannelResult	MessageTranslator::Invite(std::vector<std::string> av, int player_
 /// @param av
 /// @param player_fd 第三引数コメント未実装, 複数ユーザー未実装
 /// @return
-ChannelResult	MessageTranslator::Kick(std::vector<std::string> av, int player_fd)
+void	MessageTranslator::Kick(std::vector<std::string> av, int player_fd)
 {
 	if (av.size() < 3)
 		return (create_code_message(ERR_NEEDMOREPARAMS, "KICK"));
 	return (channel_->KickChannel(player_fd, av[2], av[1]));
 }
 
-ChannelResult	MessageTranslator::Quit(std::vector<std::string>, int player_fd)
+void	MessageTranslator::Quit(std::vector<std::string>, int player_fd)
 {
 	return (user_->DeleteUser(player_fd));
 }
@@ -208,7 +209,7 @@ void MessageTranslator::OutputLog()
 	std::cout << "----------------------------------ENDLOG---------------------------------------" << std::endl << std::endl;
 }
 
-ChannelResult	MessageTranslator::Exit(std::vector<std::string>, int player_fd)
+void	MessageTranslator::Exit(std::vector<std::string>, int player_fd)
 {
 	if (!Everyone::GetInstance()->IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
