@@ -115,15 +115,22 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		return ;
 	if (box[0] == "PING")
 	{
-		sender_.SendMessage(ChannelResult(1, "PONG"), user_fd);
+		sender_.SendMessage(ChannelResult(-1, "PONG"), user_fd);
 		return ;
 	}
 	if (!box.size() || (func_.find(box[0]) == func_.end() && box[0] != "TOPIC" && box[0] != "PRIVMSG" && box[0] != "CAP"))
 		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
 	if (box[0] == "CAP")
 	{
+		cap_[user_fd] = true;
 		if (box[1] != "END")
-			sender_.SendMessage(ChannelResult(1, "CAP * LS :"), user_fd);
+			sender_.SendMessage(ChannelResult(-1, "CAP * LS :"), user_fd);
+		else
+		{
+			cap_[user_fd] = 0;
+			if (regi_[user_fd])
+				sender_.SendMessage(ChannelResult(1, ""), user_fd);
+		}
 		return ;
 	}
 	if (box[0] == "PASS")
@@ -167,15 +174,15 @@ void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
 	}
 	if (av[1] == pass_)
 	{
-		sender_.SendMessage(user_->CreateUser(player_fd), player_fd);
+		user_->CreateUser(player_fd);
 		return ;
 	}
 	if (av[1] == operator_pass_)
 	{
-		sender_.SendMessage(user_->CreateUser(player_fd, 1), player_fd);
+		user_->CreateUser(player_fd, 1);
 		return ;
 	}
-	sender_.SendMessage(ChannelResult(FATAL, ""), player_fd);
+	sender_.SendMessage(create_code_message(ERR_PASSWDMISMATCH), player_fd);
 }
 
 void	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
@@ -185,7 +192,14 @@ void	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NONICKNAMEGIVEN, "NICK"), player_fd);
 		return ;
 	}
-	sender_.SendMessage(user_->SetNickname(player_fd, av[1]), player_fd);
+	user_->SetNickname(player_fd, av[1]);
+	if (user_->IsRegister(player_fd))
+	{
+		if (cap_.find(player_fd) != cap_.end() && cap_[player_fd])
+			regi_[player_fd] = 1;
+		else
+			sender_.SendMessage(ChannelResult(1, ""), player_fd);
+	}
 }
 
 void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
@@ -195,7 +209,14 @@ void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "USER"), player_fd);
 		return ;
 	}
-	sender_.SendMessage(user_->SetUser(player_fd, av[1], av[2], av[3], av[4]), player_fd);
+	user_->SetUser(player_fd, av[1], av[2], av[3], av[4]);
+	if (user_->IsRegister(player_fd))
+	{
+		if (cap_.find(player_fd) != cap_.end() && cap_[player_fd])
+			regi_[player_fd] = 1;
+		else
+			sender_.SendMessage(ChannelResult(1, ""), player_fd);
+	}
 }
 
 void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
@@ -215,6 +236,10 @@ void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 			sender_.SendMessage(channel_->JoinedChannel(player_fd, tmp), player_fd);
 		else
 			sender_.SendMessage(channel_->JoinedChannel(player_fd, tmp, 0, av[2]), player_fd);
+		Sender sender;
+		std::string str = ":" + user_->GetSomeone(player_fd).nick_name.back() + " JOIN :" + tmp;
+		for (std::set<int>::iterator it = channel_->GetChannelInfo(tmp).joined_player.begin(); it != channel_->GetChannelInfo(tmp).joined_player.end(); it++)
+			sender.SendMessage(ChannelResult(-1, str), *it);
 	}
 }
 
@@ -262,7 +287,7 @@ void MessageTranslator::Privmsg(std::vector<std::string> av, int player_fd, std:
 	while (std::getline(ss, tmp, ','))
 	{
 		result = channel_->SendMessageToChannel(player_fd, tmp, tmp2, sender_);
-		if (result.first != RPL_AWAY)
+		if (result.first != -1)
 			sender_.SendMessage(result, player_fd);
 	}
 }
@@ -279,6 +304,8 @@ void	MessageTranslator::Mode(std::vector<std::string> av, int player_fd)
 	const char *tmp = av[2].c_str() + 1;
 	if (av.size() == 3)
 	{
+		if (av[2] == "+i")
+			return ;
 		sender_.SendMessage(channel_->ChangeChannelMode(player_fd, tmp, av[2][0] == '+', av[1]), player_fd);
 		return ;
 	}
@@ -319,7 +346,19 @@ void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "INVITE"), player_fd);
 		return ;
 	}
-	sender_.SendMessage(channel_->InviteToChannel(player_fd, av[1], av[2]), player_fd);
+	ChannelResult tmp = channel_->InviteToChannel(player_fd, av[1], av[2]);
+	sender_.SendMessage(tmp, player_fd);
+	sender_.SendMessage(ChannelResult(-1, user_->GetSomeone(player_fd).nick_name.back() + " INVITE " + av[1] + " :" + av[2]), user_->GetUserIdNick(av[1]));
+	if (channel_->GetChannelInfo(av[2]).topic != "")
+	{
+		sender_.SendMessage(create_code_message(RPL_TOPIC, av[2], channel_->GetChannelInfo(av[2]).topic), player_fd);
+		return ;
+	}
+	sender_.SendMessage(create_code_message(RPL_NOTOPIC, av[2]), player_fd);
+	Sender sender;
+	std::string str = ":" + av[1] + " JOIN :" + av[2];
+	for (std::set<int>::iterator it = channel_->GetChannelInfo(av[2]).joined_player.begin(); it != channel_->GetChannelInfo(av[2]).joined_player.end(); it++)
+		sender.SendMessage(ChannelResult(-1, str), *it);
 }
 
 void	MessageTranslator::Kick(std::vector<std::string> av, int player_fd)
@@ -334,6 +373,8 @@ void	MessageTranslator::Kick(std::vector<std::string> av, int player_fd)
 		tmp = channel_->KickChannel(player_fd, av[2], av[1]);
 	else
 		tmp = channel_->KickChannel(player_fd, av[2], av[1], av[3]);
+	if (tmp.first != 1)
+		sender_.SendMessage(tmp, player_fd);
 }
 
 void	MessageTranslator::Quit(std::vector<std::string>, int player_fd)
