@@ -1,7 +1,13 @@
-001
-001
-001
-#public :
-#locked :
-:userB PRIVMSG #public :::Hello from userB!
+: 001 userA
+: 331 userA #public :No topic is set
+:userA JOIN :#public
+:AdminMaster JOIN :#public
+:userB JOIN :#public
+: 331 userA #locked :No topic is set
+:userA JOIN :#locked
+:userC JOIN :#public
+:userB PRIVMSG #public :Hello from userB!
+:userC JOIN :#public
+: 001 userA :userA PART #locked 
+: 001 userA :userA PART #public 
 001

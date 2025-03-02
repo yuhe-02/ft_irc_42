@@ -1,7 +1,8 @@
-001
-001
-001
-#room :
-:userB PRIVMSG #room :::Hello from userB!
-001
+: 001 userA
+: 331 userA #room :No topic is set
+:userA JOIN :#room
+:userB JOIN :#room
+:userB PRIVMSG #room :Hello from userB!
+: 001 userA :userA PART #room 
+:userA PART #room 
 001

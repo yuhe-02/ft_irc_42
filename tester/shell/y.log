@@ -1,7 +1,7 @@
-001
-001
-001
-#room1 :
-#room1 :You're not channel operator
-#room1 :You're not channel operator
+: 001 userY
+: 331 userY #room1 :No topic is set
+:userY JOIN :#room1
+: 482 userY #room1 :You're not channel operator
+: 482 userY #room1 :You're not channel operator
+: 001 userY :userY PART #room1 
 001

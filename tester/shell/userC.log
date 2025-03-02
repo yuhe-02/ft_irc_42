@@ -1,5 +1,11 @@
-001
-001
-001
-#public :Cannot join channel (+i)
-001
+: 001 userC
+: 331 userC #public :No topic is set
+:userC JOIN :#public
+:userA PRIVMSG #public :Hello from userA!
+:userB PRIVMSG #public :Hello from userB!
+AdminMaster INVITE userC :#public
+:userC JOIN :#public
+: 001 userC :userA PART #public 
+: 001 userC :userB PART #public 
+: 001 userC :userC PART #public :Leaving
+:userC PART #public :Leaving

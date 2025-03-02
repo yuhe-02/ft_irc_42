@@ -1,10 +1,18 @@
-001
-001
-001
-#room1 :
-#room2 :
-001
-#room2 +t 
-:userZ PRIVMSG #room2 :::Hello from userZ in #room2!
-:userY PRIVMSG #room1 :::Hello from userY in #room1!
-001
+: 001 userX
+: 331 userX #room1 :No topic is set
+:userX JOIN :#room1
+:AdminMaster JOIN :#room1
+:userY JOIN :#room1
+: 331 userX #room2 :No topic is set
+:userX JOIN :#room2
+:userZ JOIN :#room2
+: 001 userX 001
+:userZ JOIN :#room2
+: 324 userX #room2 +t 
+:AdminMaster JOIN :#room2
+:userZ PRIVMSG #room2 :Hello from userZ in #room2!
+:userY PRIVMSG #room1 :Hello from userY in #room1!
+: 001 userX :userZ PART #room2 
+: 001 userX :userX PART #room2 :Leaving
+:userX PART #room2 :Leaving
+: 001 userX :userY PART #room1 
