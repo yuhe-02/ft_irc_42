@@ -1,0 +1,7 @@
+001
+001
+001
+#room :
+:userB PRIVMSG #room :::Hello from userB!
+001
+001

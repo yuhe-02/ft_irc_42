@@ -1,0 +1,7 @@
+001
+001
+001
+#public :
+#locked :
+:userB PRIVMSG #public :::Hello from userB!
+001

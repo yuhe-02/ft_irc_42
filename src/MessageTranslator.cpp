@@ -229,8 +229,16 @@ void	MessageTranslator::Part(std::vector<std::string> av, int player_fd)
 	std::stringstream ss(av[1]);
 	std::string tmp;
 
-	while (std::getline(ss, tmp, ','))
-		sender_.SendMessage(channel_->LeaveChannel(player_fd, tmp), player_fd);
+	if (av.size() == 2)
+	{
+		while (std::getline(ss, tmp, ','))
+			sender_.SendMessage(channel_->LeaveChannel(player_fd, tmp), player_fd);
+	}
+	else
+	{
+		while (std::getline(ss, tmp, ','))
+			sender_.SendMessage(channel_->LeaveChannel(player_fd, tmp, av[2]), player_fd);
+	}
 }
 
 void MessageTranslator::Privmsg(std::vector<std::string> av, int player_fd, std::string str)
@@ -321,12 +329,11 @@ void	MessageTranslator::Kick(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "KICK"), player_fd);
 		return ;
 	}
+	ChannelResult tmp;
 	if (av.size() == 3)
-	{
-		sender_.SendMessage(channel_->KickChannel(player_fd, av[2], av[1]), player_fd);
-		return ;
-	}
-	sender_.SendMessage(channel_->KickChannel(player_fd, av[2], av[1], av[3]), player_fd);
+		tmp = channel_->KickChannel(player_fd, av[2], av[1]);
+	else
+		tmp = channel_->KickChannel(player_fd, av[2], av[1], av[3]);
 }
 
 void	MessageTranslator::Quit(std::vector<std::string>, int player_fd)

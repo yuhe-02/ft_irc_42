@@ -1,0 +1,10 @@
+001
+001
+001
+#room1 :
+#room2 :
+001
+#room2 +t 
+:userZ PRIVMSG #room2 :::Hello from userZ in #room2!
+:userY PRIVMSG #room1 :::Hello from userY in #room1!
+001
