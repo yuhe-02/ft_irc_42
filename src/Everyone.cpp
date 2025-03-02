@@ -64,7 +64,7 @@ ChannelResult	Everyone::DeleteUser(int player_fd)
 	Someone *del = everyone_id_[player_fd];
 	delete (del);
 	everyone_id_.erase(player_fd);
-	return (ChannelResult(1, "001"));
+	return (ChannelResult(-1, "001"));
 }
 
 const Someone	&Everyone::GetSomeone(int player_fd) const
