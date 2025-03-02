@@ -44,7 +44,7 @@ ChannelResult	Everyone::CreateUser(int player_fd, int flag)
 	else
 		tmp->is_admin = false;
 	everyone_id_[player_fd] = tmp;
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Everyone::DeleteUser(int player_fd)
@@ -64,7 +64,7 @@ ChannelResult	Everyone::DeleteUser(int player_fd)
 	Someone *del = everyone_id_[player_fd];
 	delete (del);
 	everyone_id_.erase(player_fd);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 const Someone	&Everyone::GetSomeone(int player_fd) const
@@ -78,7 +78,7 @@ ChannelResult Everyone::AddJoinChannel(int player_fd, const std::string& focas)
 	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.insert(focas);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& focas)
@@ -86,7 +86,7 @@ ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& foca
 	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.erase(focas);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname)
@@ -102,7 +102,7 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 	everyone_id_[player_fd]->level[USER] = 1;
 	everyone_username_[username] = everyone_id_[player_fd];
 	IsRegister(player_fd);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
@@ -123,7 +123,7 @@ ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 	everyone_id_[player_fd]->level[NICK] = 1;
 	everyone_nickname_[nickname] = everyone_id_[player_fd];
 	IsRegister(player_fd);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 void Everyone::OutputLog()

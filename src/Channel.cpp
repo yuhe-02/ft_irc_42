@@ -73,7 +73,7 @@ ChannelResult	Channel::CreateChannel(int player_fd, const std::string& name)
 ChannelResult	Channel::DeleteChannel(const std::string& channel_str)
 {
 	channels_.erase(channel_str);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 const ChannelInfo&	Channel::GetChannelInfo(const std::string& channel_str) const
@@ -143,7 +143,7 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 	tmp->DeleteJoinChannel(player_fd, channel_str);
 	if (channels_[channel_str].joined_player.size() == 0)
 		DeleteChannel(channel_str);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str, std::string message)
@@ -178,7 +178,7 @@ ChannelResult	Channel::ChangeTopic(int player_fd, const std::string& channel_str
 
 
 	channels_[channel_str].topic = str;
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Channel::ChangeChannelMode(int player_fd, const std::string& mode,
@@ -283,14 +283,15 @@ ChannelResult Channel::ChangeOperator(int player_fd, std::string &focas_user_str
 		channels_[channel_str].is_master.insert(tmp->GetUserIdNick(focas_user_str));
 	else
 		channels_[channel_str].is_master.erase(tmp->GetUserIdNick(focas_user_str));
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
-ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& channel_str, const std::string& message, const Sender& sender)
+ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& channel_str, const std::string& tmessage, const Sender& sender)
 {
 	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
 	if (!eve->IsRegister(player_fd))
 		return (create_code_message(ERR_NOTREGISTERED));
+	std::string message = ":" + tmessage;
 	if (channel_str[0] == '#' || channel_str[0] == '&')
 	{
 		if (!ExistChannel(channel_str))
@@ -299,16 +300,18 @@ ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& ch
 			return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 		for (std::set<int>::iterator it = channels_[channel_str].joined_player.begin(); it != channels_[channel_str].joined_player.end(); it++)
 		{
-			if (*it != player_fd)
-				sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message), *it);
+			if (IsOperator(player_fd, channel_str))
+				sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + "@ PRIVMSG " + channel_str, message), *it);
+			else
+				sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " PRIVMSG " + channel_str, message), *it);
 		}
-		return (create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message));
+		return (create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " PRIVMSG :" + channel_str, message));
 	}
 
 	if (!eve->ExistUserNick(channel_str))
 		return (create_code_message(ERR_NOSUCHNICK, channel_str));
-	sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message), eve->GetUserIdNick(channel_str));
-	return (create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " " + channel_str, message));
+	sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " PRIVMSG :" + channel_str, message), eve->GetUserIdNick(channel_str));
+	return (create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " PRIVMSG :" + channel_str, message));
 }
 
 bool	Channel::ExistChannel(const std::string& channel_str) const
