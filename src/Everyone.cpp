@@ -153,6 +153,24 @@ void Everyone::OutputLog()
 	std::cout << std::endl << std::endl;
 }
 
+void Everyone::SendLog(std::string nick, int player_fd)
+{
+	Sender sender;
+	if (!ExistUserNick(nick))
+	{
+		sender.SendMessage(create_code_message(ERR_NOSUCHNICK, nick), player_fd);
+		return ;
+	}
+	Someone some = *everyone_id_[GetUserIdNick(nick)];
+	sender.SendMessage(create_code_message(RPL_WHOISUSER, nick, some.user_name, some.host_name, some.real_name), player_fd);
+	std::string ms(nick + ":");
+	for (std::set<std::string>::iterator it = some.join_channel.begin(); it != some.join_channel.end(); it++)
+		ms += *it + " ";
+	sender.SendMessage(ChannelResult(RPL_WHOISCHANNELS, ms), player_fd);
+	sender.SendMessage(ChannelResult(RPL_WHOISSERVER, ""), player_fd);
+	sender.SendMessage(create_code_message(RPL_ENDOFWHOIS, nick), player_fd);
+}
+
 void Everyone::Clear(int n)
 {
 	if (n)

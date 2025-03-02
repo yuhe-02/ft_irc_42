@@ -22,6 +22,7 @@ MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
 	func_["QUIT"]      = &MessageTranslator::Quit;
 	func_["EXIT"]      = &MessageTranslator::Exit;
 	func_["LOG"]       = &MessageTranslator::Log;
+	func_["WHOIS"]       = &MessageTranslator::Whois;
 	tester_ = 1;
 	// func_["SERVER"]    = &MessageTranslator::Server;
 	// func_["OPER"]      = &MessageTranslator::Oper;
@@ -260,11 +261,13 @@ void MessageTranslator::Privmsg(std::vector<std::string> av, int player_fd, std:
 
 void	MessageTranslator::Mode(std::vector<std::string> av, int player_fd)
 {
-	if (av.size() < 3)
+	if (av.size() < 2)
 	{
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "MODE"), player_fd);
 		return ;
 	}
+	if (av.size() == 2)
+		return ;
 	const char *tmp = av[2].c_str() + 1;
 	if (av.size() == 3)
 	{
@@ -278,7 +281,7 @@ void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd, std::s
 {
 	if (av.size() < 2)
 	{
-	sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "TOPIC"), player_fd);
+		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "TOPIC"), player_fd);
 		return ;
 	}
 	if (av.size() == 2)
@@ -289,6 +292,16 @@ void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd, std::s
 	std::string tmp2 = str.substr(str.find(' ', str.find(' ') + 1) + 1);
 	std::cout << tmp2 << std::endl;
 	sender_.SendMessage(channel_->ChangeTopic(player_fd, av[1], tmp2), player_fd);
+}
+
+void MessageTranslator::Whois(std::vector<std::string> av, int player_fd)
+{
+	if (av.size() < 2)
+	{
+		sender_.SendMessage(create_code_message(ERR_NONICKNAMEGIVEN), player_fd);
+		return ;
+	}
+	user_->SendLog(av[1], player_fd);
 }
 
 void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)

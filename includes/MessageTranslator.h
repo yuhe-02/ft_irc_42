@@ -40,6 +40,7 @@ private:
 	void						Quit(std::vector<std::string> av, int player_fd);
 	void						Exit(std::vector<std::string>, int);
 	void						Log(std::vector<std::string>, int);
+	void						Whois(std::vector<std::string>, int);
 	// ChannelResult				Names(std::vector<std::string> av, int player_fd);
 	// ChannelResult				List(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Version(std::vector<std::string> av, int player_fd);

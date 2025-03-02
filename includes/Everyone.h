@@ -4,6 +4,7 @@
 #include "IntrusivePtr.h"
 #include "ErrorCode.h"
 #include "Channel.h"
+#include "Sender.hpp"
 
 #include <string>
 #include <vector>
@@ -16,6 +17,7 @@
 #include <iostream>
 
 class Channel;
+class Sender;
 
 enum FLAGREGISTER
 {
@@ -61,6 +63,7 @@ public:
 	ChannelResult					SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
 	ChannelResult					SetNickname(int player_fd, const std::string &nickname);
 	void							OutputLog();
+	void							SendLog(std::string nick, int player_fd);
 	void							Clear(int n);
 
 	int								GetUserIdNick(const std::string &nick_str) const;
