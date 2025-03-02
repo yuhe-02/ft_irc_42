@@ -110,8 +110,21 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	}
 	std::vector<std::string> box;
 	box = Translate(message);
-	if (!box.size() || (func_.find(box[0]) == func_.end() && box[0] != "TOPIC" && box[0] != "PRIVMSG"))
+	if (box[0] == "PONG")
+		return ;
+	if (box[0] == "PING")
+	{
+		sender_.SendMessage(ChannelResult(1, "PONG"), user_fd);
+		return ;
+	}
+	if (!box.size() || (func_.find(box[0]) == func_.end() && box[0] != "TOPIC" && box[0] != "PRIVMSG" && box[0] != "CAP"))
 		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
+	if (box[0] == "CAP")
+	{
+		if (box[1] != "END")
+			sender_.SendMessage(ChannelResult(1, "CAP * LS :"), user_fd);
+		return ;
+	}
 	if (box[0] == "PASS")
 	{
 		Pass(box, user_fd);
@@ -146,7 +159,7 @@ void	MessageTranslator::Unknown(std::vector<std::string> av, int player_fd)
 
 void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
 {
-	if (av.size() < 2 || (av[1] != pass_ && av[1] != operator_pass_))
+	if (av.size() < 2)
 	{
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "PASS"), player_fd);
 		return ;
