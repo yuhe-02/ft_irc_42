@@ -32,12 +32,24 @@ void	Sender::SendMessage(ChannelResult result, int fd) const
 		std::cerr << "Error: send" << std::endl;
 		return ;
 	}
-	message += result.second;
-	std::cerr << "Message: [" << result.second << "]" << std::endl;//デバッグ用
-	if (!result.second.empty())
-		message += "\r\n";
+	std::stringstream ss;
+	if (result.first != -1)
+	{
+		if (result.first < 10)
+			ss << ": " << "00" << result.first;
+		else
+			ss << ": " << result.first;
+		ss << " " << Everyone::GetInstance()->GetSomeone(fd).nick_name.back();
+		if (result.second != "")
+			ss << " " << result.second;
+	}
+	else
+		ss << result.second;
+	if (!ss.str().empty())
+		ss << "\r\n";
+	std::cerr << "Message: " << ss.str();//デバッグ用
 	// message += "\r\n";
-	byte_send = send(fd, message.c_str(), message.length(), 0);
+	byte_send = send(fd, ss.str().c_str(), ss.str().length(), 0);
 	if (byte_send == -1)
 		std::cerr << "Error: send" << std::endl;
 }

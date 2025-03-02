@@ -24,6 +24,8 @@ private:
 	IntrusivePtr<Everyone>	user_;
 	Sender					sender_;
 	int						tester_;
+	std::map<int, int>		cap_;
+	std::map<int, int>		regi_;
 
 	std::vector<std::string>	Translate(std::string str);
 	void						Unknown(std::vector<std::string> av, int player_fd);

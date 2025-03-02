@@ -183,10 +183,10 @@ void SocketServer::handleClientMessage(size_t& index) {
 
 void SocketServer::closeClient(size_t& index)
 {
-	std::cout << "Client disconnected: FD " << poll_fds_[index].fd << "\n";
+	// std::cout << "Client disconnected: FD " << poll_fds_[index].fd << "\n";
 	close(poll_fds_[index].fd);
     Everyone::GetInstance()->DeleteUser(poll_fds_[index].fd);
-	poll_fds_.erase(poll_fds_.begin() + index);
+	// poll_fds_.erase(poll_fds_.begin() + index);
     index--;
 }
 
@@ -213,7 +213,7 @@ void SocketServer::start() {
 		return;
 	}
 	while (true) {
-        // std::vector<int> indices_to_remove;
+        std::vector<int> indices_to_remove;
         /**
          * @brief 監視設定
          *
@@ -237,19 +237,19 @@ void SocketServer::start() {
 				} else {
 					handleClientMessage(i);
                     // Everyoneクラスでユーザーが作成されないと即時切断するようにしてるけどどうしようかな
-                    // if ((message_buffer_[poll_fds_[i].fd].size() == 0) && !(everyone_->IsCreated(poll_fds_[i].fd))) {
-                    //     indices_to_remove.push_back(i);
-                    // }
+                    if ((message_buffer_[poll_fds_[i].fd].size() == 0) && !(everyone_->IsCreated(poll_fds_[i].fd))) {
+                        indices_to_remove.push_back(i);
+                    }
 				}
 			}
 
 		}
-        // for (std::vector<int>::reverse_iterator it = indices_to_remove.rbegin();
-        //     it != indices_to_remove.rend(); ++it) {
-        //     std::cout << "Client disconnected: FD " << poll_fds_[*it].fd << "\n";
-        //     close(poll_fds_[*it].fd);
-        //     poll_fds_.erase(poll_fds_.begin() + *it);
-        // }
+        for (std::vector<int>::reverse_iterator it = indices_to_remove.rbegin();
+            it != indices_to_remove.rend(); ++it) {
+            std::cout << "Client disconnected: FD " << poll_fds_[*it].fd << "\n";
+            close(poll_fds_[*it].fd);
+            poll_fds_.erase(poll_fds_.begin() + *it);
+        }
 	}
 }
 

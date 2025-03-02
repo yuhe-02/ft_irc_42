@@ -56,8 +56,8 @@ public:
 	const ChannelInfo&				GetChannelInfo(const std::string& channel_str) const;
 	ChannelResult					InviteToChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str);
 	ChannelResult					JoinedChannel(int player_fd, const std::string& channel_str, int flag = 0, std::string pass = "");
-	ChannelResult					LeaveChannel(int player_fd, const std::string& channel_str, std::string message = ":", int flag = 1);
-	ChannelResult					KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str, std::string message = ":");
+	ChannelResult					LeaveChannel(int player_fd, const std::string& channel_str, std::string message = "", int flag = 1);
+	ChannelResult					KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str, std::string message = "");
 	ChannelResult					ChangeTopic(int player_fd, const std::string& channel_str, std::string topic);
 	ChannelResult					ChangeChannelMode(int player_fd, const std::string& mode,
 										bool valid, const std::string& channel_str, std::string key = "");
