@@ -187,7 +187,6 @@ void SocketServer::closeClient(size_t& index)
 	close(poll_fds_[index].fd);
     Everyone::GetInstance()->DeleteUser(poll_fds_[index].fd);
 	// poll_fds_.erase(poll_fds_.begin() + index);
-    index--;
 }
 
 SocketServer::SocketServer(int port, const std::string &password) : port_(port), password_(password), server_fd_(-1), translator_(new MessageTranslator(password)){
