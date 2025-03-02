@@ -91,7 +91,7 @@ std::pair<int, std::string> create_code_message(int code, std::string str1, std:
 		case RPL_ISON:
 			return std::make_pair(code, ":" + str1);
 		case RPL_AWAY:
-			return std::make_pair(code, str1 + " :" + str2);
+			return std::make_pair(code, str1 + " " + str2);
 		case RPL_UNAWAY:
 			return std::make_pair(code, ":You are no longer marked as being away");
 		case RPL_NOWAWAY:

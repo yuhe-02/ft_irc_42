@@ -1,0 +1,7 @@
+001
+001
+001
+#room2 :
+userZ #room2 :is already on channel
+:@userX PRIVMSG #room2 :::Hello from userX in #room2!
+001

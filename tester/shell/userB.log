@@ -1,0 +1,7 @@
+001
+001
+001
+#public :
+:userA@ PRIVMSG #public :::Hello from userA!
+#public :You're not channel operator
+001

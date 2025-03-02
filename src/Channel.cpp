@@ -128,7 +128,7 @@ ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_s
 	return (create_code_message(RPL_TOPIC, channel_str, channels_[channel_str].topic));
 }
 
-ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_str)
+ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_str, std::string message, int flag)
 {
 	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
 	if (!eve->IsRegister(player_fd))
@@ -143,7 +143,18 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 	tmp->DeleteJoinChannel(player_fd, channel_str);
 	if (channels_[channel_str].joined_player.size() == 0)
 		DeleteChannel(channel_str);
-	return (ChannelResult(1, "001"));
+	std::string mess = ":" + eve->GetSomeone(player_fd).nick_name.back() + " PART " + channel_str + " " + message;
+	Sender sender;
+	if (flag)
+	{
+		sender.SendMessage(ChannelResult(1, mess), player_fd);
+		if (channels_[channel_str].joined_player.size())
+		{
+			for (std::set<int>::iterator it = channels_[channel_str].joined_player.begin(); it != channels_[channel_str].joined_player.end(); it++)
+				sender.SendMessage(ChannelResult(1, mess), *it);
+		}
+	}
+	return (ChannelResult(1, mess));
 }
 
 ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str, std::string message)
@@ -160,8 +171,13 @@ ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_
 	if (!IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
-	LeaveChannel(tmp->GetUserIdNick(focas_user_str), channel_str);
-	return (ChannelResult(1, message));
+	LeaveChannel(tmp->GetUserIdNick(focas_user_str), channel_str, message, 0);
+	std::string msg = ":" + eve->GetSomeone(player_fd).nick_name.back() + " KICK " + channel_str + " " + focas_user_str + " " + message;
+	Sender sender;
+	sender.SendMessage(ChannelResult(1, msg), eve->GetUserIdNick(focas_user_str));
+	for (std::set<int>::iterator it = channels_[channel_str].joined_player.begin(); it != channels_[channel_str].joined_player.end(); it++)
+		sender.SendMessage(ChannelResult(1, msg), *it);
+	return (ChannelResult(1, msg));
 }
 
 ChannelResult	Channel::ChangeTopic(int player_fd, const std::string& channel_str, std::string str)
@@ -291,7 +307,7 @@ ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& ch
 	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
 	if (!eve->IsRegister(player_fd))
 		return (create_code_message(ERR_NOTREGISTERED));
-	std::string message = ":" + tmessage;
+	const std::string& message = tmessage;
 	if (channel_str[0] == '#' || channel_str[0] == '&')
 	{
 		if (!ExistChannel(channel_str))
@@ -303,7 +319,7 @@ ChannelResult Channel::SendMessageToChannel(int player_fd, const std::string& ch
 			if (*it != player_fd)
 			{
 				if (IsOperator(player_fd, channel_str))
-					sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + "@ PRIVMSG " + channel_str, message), *it);
+					sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " PRIVMSG " + channel_str, message), *it);
 				else
 					sender.SendMessage(create_code_message(RPL_AWAY, ":" + eve->GetSomeone(player_fd).nick_name.back() + " PRIVMSG " + channel_str, message), *it);
 			}
