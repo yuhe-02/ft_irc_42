@@ -151,7 +151,7 @@ enum IrcReservedCode {
 
 typedef std::pair<int, std::string> ChannelResult;
 
-ChannelResult create_code_message(int code, std::string str1 = "", std::string str2 = "", std::string str3 = "");
+ChannelResult create_code_message(int code, std::string str1 = "", std::string str2 = "", std::string str3 = "", std::string str4 = "");
 bool						is_special(char c);
 bool						is_letter(char c);
 bool						is_number(char c);
