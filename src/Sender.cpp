@@ -26,7 +26,6 @@ void	Sender::SendMessage(ChannelResult result, int fd) const
 	ssize_t		byte_send;
 	std::string	message;
 
-	std::cout << result.second << std::endl;
 	if (fd < 0)
 	{
 		std::cerr << "Error: send" << std::endl;
@@ -36,10 +35,11 @@ void	Sender::SendMessage(ChannelResult result, int fd) const
 	if (result.first != -1)
 	{
 		if (result.first < 10)
-			ss << ": " << "00" << result.first;
+			ss << ":localhost " << "00" << result.first;
 		else
-			ss << ": " << result.first;
-		ss << " " << Everyone::GetInstance()->GetSomeone(fd).nick_name.back();
+			ss << ":localhost " << result.first;
+		if (result.first != 451 && result.first != 464 && result.second.find("PASS") == std::string::npos)
+			ss << " " << Everyone::GetInstance()->GetSomeone(fd).nick_name.back();
 		if (result.second != "")
 			ss << " " << result.second;
 	}
