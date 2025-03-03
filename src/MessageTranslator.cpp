@@ -162,7 +162,8 @@ void MessageTranslator::SetOpePass(std::string pass)
 
 void	MessageTranslator::Unknown(std::vector<std::string> av, int player_fd)
 {
-	sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
+	if (user_->IsCreated(player_fd))
+		sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
 }
 
 void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
