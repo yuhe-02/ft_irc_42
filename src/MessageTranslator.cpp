@@ -124,7 +124,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	{
 		cap_[user_fd] = true;
 		if (box[1] != "END")
-			sender_.SendMessage(ChannelResult(-1, "CAP * LS :"), user_fd);
+			sender_.SendMessage(ChannelResult(-1, ":localhost CAP * LS :"), user_fd);
 		else
 		{
 			cap_[user_fd] = 0;
