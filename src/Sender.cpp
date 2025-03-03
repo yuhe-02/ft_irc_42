@@ -23,6 +23,8 @@ Sender& Sender::operator=(const Sender& src)
 
 void	Sender::SendMessage(ChannelResult result, int fd) const
 {
+	if (!Everyone::GetInstance()->IsCreated(fd))
+		return ;
 	ssize_t		byte_send;
 	std::string	message;
 
