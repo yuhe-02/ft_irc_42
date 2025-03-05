@@ -34,22 +34,39 @@ void	Sender::SendMessage(ChannelResult result, int fd) const
 	std::stringstream ss;
 	if (result.first != -1)
 	{
+		// std::cerr << "ChannelResult: " << result.first << ", " << result.second << std::endl;//デバッグ用
 		if (result.first < 10)
+		{
 			ss << ":localhost " << "00" << result.first;
-		else
+		} else
+		{
 			ss << ":localhost " << result.first;
-		if (result.first != 451 && result.first != 464 && result.second.find("PASS") == std::string::npos)
-			ss << " " << Everyone::GetInstance()->GetSomeone(fd).nick_name.back();
+		}
+		if ((result.first != 451 && result.first != 464) && (result.second.find("PASS") == std::string::npos))
+		{
+			// unknown command時にニックネームがない可能性があるため
+			if (Everyone::GetInstance()->IsCreated(fd))
+			{
+				ss << " " << Everyone::GetInstance()->GetSomeone(fd).nick_name.back();
+			}
+		}
 		if (result.second != "")
+		{
 			ss << " " << result.second;
-	}
-	else
+		}
+	} else
+	{
 		ss << result.second;
+	}
 	if (!ss.str().empty())
+	{
 		ss << "\r\n";
+	}
 	std::cerr << "Message: " << ss.str();//デバッグ用
 	// message += "\r\n";
 	byte_send = send(fd, ss.str().c_str(), ss.str().length(), 0);
 	if (byte_send == -1)
+	{
 		std::cerr << "Error: send" << std::endl;
+	}
 }

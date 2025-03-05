@@ -39,8 +39,6 @@ ChannelResult	Channel::CreateChannel(int player_fd, const std::string& name)
 		return (ChannelResult(FATAL, ""));
 	if (channels_.size() >= INT_MAX)
 		return (ChannelResult(FATAL, ""));
-	if (channels_.find(name) != channels_.end())
-		return (ChannelResult(FATAL, ""));
 	if (name.size() > 200)
 		return (ChannelResult(FATAL, ""));
 	if (name == "" || !(name[0] == '#' || name[0] == '&'))

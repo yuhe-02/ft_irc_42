@@ -28,6 +28,7 @@ private:
 	std::map<int, int>		regi_;
 
 	std::vector<std::string>	Translate(std::string str);
+	bool						hasCommand(std::string str);
 	void						Unknown(std::vector<std::string> av, int player_fd);
 	void						Pass(std::vector<std::string> av, int player_fd);
 	void						Nick(std::vector<std::string> av, int player_fd);
@@ -43,6 +44,8 @@ private:
 	void						Exit(std::vector<std::string>, int);
 	void						Log(std::vector<std::string>, int);
 	void						Whois(std::vector<std::string>, int);
+	void						Pong(std::vector<std::string> av, int player_fd);
+	void						Ping(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Names(std::vector<std::string> av, int player_fd);
 	// ChannelResult				List(std::vector<std::string> av, int player_fd);
 	// ChannelResult				Version(std::vector<std::string> av, int player_fd);

@@ -23,6 +23,8 @@ MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
 	func_["EXIT"]      = &MessageTranslator::Exit;
 	func_["LOG"]       = &MessageTranslator::Log;
 	func_["WHOIS"]       = &MessageTranslator::Whois;
+	func_["PONG"]      = &MessageTranslator::Pong;
+	func_["PING"]      = &MessageTranslator::Ping;
 	tester_ = 1;
 	// func_["SERVER"]    = &MessageTranslator::Server;
 	// func_["OPER"]      = &MessageTranslator::Oper;
@@ -80,14 +82,34 @@ std::vector<std::string> MessageTranslator::Translate(std::string str)
 		box.push_back(tmp);
 	return (box);
 }
+bool  MessageTranslator::hasCommand(std::string str)
+{
+	if (func_.find(str) == func_.end())
+	{
+		std::cout << "matched: " << str << std::endl;
+		return false;
+	}
+	return true;
+}
 
 void	MessageTranslator::Execute(std::string message, int user_fd)
 {
 	if (message == "")
 		return ;
+	std::vector<std::string> box;
+	box = Translate(message);
+	if (!user_->IsCreated(user_fd))
+	{	
+		user_->CreateUser(user_fd, 1);
+		std::string tester("default");
+		for (int n = 0; n < tester_; n++)
+			tester += "0";
+		user_->SetNickname(user_fd, tester);
+		// user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
+		tester_++;
+	}
 	if (message == "ASKIP")
 	{
-		user_->CreateUser(user_fd, 1);
 		std::string tester("admin");
 		for (int n = 0; n < tester_; n++)
 			tester += "0";
@@ -95,11 +117,8 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
 		std::cout << "ADMIN is comming" << std::endl;
 		tester_++;
-		return ;
-	}
-	if (message == "SKIP")
+	} else if (message == "SKIP")
 	{
-		user_->CreateUser(user_fd);
 		std::string tester("user");
 		for (int n = 0; n < tester_; n++)
 			tester += "0";
@@ -107,48 +126,19 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		user_->SetUser(user_fd, "user", "user", "user", "user");
 		std::cout << "USER is comming" << std::endl;
 		tester_++;
-		return ;
-	}
-	std::vector<std::string> box;
-	box = Translate(message);
-	if (box[0] == "PONG")
-		return ;
-	if (box[0] == "PING")
+	} else if (box[0] == "PRIVMSG")
 	{
-		sender_.SendMessage(ChannelResult(-1, "PONG"), user_fd);
-		return ;
-	}
-	if (!box.size() || (func_.find(box[0]) == func_.end() && box[0] != "TOPIC" && box[0] != "PRIVMSG" && box[0] != "CAP"))
-		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
-	if (box[0] == "CAP")
-	{
-		cap_[user_fd] = true;
-		if (box[1] != "END")
-			sender_.SendMessage(ChannelResult(-1, ":localhost CAP * LS :"), user_fd);
-		else
-		{
-			cap_[user_fd] = 0;
-			if (regi_[user_fd])
-				sender_.SendMessage(ChannelResult(1, ""), user_fd);
-		}
-		return ;
-	}
-	if (box[0] == "PASS")
-	{
-		Pass(box, user_fd);
-		return ;
-	}
-	if (!user_->IsCreated(user_fd))
-	{
-		sender_.SendMessage(create_code_message(ERR_NOTREGISTERED), user_fd);
-		return ;
-	}
-	if (box[0] == "PRIVMSG")
 		Privmsg(box, user_fd, message);
-	else if (box[0] == "TOPIC")
+	} else if (box[0] == "TOPIC")
+	{
 		Topic(box, user_fd, message);
-	else
+	} else if (!hasCommand(box[0]))
+	{
+		return ((this->*(func_["UNKNOWN"]))(box, user_fd));
+	} else
+	{
 		(this->*(func_[box[0]]))(box, user_fd);
+	}
 	#ifdef DEBUG
 		OutputLog();
 	#endif
@@ -160,10 +150,24 @@ void MessageTranslator::SetOpePass(std::string pass)
 	operator_pass_ = pass;
 }
 
+void MessageTranslator::Ping(std::vector<std::string> av, int player_fd)
+{
+	(void)av;
+	(void)player_fd;
+	return;
+}
+void MessageTranslator::Pong(std::vector<std::string> av, int player_fd)
+{
+	(void)av;
+	sender_.SendMessage(ChannelResult(-1, "PONG"), player_fd);
+}
+
 void	MessageTranslator::Unknown(std::vector<std::string> av, int player_fd)
 {
-	if (user_->IsCreated(player_fd))
-		sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
+	// if (user_->IsCreated(player_fd))
+	// 	sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
+	// CAP LS時点ではユーザー作成されていないがunknownコマンドが来るので、コメントアウト	
+	sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
 }
 
 void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
@@ -175,12 +179,12 @@ void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
 	}
 	if (av[1] == pass_)
 	{
-		user_->CreateUser(player_fd);
+		// TODO ここを認証処理に変える
 		return ;
 	}
 	if (av[1] == operator_pass_)
 	{
-		user_->CreateUser(player_fd, 1);
+		// TODO ここを認証処理に変える
 		return ;
 	}
 	sender_.SendMessage(create_code_message(ERR_PASSWDMISMATCH), player_fd);
@@ -216,7 +220,7 @@ void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 		if (cap_.find(player_fd) != cap_.end() && cap_[player_fd])
 			regi_[player_fd] = 1;
 		else
-			sender_.SendMessage(ChannelResult(1, ""), player_fd);
+			sender_.SendMessage(ChannelResult(1, ":Welcome Internet Reley Chat"), player_fd);
 	}
 }
 
@@ -227,20 +231,30 @@ void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "JOIN"), player_fd);
 		return ;
 	}
-
+	if (user_->IsRegister(player_fd) == false)
+	{
+		sender_.SendMessage(create_code_message(ERR_NOTREGISTERED), player_fd);
+		return ;
+	}
 	std::stringstream ss(av[1]);
 	std::string tmp;
+	ChannelResult result;
 
 	while (std::getline(ss, tmp, ','))
-	{
+	{	
 		if (av.size() == 2)
-			sender_.SendMessage(channel_->JoinedChannel(player_fd, tmp), player_fd);
-		else
-			sender_.SendMessage(channel_->JoinedChannel(player_fd, tmp, 0, av[2]), player_fd);
-		Sender sender;
+		{
+			result = channel_->JoinedChannel(player_fd, tmp);
+		} else
+		{
+			result = channel_->JoinedChannel(player_fd, tmp);
+		}
+		sender_.SendMessage(result, player_fd);
 		std::string str = ":" + user_->GetSomeone(player_fd).nick_name.back() + " JOIN :" + tmp;
 		for (std::set<int>::iterator it = channel_->GetChannelInfo(tmp).joined_player.begin(); it != channel_->GetChannelInfo(tmp).joined_player.end(); it++)
-			sender.SendMessage(ChannelResult(-1, str), *it);
+		{
+			sender_.SendMessage(ChannelResult(-1, str), *it);
+		}
 	}
 }
 
@@ -421,85 +435,3 @@ void MessageTranslator::Log(std::vector<std::string>, int player_fd)
 	}
 	sender_.SendMessage(ChannelResult(FATAL, ""), player_fd);
 }
-
-// 一応残してるけどいらないでしょこれ。
-// /// @brief
-// /// @param av
-// /// @param player_fd リストを送っているときと、リストが終わった時でメッセージが違う。メッセージ送信がもろ関わるため保留
-// /// @return
-// ChannelResult	MessageTranslator::Names(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-
-// /// @brief
-// /// @param av
-// /// @param player_fd リストを送っているときと、リストが終わった時でメッセージが違う。メッセージ送信がもろ関わるため保留
-// /// @return
-// ChannelResult	MessageTranslator::List(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Version(std::vector<std::string> av, int player_fd)
-// {
-	// 	return (create_code_message(RPL_VERSION, "version: 42.195"));
-	// }
-
-	// /// @brief
-	// /// @param av
-	// /// @param player_fd いるこれ？
-	// /// @return
-	// ChannelResult	MessageTranslator::Time(std::vector<std::string> av, int player_fd) {
-		// 	return ChannelResult();
-		// }
-
-		// /// @brief
-		// /// @param av
-		// /// @param player_fd 送信系のため未対応
-		// /// @return
-		// ChannelResult	MessageTranslator::Privmsg(std::vector<std::string> av, int player_fd) {
-			// }
-
-
-
-
-// ChannelResult	MessageTranslator::Who(std::vector<std::string> av, int player_fd) {
-	// 	return ChannelResult();
-	// }
-	// ChannelResult	MessageTranslator::Whois(std::vector<std::string> av, int player_fd) {
-		// 	return ChannelResult();
-		// }
-		// ChannelResult	MessageTranslator::Whowas(std::vector<std::string> av, int player_fd) {
-			// 	return ChannelResult();
-			// }
-			// ChannelResult	MessageTranslator::Kill(std::vector<std::string> av, int player_fd) {
-				// 	return ChannelResult();
-				// }
-				// ChannelResult	MessageTranslator::Ping(std::vector<std::string> av, int player_fd) {
-					// 	return ChannelResult();
-					// }
-// ChannelResult	MessageTranslator::Pong(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Error(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Away(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Rehash(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Restart(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Summon(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Users(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Wallops(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }
-// ChannelResult	MessageTranslator::Userhost(std::vector<std::string> av, int player_fd) {
-// 	return ChannelResult();
-// }

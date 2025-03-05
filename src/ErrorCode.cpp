@@ -83,7 +83,8 @@ std::pair<int, std::string> create_code_message(int code, std::string str1, std:
 			return std::make_pair(code, ":Unknown MODE flag");
 		case ERR_USERSDONTMATCH:
 			return std::make_pair(code, ":Can't change mode for other users");
-
+		case RPL_WELCOME:
+			return std::make_pair(code, ":Welcome to the Internet Relay Network");
 		case RPL_NONE:
 			return std::make_pair(code, "");
 		case RPL_USERHOST:

@@ -53,7 +53,9 @@ enum IrcErrorCode {
 	ERR_USERSDONTMATCH = 502    // Cant change mode for other users
 };
 
+// TODO WELCOME　1にしたい
 enum IrcResponseCode {
+	RPL_WELCOME = 10,            // Welcome to the Internet Relay Network
 	RPL_NONE = 300,             // Dummy reply number. Not used
 	RPL_USERHOST = 302,         // Reply to USERHOST command
 	RPL_ISON = 303,             // Reply to ISON command
