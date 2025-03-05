@@ -236,9 +236,9 @@ void SocketServer::start() {
 				} else {
 					handleClientMessage(i);
                     // Everyoneクラスでユーザーが作成されないと即時切断するようにしてるけどどうしようかな
-                    // if ((message_buffer_[poll_fds_[i].fd].size() == 0) && !(everyone_->IsCreated(poll_fds_[i].fd))) {
-                    //     indices_to_remove.push_back(i);
-                    // }
+                    if ((message_buffer_[poll_fds_[i].fd].size() == 0) && !(everyone_->IsCreated(poll_fds_[i].fd))) {
+                        indices_to_remove.push_back(i);
+                    }
 				}
 			}
 
