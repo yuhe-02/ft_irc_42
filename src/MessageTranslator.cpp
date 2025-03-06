@@ -414,7 +414,7 @@ void	MessageTranslator::Exit(std::vector<std::string>, int player_fd)
 	}
 	if (Everyone::GetInstance()->GetSomeone(player_fd).is_admin)
 	{
-		sender_.SendMessage(ChannelResult(1, ""), player_fd);
+		sender_.SendMessage(ChannelResult(-1, ""), player_fd);
 		exit(0);
 	}
 	sender_.SendMessage(ChannelResult(FATAL, ""), player_fd);
@@ -429,7 +429,7 @@ void MessageTranslator::Log(std::vector<std::string>, int player_fd)
 	}
 	if (Everyone::GetInstance()->GetSomeone(player_fd).is_admin)
 	{
-		sender_.SendMessage(ChannelResult(1, ""), player_fd);
+		sender_.SendMessage(ChannelResult(-1, ""), player_fd);
 		OutputLog();
 		return ;
 	}

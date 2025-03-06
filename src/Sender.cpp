@@ -1,5 +1,17 @@
 #include "Sender.hpp"
 
+static std::string zfill(int num, int digit)
+{
+    std::stringstream ss;
+    ss << num;
+    std::string str = ss.str();
+
+    while (str.length() < static_cast<size_t>(digit))
+    {
+        str = "0" + str;
+    }
+    return str;
+}
 Sender::Sender(void)
 {
 
@@ -35,13 +47,7 @@ void	Sender::SendMessage(ChannelResult result, int fd) const
 	if (result.first != -1)
 	{
 		// std::cerr << "ChannelResult: " << result.first << ", " << result.second << std::endl;//デバッグ用
-		if (result.first < 10)
-		{
-			ss << ":localhost " << "00" << result.first;
-		} else
-		{
-			ss << ":localhost " << result.first;
-		}
+		ss << ":localhost " << zfill(result.first, 3);
 		if ((result.first != 451 && result.first != 464) && (result.second.find("PASS") == std::string::npos))
 		{
 			// unknown command時にニックネームがない可能性があるため
