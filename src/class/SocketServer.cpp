@@ -193,7 +193,8 @@ SocketServer::SocketServer(int port, const std::string &password) : port_(port),
     everyone_ = Everyone::GetInstance();
 }
 
-SocketServer::~SocketServer() {
+SocketServer::~SocketServer(){
+    delete translator_;
 	cleanUp();
 }
 
