@@ -3,12 +3,18 @@
 
 # include <iostream>
 # include <sys/socket.h>
+# include <iomanip>
+# include <string>
+# include <sstream>
 #include "ErrorCode.h"
 #include "Channel.h"
 #include "Everyone.h"
 
 class Sender
 {
+	private:
+		std::string createResponse(ChannelResult &result, int fd) const;
+		ssize_t sendResponse(std::string &response, int fd) const;
 	public:
 		Sender(void);
 		~Sender(void);

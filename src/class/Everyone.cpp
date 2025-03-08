@@ -101,7 +101,6 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 	everyone_id_[player_fd]->real_name = realname;
 	everyone_id_[player_fd]->level[USER] = 1;
 	everyone_username_[username] = everyone_id_[player_fd];
-	IsRegister(player_fd);
 	return (ChannelResult(1, "001"));
 }
 
@@ -115,14 +114,12 @@ ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 		return (ChannelResult(create_code_message(ERR_ERRONEUSNICKNAME, nickname)));
 	if (nick_list_.find(nickname) != nick_list_.end())
 		return (create_code_message(ERR_NICKNAMEINUSE, nickname));
-
 	if (everyone_id_[player_fd]->nick_name.size() > 0)
 		nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
 	nick_list_.insert(nickname);
 	everyone_id_[player_fd]->nick_name.push_back(nickname);
 	everyone_id_[player_fd]->level[NICK] = 1;
 	everyone_nickname_[nickname] = everyone_id_[player_fd];
-	IsRegister(player_fd);
 	return (ChannelResult(1, "001"));
 }
 
@@ -231,7 +228,7 @@ bool Everyone::IsRegister(int player_fd)
 		return (true);
 	if (everyone_id_[player_fd]->level[NICK] && everyone_id_[player_fd]->level[USER])
 	{
-		everyone_id_[player_fd]->level[REGISTER] = 1;
+		// everyone_id_[player_fd]->level[REGISTER] = 1;
 		return (true);
 	}
 	return (false);
