@@ -2,7 +2,7 @@
 
 Sender::Sender(void)
 {
-
+	user_ = Everyone::GetInstance();
 }
 
 Sender::~Sender(void)
@@ -33,9 +33,9 @@ std::string Sender::createResponse(ChannelResult &result, int fd) const
 		if ((result.first != 451 && result.first != 464) && (result.second.find("PASS") == std::string::npos))
 		{
 			// unknown command時にニックネームがない可能性があるため
-			if (Everyone::GetInstance()->IsCreated(fd))
+			if (user_->IsCreated(fd))
 			{
-				ss << " " << Everyone::GetInstance()->GetSomeone(fd).nick_name.back();
+				ss << " " << user_->GetSomeone(fd).nick_name.back();
 			}
 		}
 		if (result.second != "")
