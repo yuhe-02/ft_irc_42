@@ -29,6 +29,9 @@ enum FLAGREGISTER
 struct Someone
 {
 	int							player_fd;
+	// ここのフラグはそれぞれの登録状況を管理するフラグで、
+	// [REGISTER]は元々運用していた意味合いと違う意味合いで使うようにした。
+	// [REGISTER]はパスワード通っているかどうかを表すものとした。(リファクタするかも)
 	int							level[3];
 	std::string					user_name;
 	std::string					host_name;
