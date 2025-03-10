@@ -62,6 +62,7 @@ public:
 	ChannelResult					DeleteJoinChannel(int player_fd, const std::string& focas);
 	ChannelResult					SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
 	ChannelResult					SetNickname(int player_fd, const std::string &nickname);
+	ChannelResult					SetRegister(int player_fd, int flag);
 	void							OutputLog();
 	void							SendLog(std::string nick, int player_fd);
 	void							Clear(int n);
@@ -71,6 +72,8 @@ public:
 	bool							ExistUserUser(const std::string &user_str) const;
 	bool							ExistUserNick(const std::string &user_str) const;
 	bool							IsRegister(int player_fd);
+	bool							IsRegisterUser(int player_fd);
+	bool							IsRegisterNick(int player_fd);
 	bool							IsCreated(int player_fd);
 	bool							IsAdmin(int player_fd);
 };

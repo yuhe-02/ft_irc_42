@@ -28,6 +28,7 @@ std::string Sender::createResponse(ChannelResult &result, int fd) const
 
 	if (result.first != -1)
 	{
+		std::cout << "result: " << result.second << std::endl;
 		// std::cerr << "ChannelResult: " << result.first << ", " << result.second << std::endl;//デバッグ用
 		ss << ":localhost " << std::setw(3) << std::setfill('0') << result.first;
 		if ((result.first != 451 && result.first != 464) && (result.second.find("PASS") == std::string::npos))
