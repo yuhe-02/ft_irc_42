@@ -1,0 +1,130 @@
+===================================================================
+Response: :irc.example.net 001 testuser :Welcome to the Internet Relay Network testuser!~testuser@localhost
+Response: :irc.example.net 002 testuser :Your host is irc.example.net, running version ngircd-26.1 (aarch64/unknown/linux-gnu)
+Response: :irc.example.net 003 testuser :This server has been started Tue Feb 25 2025 at 13:09:06 (UTC)
+Response: :irc.example.net 004 testuser irc.example.net ngircd-26.1 abBcCFiIoqrRswx abehiIklmMnoOPqQrRstvVz
+Response: :irc.example.net 005 testuser RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=#&+:10 :are supported on this server
+Response: :irc.example.net 005 testuser CHANNELLEN=50 NICKLEN=9 TOPICLEN=490 AWAYLEN=127 KICKLEN=400 MODES=5 MAXLIST=beI:50 EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server
+Response: :irc.example.net 251 testuser :There are 1 users and 0 services on 1 servers
+Response: :irc.example.net 254 testuser 1 :channels formed
+Response: :irc.example.net 255 testuser :I have 1 users, 0 services and 0 servers
+Response: :irc.example.net 265 testuser 1 2 :Current local users: 1, Max: 2
+Response: :irc.example.net 266 testuser 1 2 :Current global users: 1, Max: 2
+Response: :irc.example.net 250 testuser :Highest connection count: 3 (379 connections received)
+Response: :irc.example.net 375 testuser :- irc.example.net message of the day
+Response: :irc.example.net 372 testuser :- **************************************************
+Response: :irc.example.net 372 testuser :- *             H    E    L    L    O              *
+Response: :irc.example.net 372 testuser :- *  This is a private irc server. Please contact  *
+Response: :irc.example.net 372 testuser :- *  the admin of the server for any questions or  *
+Response: :irc.example.net 372 testuser :- *  issues.                                       *
+Response: :irc.example.net 372 testuser :- **************************************************
+Response: :irc.example.net 372 testuser :- *  The software was provided as a package of     *
+Response: :irc.example.net 372 testuser :- *  Debian GNU/Linux <https://www.debian.org/>.   *
+Response: :irc.example.net 372 testuser :- *  However, Debian has no control over this      *
+Response: :irc.example.net 372 testuser :- *  server.                                       *
+Response: :irc.example.net 372 testuser :- **************************************************
+Response: :irc.example.net 376 testuser :End of MOTD command
+Response: :testuser!~testuser@localhost JOIN :#testchannel
+Response: :irc.example.net 353 testuser = #testchannel :@testuser
+Response: :irc.example.net 366 testuser #testchannel :End of NAMES list
+Response: :irc.example.net NOTICE testuser :Connection statistics: client 0.1 kb, server 2.4 kb.
+Response: ERROR :Closing connection
+===================================================================
+===================================================================
+Response: ERROR :Access denied: Bad password?
+===================================================================
+===================================================================
+Response: :irc.example.net 451 * :Connection not registered
+Response: ERROR :Closing connection
+===================================================================
+===================================================================
+Response: :irc.example.net 451 testuser :Connection not registered
+Response: :irc.example.net 451 testuser :Connection not registered
+Response: ERROR :Closing connection
+===================================================================
+===================================================================
+Response: ERROR :Access denied: Bad password?
+===================================================================
+===================================================================
+Response: :irc.example.net 001 testuser :Welcome to the Internet Relay Network testuser!~testuser@localhost
+Response: :irc.example.net 002 testuser :Your host is irc.example.net, running version ngircd-26.1 (x86_64/pc/linux-gnu)
+Response: :irc.example.net 003 testuser :This server has been started Tue Mar 11 2025 at 23:03:47 (JST)
+Response: :irc.example.net 004 testuser irc.example.net ngircd-26.1 abBcCFiIoqrRswx abehiIklmMnoOPqQrRstvVz
+Response: :irc.example.net 005 testuser RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=#&+:10 :are supported on this server
+Response: :irc.example.net 005 testuser CHANNELLEN=50 NICKLEN=9 TOPICLEN=490 AWAYLEN=127 KICKLEN=400 MODES=5 MAXLIST=beI:50 EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server
+Response: :irc.example.net 251 testuser :There are 1 users and 0 services on 1 servers
+Response: :irc.example.net 254 testuser 1 :channels formed
+Response: :irc.example.net 255 testuser :I have 1 users, 0 services and 0 servers
+Response: :irc.example.net 265 testuser 1 1 :Current local users: 1, Max: 1
+Response: :irc.example.net 266 testuser 1 1 :Current global users: 1, Max: 1
+Response: :irc.example.net 250 testuser :Highest connection count: 1 (2 connections received)
+Response: :irc.example.net 375 testuser :- irc.example.net message of the day
+Response: :irc.example.net 372 testuser :- **************************************************
+Response: :irc.example.net 372 testuser :- *             H    E    L    L    O              *
+Response: :irc.example.net 372 testuser :- *  This is a private irc server. Please contact  *
+Response: :irc.example.net 372 testuser :- *  the admin of the server for any questions or  *
+Response: :irc.example.net 372 testuser :- *  issues.                                       *
+Response: :irc.example.net 372 testuser :- **************************************************
+Response: :irc.example.net 372 testuser :- *  The software was provided as a package of     *
+Response: :irc.example.net 372 testuser :- *  Debian GNU/Linux <https://www.debian.org/>.   *
+Response: :irc.example.net 372 testuser :- *  However, Debian has no control over this      *
+Response: :irc.example.net 372 testuser :- *  server.                                       *
+Response: :irc.example.net 372 testuser :- **************************************************
+Response: :irc.example.net 376 testuser :End of MOTD command
+Response: :testuser!~testuser@localhost JOIN :#testchannel
+Response: :irc.example.net 353 testuser = #testchannel :@testuser
+Response: :irc.example.net 366 testuser #testchannel :End of NAMES list
+Response: :irc.example.net NOTICE testuser :Connection statistics: client 0.1 kb, server 2.4 kb.
+Response: ERROR :Closing connection
+===================================================================
+===================================================================
+Response: :irc.example.net 451 * :Connection not registered
+Response: ERROR :Closing connection
+===================================================================
+===================================================================
+Response: :irc.example.net 451 testuser :Connection not registered
+Response: :irc.example.net 451 testuser :Connection not registered
+Response: ERROR :Closing connection
+===================================================================
+===================================================================
+Response: :irc.example.net 462 * :Connection already registered
+Response: ERROR :Access denied: Bad password?
+===================================================================
+===================================================================
+Response: ERROR :Access denied: Bad password?
+===================================================================
+===================================================================
+Response: ERROR :Access denied: Bad password?
+===================================================================
+===================================================================
+Response: :irc.example.net 451 * :Connection not registered
+Response: ERROR :Closing connection
+===================================================================
+===================================================================
+Response: ERROR :Access denied: Bad password?
+===================================================================
+===================================================================
+Response: :localhost 464 :Password incorrect
+Response: ERROR: Access denied: Bad password?
+Response: :localhost 451
+===================================================================
+Response: :localhost 001 testuser :Welcome to the Internet Relay Network
+Response: :localhost 331 testuser #testchannel :No topic is set
+Response: :testuser JOIN :#testchannel
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================

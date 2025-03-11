@@ -1,0 +1,95 @@
+[
+    {
+        "title": "Test 1 (normal)",
+        "cmds": [
+            "PASS test",
+            "NICK testuser",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 2 (without PASS)",
+        "cmds": [
+            "NICK testuser",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 3 (without NICK)",
+        "cmds": [
+            "PASS test",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 4 (without USER)",
+        "cmds": [
+            "PASS test",
+            "NICK testuser",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 5 (double PASS)",
+        "cmds": [
+            "PASS test",
+            "PASS test",
+            "NICK testuser",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 6 (double NICK)",
+        "cmds": [
+            "PASS test",
+            "NICK testuser",
+            "NICK testuser",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 7 (double USER)",
+        "cmds": [
+            "PASS test",
+            "NICK testuser",
+            "USER testuser 0 * :Test User",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 8 (immediate command)",
+        "cmds": [
+            "JOIN #testchannel",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 9 (no arguments PING)",
+        "cmds": [
+            "PASS test",
+            "NICK testuser",
+            "USER testuser 0 * :Test User",
+            "PING",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    }
+]

@@ -50,9 +50,9 @@ private:
 	bool initServer();
 	void handleNewConnection();
 	std::string receiveMessage(int fd);
-	void registerClient(int client_fd);
-	void handleClientMessage(size_t index);
-	void closeClient(size_t index);
+	// void registerClient(int& client_fd);
+	void handleClientMessage(size_t& index);
+	void closeClient(size_t& index);
 
 public:
 	SocketServer(int port, const std::string &password);

@@ -155,7 +155,7 @@ std::string SocketServer::receiveMessage(int fd) {
  * クライアントからのメッセージを処理する。ircのコマンドに応じて処理を行う。
  *
  */
-void SocketServer::handleClientMessage(size_t index) {
+void SocketServer::handleClientMessage(size_t& index) {
     int client_fd = poll_fds_[index].fd;
     std::string message = receiveMessage(client_fd);
 
@@ -181,18 +181,20 @@ void SocketServer::handleClientMessage(size_t index) {
     }
 }
 
-void SocketServer::closeClient(size_t index)
+void SocketServer::closeClient(size_t& index)
 {
-	std::cout << "Client disconnected: FD " << poll_fds_[index].fd << "\n";
+	// std::cout << "Client disconnected: FD " << poll_fds_[index].fd << "\n";
 	close(poll_fds_[index].fd);
-	poll_fds_.erase(poll_fds_.begin() + index);
+    Everyone::GetInstance()->DeleteUser(poll_fds_[index].fd);
+	// poll_fds_.erase(poll_fds_.begin() + index);
 }
 
 SocketServer::SocketServer(int port, const std::string &password) : port_(port), password_(password), server_fd_(-1), translator_(new MessageTranslator(password)){
     everyone_ = Everyone::GetInstance();
 }
 
-SocketServer::~SocketServer() {
+SocketServer::~SocketServer(){
+    delete translator_;
 	cleanUp();
 }
 

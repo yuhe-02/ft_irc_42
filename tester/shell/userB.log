@@ -1,0 +1,10 @@
+: 001 userB
+: 331 userB #public :No topic is set
+:userB JOIN :#public
+:userC JOIN :#public
+:userA PRIVMSG #public :Hello from userA!
+:userC JOIN :#public
+: 482 userB #public :You're not channel operator
+: 001 userB :userA PART #public 
+: 001 userB :userB PART #public 
+001

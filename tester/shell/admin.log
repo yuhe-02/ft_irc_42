@@ -1,0 +1,16 @@
+: 001 AdminMaster
+: 331 AdminMaster #room1 :No topic is set
+:AdminMaster JOIN :#room1
+:userY JOIN :#room1
+: 324 AdminMaster #room1 +t 
+: 324 AdminMaster #room1 +l 2
+: 331 AdminMaster #room2 :No topic is set
+:AdminMaster JOIN :#room2
+:userZ PRIVMSG #room2 :Hello from userZ in #room2!
+:userX PRIVMSG #room2 :Hello from userX in #room2!
+:userY PRIVMSG #room1 :Hello from userY in #room1!
+: 324 AdminMaster #room2 +k secretKey
+: 001 AdminMaster :userZ PART #room2 
+: 001 AdminMaster :userX PART #room2 :Leaving
+: 001 AdminMaster :userY PART #room1 
+: 001 AdminMaster

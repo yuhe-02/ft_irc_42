@@ -4,6 +4,7 @@
 #include "IntrusivePtr.h"
 #include "ErrorCode.h"
 #include "Channel.h"
+#include "Sender.hpp"
 
 #include <string>
 #include <vector>
@@ -16,6 +17,7 @@
 #include <iostream>
 
 class Channel;
+class Sender;
 
 enum FLAGREGISTER
 {
@@ -27,6 +29,9 @@ enum FLAGREGISTER
 struct Someone
 {
 	int							player_fd;
+	// ここのフラグはそれぞれの登録状況を管理するフラグで、
+	// [REGISTER]は元々運用していた意味合いと違う意味合いで使うようにした。
+	// [REGISTER]はパスワード通っているかどうかを表すものとした。(リファクタするかも)
 	int							level[3];
 	std::string					user_name;
 	std::string					host_name;
@@ -60,7 +65,9 @@ public:
 	ChannelResult					DeleteJoinChannel(int player_fd, const std::string& focas);
 	ChannelResult					SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname);
 	ChannelResult					SetNickname(int player_fd, const std::string &nickname);
+	ChannelResult					SetRegister(int player_fd, int flag);
 	void							OutputLog();
+	void							SendLog(std::string nick, int player_fd);
 	void							Clear(int n);
 
 	int								GetUserIdNick(const std::string &nick_str) const;
@@ -68,6 +75,8 @@ public:
 	bool							ExistUserUser(const std::string &user_str) const;
 	bool							ExistUserNick(const std::string &user_str) const;
 	bool							IsRegister(int player_fd);
+	bool							IsRegisterUser(int player_fd);
+	bool							IsRegisterNick(int player_fd);
 	bool							IsCreated(int player_fd);
 	bool							IsAdmin(int player_fd);
 };

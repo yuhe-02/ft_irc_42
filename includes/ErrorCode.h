@@ -54,6 +54,7 @@ enum IrcErrorCode {
 };
 
 enum IrcResponseCode {
+	RPL_WELCOME = 1,            // Welcome to the Internet Relay Network
 	RPL_NONE = 300,             // Dummy reply number. Not used
 	RPL_USERHOST = 302,         // Reply to USERHOST command
 	RPL_ISON = 303,             // Reply to ISON command
@@ -151,7 +152,7 @@ enum IrcReservedCode {
 
 typedef std::pair<int, std::string> ChannelResult;
 
-ChannelResult create_code_message(int code, std::string str1 = "", std::string str2 = "", std::string str3 = "");
+ChannelResult create_code_message(int code, std::string str1 = "", std::string str2 = "", std::string str3 = "", std::string str4 = "");
 bool						is_special(char c);
 bool						is_letter(char c);
 bool						is_number(char c);

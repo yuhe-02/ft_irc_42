@@ -1,0 +1,9 @@
+: 001 userZ
+: 331 userZ #room2 :No topic is set
+:userZ JOIN :#room2
+: 443 userZ userZ #room2 :is already on channel
+:userZ JOIN :#room2
+:AdminMaster JOIN :#room2
+:userX PRIVMSG #room2 :Hello from userX in #room2!
+: 001 userZ :userZ PART #room2 
+001

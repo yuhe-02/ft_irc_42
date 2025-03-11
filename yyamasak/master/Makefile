@@ -1,37 +1,41 @@
 CPP = c++
-CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g
 # CPP_FLAGS = -Wall -Werror -Wextra -std=c++98
-# CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -D DEBUG
+CPP_FLAGS = -std=c++98
 
-PROGRAM_NAME = ircserv
+PROGRAM_NAME = irc_serv
 
-SRCDIR := ./src
-CLASSDIR := class
+SRCDIR := .
+CLASSDIR := $(SRCDIR)/class
+UTILDIR := $(SRCDIR)/utils
 INCDIR := ./includes
 
-SRC := $(wildcard $(SRCDIR)/*.cpp) 
-SRC += $(wildcard $(SRCDIR)/$(CLASSDIR)/*.cpp)
+SRC += $(wildcard $(SRCDIR)/*.cpp)
+SRC += $(wildcard $(CLASSDIR)/*.cpp)
+SRC += $(wildcard $(UTILDIR)/*.cpp)
+
 
 INCLUDES := -I$(INCDIR)
 
 OBJDIR := objs
 OBJS := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
-OBJS := $(OBJS:$(SRCDIR)/$(CLASSDIR)/%.cpp=$(OBJDIR)/$(CLASSDIR)/%.o)
+OBJS := $(OBJS:$(CLASSDIR)/%.cpp=$(OBJDIR)/$(CLASSDIR)/%.o)
+OBJS := $(OBJS:$(UTILDIR)/%.cpp=$(OBJDIR)/$(UTILDIR)/%.o)
 
 all: $(PROGRAM_NAME)
-
-obj: $(OBJS)
 
 $(PROGRAM_NAME): $(OBJS)
 	$(CPP) $(CPP_FLAGS) $(INCLUDES) -o $@ $^
 
 $(OBJDIR):
-	@mkdir -p $(OBJDIR)/$(CLASSDIR)
+	@mkdir -p $(OBJDIR)/$(CLASSDIR) $(OBJDIR)/$(UTILDIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CPP) $(CPP_FLAGS) $(INCLUDES) -o $@ -c $<
 
 $(OBJDIR)/$(CLASSDIR)/%.o: $(CLASSDIR)/%.cpp | $(OBJDIR)
+	$(CPP) $(CPP_FLAGS) $(INCLUDES) -o $@ -c $<
+
+$(OBJDIR)/$(UTILDIR)/%.o: $(UTILDIR)/%.cpp | $(OBJDIR)
 	$(CPP) $(CPP_FLAGS) $(INCLUDES) -o $@ -c $<
 
 clean:

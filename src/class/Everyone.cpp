@@ -1,4 +1,3 @@
-#include "../includes/Everyone.h"
 #include "Everyone.h"
 
 IntrusivePtr<Everyone> Everyone::instance_ = IntrusivePtr<Everyone>(static_cast<Everyone*>(NULL));
@@ -45,7 +44,7 @@ ChannelResult	Everyone::CreateUser(int player_fd, int flag)
 	else
 		tmp->is_admin = false;
 	everyone_id_[player_fd] = tmp;
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Everyone::DeleteUser(int player_fd)
@@ -65,7 +64,7 @@ ChannelResult	Everyone::DeleteUser(int player_fd)
 	Someone *del = everyone_id_[player_fd];
 	delete (del);
 	everyone_id_.erase(player_fd);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(-1, "001"));
 }
 
 const Someone	&Everyone::GetSomeone(int player_fd) const
@@ -79,7 +78,7 @@ ChannelResult Everyone::AddJoinChannel(int player_fd, const std::string& focas)
 	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.insert(focas);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& focas)
@@ -87,14 +86,14 @@ ChannelResult Everyone::DeleteJoinChannel(int player_fd, const std::string& foca
 	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
 	everyone_id_[player_fd]->join_channel.erase(focas);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, const std::string &hostname, const std::string &servername, const std::string &realname)
 {
 	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
-	if (IsRegister(player_fd))
+	if (everyone_id_[player_fd]->level[USER])
 		return (create_code_message(ERR_ALREADYREGISTRED));
 	everyone_id_[player_fd]->user_name = username;
 	everyone_id_[player_fd]->host_name = hostname;
@@ -102,8 +101,7 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 	everyone_id_[player_fd]->real_name = realname;
 	everyone_id_[player_fd]->level[USER] = 1;
 	everyone_username_[username] = everyone_id_[player_fd];
-	IsRegister(player_fd);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
 }
 
 ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
@@ -116,15 +114,23 @@ ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 		return (ChannelResult(create_code_message(ERR_ERRONEUSNICKNAME, nickname)));
 	if (nick_list_.find(nickname) != nick_list_.end())
 		return (create_code_message(ERR_NICKNAMEINUSE, nickname));
-
 	if (everyone_id_[player_fd]->nick_name.size() > 0)
 		nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
 	nick_list_.insert(nickname);
 	everyone_id_[player_fd]->nick_name.push_back(nickname);
 	everyone_id_[player_fd]->level[NICK] = 1;
 	everyone_nickname_[nickname] = everyone_id_[player_fd];
-	IsRegister(player_fd);
-	return (ChannelResult(1, ""));
+	return (ChannelResult(1, "001"));
+}
+
+ChannelResult	Everyone::SetRegister(int player_fd, int flag)
+{
+	if (!IsCreated(player_fd))
+		return (ChannelResult(FATAL, ""));
+	if (everyone_id_[player_fd]->level[REGISTER])
+		return (create_code_message(ERR_ALREADYREGISTRED));
+	everyone_id_[player_fd]->level[REGISTER] = flag;
+	return (ChannelResult(1, "001"));
 }
 
 void Everyone::OutputLog()
@@ -152,6 +158,24 @@ void Everyone::OutputLog()
 	for (std::set<std::string>::iterator ite = nick_list_.begin(); ite != nick_list_.end(); ite++)
 		std::cout << " " << *ite;
 	std::cout << std::endl << std::endl;
+}
+
+void Everyone::SendLog(std::string nick, int player_fd)
+{
+	Sender sender;
+	if (!ExistUserNick(nick))
+	{
+		sender.SendMessage(create_code_message(ERR_NOSUCHNICK, nick), player_fd);
+		return ;
+	}
+	Someone some = *everyone_id_[GetUserIdNick(nick)];
+	sender.SendMessage(create_code_message(RPL_WHOISUSER, nick, some.user_name, some.host_name, some.real_name), player_fd);
+	std::string ms(nick + ":");
+	for (std::set<std::string>::iterator it = some.join_channel.begin(); it != some.join_channel.end(); it++)
+		ms += *it + " ";
+	sender.SendMessage(ChannelResult(RPL_WHOISCHANNELS, ms), player_fd);
+	sender.SendMessage(ChannelResult(RPL_WHOISSERVER, ""), player_fd);
+	sender.SendMessage(create_code_message(RPL_ENDOFWHOIS, nick), player_fd);
 }
 
 void Everyone::Clear(int n)
@@ -212,11 +236,24 @@ bool Everyone::IsRegister(int player_fd)
 		return (false);
 	if (everyone_id_[player_fd]->level[REGISTER])
 		return (true);
-	if (everyone_id_[player_fd]->level[NICK] && everyone_id_[player_fd]->level[USER])
-	{
-		everyone_id_[player_fd]->level[REGISTER] = 1;
+	return (false);
+}
+
+bool Everyone::IsRegisterNick(int player_fd)
+{
+	if (!IsCreated(player_fd))
+		return (false);
+	if (everyone_id_[player_fd]->level[NICK])
 		return (true);
-	}
+	return (false);
+}
+
+bool Everyone::IsRegisterUser(int player_fd)
+{
+	if (!IsCreated(player_fd))
+		return (false);
+	if (everyone_id_[player_fd]->level[USER])
+		return (true);
 	return (false);
 }
 

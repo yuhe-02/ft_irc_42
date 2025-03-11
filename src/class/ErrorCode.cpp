@@ -1,8 +1,10 @@
 #include "ErrorCode.h"
 
-std::pair<int, std::string> create_code_message(int code, std::string str1, std::string str2, std::string str3)
+std::pair<int, std::string> create_code_message(int code, std::string str1, std::string str2, std::string str3, std::string str4)
 {
 	switch(code) {
+		case RPL_WELCOME:
+			return std::make_pair(code, ":Welcome to the Internet Relay Network");
 		case ERR_NOSUCHNICK:
 			return std::make_pair(code, str1 + " :No such nick/channel");
 		case ERR_NOSUCHSERVER:
@@ -83,7 +85,6 @@ std::pair<int, std::string> create_code_message(int code, std::string str1, std:
 			return std::make_pair(code, ":Unknown MODE flag");
 		case ERR_USERSDONTMATCH:
 			return std::make_pair(code, ":Can't change mode for other users");
-
 		case RPL_NONE:
 			return std::make_pair(code, "");
 		case RPL_USERHOST:
@@ -91,13 +92,13 @@ std::pair<int, std::string> create_code_message(int code, std::string str1, std:
 		case RPL_ISON:
 			return std::make_pair(code, ":" + str1);
 		case RPL_AWAY:
-			return std::make_pair(code, str1 + " :" + str2);
+			return std::make_pair(-1, str1 + " " + str2);
 		case RPL_UNAWAY:
 			return std::make_pair(code, ":You are no longer marked as being away");
 		case RPL_NOWAWAY:
 			return std::make_pair(code, ":You have been marked as being away");
 		case RPL_WHOISUSER:
-			return std::make_pair(code, str1 + " " + str2 + " " + str3 + " * :" + str3);
+			return std::make_pair(code, str1 + " " + str2 + " " + str3 + " * :" + str4);
 		case RPL_WHOISSERVER:
 			return std::make_pair(code, str1 + " " + str2 + " :" + str3);
 		case RPL_WHOISOPERATOR:
@@ -109,7 +110,7 @@ std::pair<int, std::string> create_code_message(int code, std::string str1, std:
 		case RPL_WHOISCHANNELS:
 			return std::make_pair(code, str1 + " :" + str2);
 		case RPL_WHOWASUSER:
-			return std::make_pair(code, str1 + " " + str2 + " " + str3 + " * :" + str3);
+			return std::make_pair(code, str1 + " " + str2 + " " + str3 + " * :" + str4);
 		case RPL_ENDOFWHOWAS:
 			return std::make_pair(code, str1 + " :End of WHOWAS");
 		case RPL_LISTSTART:
