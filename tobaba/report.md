@@ -27,3 +27,9 @@ segv<br>
 ft_ircでは一律451<br>
 (irc):irc.example.net 401 to bob :No such nick or channel name<br>
 (ft_irc):localhost 451<br>
+
+## PART
+[引数が3以上]
+(irc):irc.example.net 461 a PART :Syntax error<br>
+(ft_irc)弾いていない
+<br>
