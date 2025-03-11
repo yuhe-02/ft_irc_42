@@ -104,9 +104,23 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		std::string tester("default");
 		for (int n = 0; n < tester_; n++)
 			tester += "0";
-		user_->SetNickname(user_fd, tester);
+		// user_->SetNickname(user_fd, tester);
 		// user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
 		tester_++;
+	}
+	if (!user_->IsRegister(user_fd)) {
+		if (!hasCommand(box[0])) {
+			return ;
+		} else if (box[0] == "PASS") {
+			this->Pass(box, user_fd);
+		} else if (box[0] == "NICK") {
+			this->Nick(box, user_fd);
+		} else if (box[0] == "USER") {
+			this->User(box, user_fd);
+		} else {
+			sender_.SendMessage(ChannelResult(451, ""), user_fd);
+		}
+		return ;
 	}
 	if (message == "ASKIP")
 	{
@@ -177,14 +191,19 @@ void	MessageTranslator::Pass(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "PASS"), player_fd);
 		return ;
 	}
+	if (user_->IsRegister(player_fd))
+	{
+		sender_.SendMessage(create_code_message(462, ""), player_fd);
+		return ;
+	}
 	if (av[1] == pass_)
 	{
-		// TODO ここを認証処理に変える
+		user_->SetRegister(player_fd, 1);
 		return ;
 	}
 	if (av[1] == operator_pass_)
 	{
-		// TODO ここを認証処理に変える
+		user_->SetRegister(player_fd, 1);
 		return ;
 	}
 	sender_.SendMessage(create_code_message(ERR_PASSWDMISMATCH), player_fd);
@@ -198,13 +217,20 @@ void	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 		return ;
 	}
 	user_->SetNickname(player_fd, av[1]);
-	if (user_->IsRegister(player_fd))
+	// user,nick登録済み、passなしの場合はエラー
+	// user未登録の場合はスルー（pass拘らず）
+	// それ以外の場合はwelcome
+	// TODO 再登録時のエラーを出す(setNicknameでやる?)
+	if (user_->IsRegisterUser(player_fd) && !user_->IsRegister(player_fd)) 
 	{
-		if (cap_.find(player_fd) != cap_.end() && cap_[player_fd])
-			regi_[player_fd] = 1;
-		else
-			sender_.SendMessage(ChannelResult(1, ""), player_fd);
+		// TODO 切断動作をする
+		sender_.SendMessage(ChannelResult(-1, "ERROR: Access denied: Bad password?"), player_fd);
+		return ;
+	} else if (!user_->IsRegisterUser(player_fd)) {
+		return ;
 	}
+	sender_.SendMessage(create_code_message(1), player_fd);
+	return ;
 }
 
 void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
@@ -215,13 +241,20 @@ void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 		return ;
 	}
 	user_->SetUser(player_fd, av[1], av[2], av[3], av[4]);
-	if (user_->IsRegister(player_fd))
+	// user,nick登録済み、passなしの場合はエラー
+	// nick未登録の場合はスルー（pass拘らず）
+	// それ以外の場合はwelcome
+	// TODO 再登録時のエラーを出す(setUsernameでやる?)
+	if (user_->IsRegisterNick(player_fd) && !user_->IsRegister(player_fd)) 
 	{
-		if (cap_.find(player_fd) != cap_.end() && cap_[player_fd])
-			regi_[player_fd] = 1;
-		else
-			sender_.SendMessage(ChannelResult(1, ":Welcome Internet Reley Chat"), player_fd);
+		// TODO 切断動作をする
+		sender_.SendMessage(ChannelResult(-1, "ERROR: Access denied: Bad password?"), player_fd);
+		return ;
+	} else if (!user_->IsRegisterNick(player_fd)) {
+		return ;
 	}
+	sender_.SendMessage(create_code_message(1), player_fd);
+	return ;
 }
 
 void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)

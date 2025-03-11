@@ -93,7 +93,7 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 {
 	if (!IsCreated(player_fd))
 		return (ChannelResult(FATAL, ""));
-	if (IsRegister(player_fd))
+	if (everyone_id_[player_fd]->level[USER])
 		return (create_code_message(ERR_ALREADYREGISTRED));
 	everyone_id_[player_fd]->user_name = username;
 	everyone_id_[player_fd]->host_name = hostname;
@@ -120,6 +120,16 @@ ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 	everyone_id_[player_fd]->nick_name.push_back(nickname);
 	everyone_id_[player_fd]->level[NICK] = 1;
 	everyone_nickname_[nickname] = everyone_id_[player_fd];
+	return (ChannelResult(1, "001"));
+}
+
+ChannelResult	Everyone::SetRegister(int player_fd, int flag)
+{
+	if (!IsCreated(player_fd))
+		return (ChannelResult(FATAL, ""));
+	if (everyone_id_[player_fd]->level[REGISTER])
+		return (create_code_message(ERR_ALREADYREGISTRED));
+	everyone_id_[player_fd]->level[REGISTER] = flag;
 	return (ChannelResult(1, "001"));
 }
 
@@ -226,11 +236,24 @@ bool Everyone::IsRegister(int player_fd)
 		return (false);
 	if (everyone_id_[player_fd]->level[REGISTER])
 		return (true);
-	if (everyone_id_[player_fd]->level[NICK] && everyone_id_[player_fd]->level[USER])
-	{
-		// everyone_id_[player_fd]->level[REGISTER] = 1;
+	return (false);
+}
+
+bool Everyone::IsRegisterNick(int player_fd)
+{
+	if (!IsCreated(player_fd))
+		return (false);
+	if (everyone_id_[player_fd]->level[NICK])
 		return (true);
-	}
+	return (false);
+}
+
+bool Everyone::IsRegisterUser(int player_fd)
+{
+	if (!IsCreated(player_fd))
+		return (false);
+	if (everyone_id_[player_fd]->level[USER])
+		return (true);
 	return (false);
 }
 

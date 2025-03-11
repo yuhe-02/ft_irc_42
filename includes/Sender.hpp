@@ -10,9 +10,12 @@
 #include "Channel.h"
 #include "Everyone.h"
 
+class Everyone;
+
 class Sender
 {
 	private:
+		IntrusivePtr<Everyone>	user_;
 		std::string createResponse(ChannelResult &result, int fd) const;
 		ssize_t sendResponse(std::string &response, int fd) const;
 	public:

@@ -3,6 +3,7 @@
 # default
 export HOST="127.0.0.1"
 export PORT="6667"
+export JSON_FILE="testcase1.json"
 
 # parse options
 while getopts "p:c:" opt; do
@@ -18,22 +19,13 @@ if [ "${BASH_SOURCE[0]}" == "$0" ]; then
 	source ./test_utils.sh
 fi
 
-
-# Test 1
-commands=(
-  "PASS test"
-  "NICK testuser"
-  "USER testuser 0 * :Test User"
-  "JOIN #testchannel"
-  "QUIT"
-)
-send_commands "${commands[@]}"
-
-# Test 2
-commands1=(
-  "NICK testuser"
-  "USER testuser 0 * :Test User"
-  "JOIN #testchannel"
-  "QUIT"
-)
-send_commands "${commands1[@]}"
+jq -c '.[]' "$JSON_FILE" | while read -r node; do
+    title=$(echo "$node" | jq -r '.title')
+    cmds=$(echo "$node" | jq -r '.cmds[]')
+    echo "Executing: $title"
+    command_list=()
+    while IFS= read -r line; do
+        command_list+=("$line")
+    done <<< "$cmds"
+    send_commands "${command_list[@]}"
+done
