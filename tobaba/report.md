@@ -18,3 +18,12 @@ segv<br>
 [QUIT]<br>
 (irc)ERROR :Closing connection<br>
 (ft_irc):localhost 451 //終わらない<br>
+
+## INVITE
+[INVITE #test a]
+(irc):irc.example.net 401 to #test :No such nick or channel name<br>
+(ft_irc):localhost 401 admin00 #test :No such nick/channel + segv<br>
+[(チャンネル外のINVITE)ex)INVITE bob #test]
+ft_ircでは一律451<br>
+(irc):irc.example.net 401 to bob :No such nick or channel name<br>
+(ft_irc):localhost 451<br>
