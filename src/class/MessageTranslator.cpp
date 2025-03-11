@@ -99,7 +99,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	std::vector<std::string> box;
 	box = Translate(message);
 	if (!user_->IsCreated(user_fd))
-	{	
+	{
 		user_->CreateUser(user_fd, 1);
 		std::string tester("default");
 		for (int n = 0; n < tester_; n++)
@@ -180,7 +180,7 @@ void	MessageTranslator::Unknown(std::vector<std::string> av, int player_fd)
 {
 	// if (user_->IsCreated(player_fd))
 	// 	sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
-	// CAP LS時点ではユーザー作成されていないがunknownコマンドが来るので、コメントアウト	
+	// CAP LS時点ではユーザー作成されていないがunknownコマンドが来るので、コメントアウト
 	sender_.SendMessage(create_code_message(ERR_UNKNOWNCOMMAND, av[0]), player_fd);
 }
 
@@ -221,7 +221,7 @@ void	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 	// user未登録の場合はスルー（pass拘らず）
 	// それ以外の場合はwelcome
 	// TODO 再登録時のエラーを出す(setNicknameでやる?)
-	if (user_->IsRegisterUser(player_fd) && !user_->IsRegister(player_fd)) 
+	if (user_->IsRegisterUser(player_fd) && !user_->IsRegister(player_fd))
 	{
 		// TODO 切断動作をする
 		sender_.SendMessage(ChannelResult(-1, "ERROR: Access denied: Bad password?"), player_fd);
@@ -245,7 +245,7 @@ void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 	// nick未登録の場合はスルー（pass拘らず）
 	// それ以外の場合はwelcome
 	// TODO 再登録時のエラーを出す(setUsernameでやる?)
-	if (user_->IsRegisterNick(player_fd) && !user_->IsRegister(player_fd)) 
+	if (user_->IsRegisterNick(player_fd) && !user_->IsRegister(player_fd))
 	{
 		// TODO 切断動作をする
 		sender_.SendMessage(ChannelResult(-1, "ERROR: Access denied: Bad password?"), player_fd);
@@ -274,7 +274,7 @@ void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 	ChannelResult result;
 
 	while (std::getline(ss, tmp, ','))
-	{	
+	{
 		if (av.size() == 2)
 		{
 			result = channel_->JoinedChannel(player_fd, tmp);
@@ -373,8 +373,11 @@ void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd, std::s
 		return ;
 	}
 	std::string tmp2 = str.substr(str.find(' ', str.find(' ') + 1) + 1);
-	std::cout << tmp2 << std::endl;
-	sender_.SendMessage(channel_->ChangeTopic(player_fd, av[1], tmp2), player_fd);
+	ChannelResult tmp = channel_->ChangeTopic(player_fd, av[1], tmp2);
+	if (tmp.first == 1)
+		sender_.SendMessage(channel_->GetTopic(av[1]), player_fd);
+	else
+		sender_.SendMessage(tmp, player_fd);
 }
 
 void MessageTranslator::Whois(std::vector<std::string> av, int player_fd)

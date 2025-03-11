@@ -1,7 +1,7 @@
 CPP = c++
-CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g
+# CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g
 # CPP_FLAGS = -Wall -Werror -Wextra -std=c++98
-# CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -D DEBUG
+CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -D DEBUG
 
 PROGRAM_NAME = ircserv
 
@@ -9,7 +9,7 @@ SRCDIR := ./src
 CLASSDIR := class
 INCDIR := ./includes
 
-SRC := $(wildcard $(SRCDIR)/*.cpp) 
+SRC := $(wildcard $(SRCDIR)/*.cpp)
 SRC += $(wildcard $(SRCDIR)/$(CLASSDIR)/*.cpp)
 
 INCLUDES := -I$(INCDIR)
