@@ -4,7 +4,7 @@
         "cmds": [
             "PASS test",
             "NICK testuser",
-            "USER testuser 0 * :Test User",
+            "USER testuser * * :test",
             "JOIN #testchannel",
             "QUIT"
         ]
