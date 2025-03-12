@@ -75,7 +75,7 @@ class IRCTester:
 		
 	def run(self) -> None:
 		for test_file in self.test_files:
-			log_file: str = os.path.join(self.log_dir, f"log_{os.path.basename(test_file).replace('.json', '')}.txt")
+			log_file: str = os.path.join(self.log_dir, f"out_{os.path.basename(test_file).replace('.json', '')}.log")
 			with open(test_file, "r", encoding="utf-8") as file:
 				commands_data = json.load(file)
 			with open(log_file, "a", encoding="utf-8") as log_fd:
