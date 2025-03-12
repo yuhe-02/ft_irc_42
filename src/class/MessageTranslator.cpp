@@ -134,7 +134,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		sender_.SendMessage(create_code_message(1), user_fd);
 		return ;
 	}
-	if (!user_->IsRegister(user_fd)) {
+	if (!user_->IsRegisterAll(user_fd)) {
 		if (!hasCommand(box[0])) {
 			return ;
 		} else if (box[0] == "PASS") {
@@ -224,44 +224,35 @@ void	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NONICKNAMEGIVEN, "NICK"), player_fd);
 		return ;
 	}
-	user_->SetNickname(player_fd, av[1]);
-	// user,nick登録済み、passなしの場合はエラー
-	// user未登録の場合はスルー（pass拘らず）
-	// それ以外の場合はwelcome
-	// TODO 再登録時のエラーを出す(setNicknameでやる?)
-	if (user_->IsRegisterUser(player_fd) && !user_->IsRegister(player_fd))
+	ChannelResult result = user_->SetNickname(player_fd, av[1]);
+	if (result.first == RPL_NOSEND) 
 	{
-		// TODO 切断動作をする
-		sender_.SendMessage(ChannelResult(-1, "ERROR: Access denied: Bad password?"), player_fd);
-		return ;
-	} else if (!user_->IsRegisterUser(player_fd)) {
 		return ;
 	}
-	sender_.SendMessage(create_code_message(1), player_fd);
+	sender_.SendMessage(result, player_fd);
 	return ;
 }
 
 void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 {
-	if (av.size() < 5)
+	// すでに登録が済んでいる場合はsyntax errorとかのバリデーション通さずに返す
+	if (user_->IsRegisterUser(player_fd))
+	{
+		sender_.SendMessage(create_code_message(ERR_ALREADYREGISTRED), player_fd);
+		return ;
+	}
+	if (av.size() != 5)
 	{
 		sender_.SendMessage(create_code_message(ERR_NEEDMOREPARAMS, "USER"), player_fd);
 		return ;
 	}
-	user_->SetUser(player_fd, av[1], av[2], av[3], av[4]);
-	// user,nick登録済み、passなしの場合はエラー
-	// nick未登録の場合はスルー（pass拘らず）
-	// それ以外の場合はwelcome
-	// TODO 再登録時のエラーを出す(setUsernameでやる?)
-	if (user_->IsRegisterNick(player_fd) && !user_->IsRegister(player_fd))
+	// TODO 無効な文字がオプションに入ってきた時の対策
+	ChannelResult result = user_->SetUser(player_fd, av[1], av[2], av[3], av[4]);
+	if (result.first == RPL_NOSEND) 
 	{
-		// TODO 切断動作をする
-		sender_.SendMessage(ChannelResult(-1, "ERROR: Access denied: Bad password?"), player_fd);
-		return ;
-	} else if (!user_->IsRegisterNick(player_fd)) {
 		return ;
 	}
-	sender_.SendMessage(create_code_message(1), player_fd);
+	sender_.SendMessage(result, player_fd);
 	return ;
 }
 

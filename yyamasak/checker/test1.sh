@@ -3,10 +3,10 @@
 # default
 export HOST="127.0.0.1"
 export PORT="6667"
-export JSON_FILE="testcase1.json"
+export TEST_DIR="./case"
 
 # parse options
-while getopts "p:c:" opt; do
+while getopts "p:c:f:" opt; do
   case "$opt" in
     p) PORT="$OPTARG" ;;
     c) HOST="$OPTARG" ;;
