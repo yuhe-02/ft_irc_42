@@ -127,6 +127,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		std::string tester("admin");
 		for (int n = 0; n < tester_; n++)
 			tester += "0";
+		user_->SetRegister(user_fd, 1);
 		user_->SetNickname(user_fd, tester);
 		user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
 		std::cout << "ADMIN is comming" << std::endl;
@@ -136,6 +137,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		std::string tester("user");
 		for (int n = 0; n < tester_; n++)
 			tester += "0";
+		user_->SetRegister(user_fd, 1);
 		user_->SetNickname(user_fd, tester);
 		user_->SetUser(user_fd, "user", "user", "user", "user");
 		std::cout << "USER is comming" << std::endl;
