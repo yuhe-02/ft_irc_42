@@ -77,6 +77,7 @@ public:
 	bool							IsRegister(int player_fd);
 	bool							IsRegisterUser(int player_fd);
 	bool							IsRegisterNick(int player_fd);
+	bool							IsRegisterAll(int player_fd);
 	bool							IsCreated(int player_fd);
 	bool							IsAdmin(int player_fd);
 };

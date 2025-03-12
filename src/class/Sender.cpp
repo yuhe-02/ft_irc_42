@@ -34,7 +34,7 @@ std::string Sender::createResponse(ChannelResult &result, int fd) const
 		if ((result.first != 451 && result.first != 464) && (result.second.find("PASS") == std::string::npos))
 		{
 			// unknown command時にニックネームがない可能性があるため
-			if (user_->IsCreated(fd))
+			if (user_->IsRegisterNick(fd))
 			{
 				ss << " " << user_->GetSomeone(fd).nick_name.back();
 			}

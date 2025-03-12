@@ -55,6 +55,7 @@ enum IrcErrorCode {
 
 enum IrcResponseCode {
 	RPL_WELCOME = 1,            // Welcome to the Internet Relay Network
+	RPL_NOSEND = -1000,             // no need to send to client
 	RPL_NONE = 300,             // Dummy reply number. Not used
 	RPL_USERHOST = 302,         // Reply to USERHOST command
 	RPL_ISON = 303,             // Reply to ISON command
