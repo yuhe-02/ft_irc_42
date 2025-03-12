@@ -108,6 +108,32 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		// user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
 		tester_++;
 	}
+	if (box[0] == "ASKIP")
+	{
+		std::string tester("admin");
+		for (int n = 0; n < tester_; n++)
+			tester += "0";
+		user_->SetRegister(user_fd, 1);
+		user_->SetNickname(user_fd, tester);
+		user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
+		std::cout << "ADMIN is comming" << std::endl;
+		tester_++;
+		sender_.SendMessage(create_code_message(1), user_fd);
+		return ;
+	} 
+	else if (box[0] == "SKIP")
+	{
+		std::string tester("user");
+		for (int n = 0; n < tester_; n++)
+			tester += "0";
+		user_->SetRegister(user_fd, 1);
+		user_->SetNickname(user_fd, tester);
+		user_->SetUser(user_fd, "user", "user", "user", "user");
+		std::cout << "USER is comming" << std::endl;
+		tester_++;
+		sender_.SendMessage(create_code_message(1), user_fd);
+		return ;
+	}
 	if (!user_->IsRegister(user_fd)) {
 		if (!hasCommand(box[0])) {
 			return ;
@@ -122,27 +148,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		}
 		return ;
 	}
-	if (message == "ASKIP")
-	{
-		std::string tester("admin");
-		for (int n = 0; n < tester_; n++)
-			tester += "0";
-		user_->SetRegister(user_fd, 1);
-		user_->SetNickname(user_fd, tester);
-		user_->SetUser(user_fd, "admin", "admin", "admin", "admin");
-		std::cout << "ADMIN is comming" << std::endl;
-		tester_++;
-	} else if (message == "SKIP")
-	{
-		std::string tester("user");
-		for (int n = 0; n < tester_; n++)
-			tester += "0";
-		user_->SetRegister(user_fd, 1);
-		user_->SetNickname(user_fd, tester);
-		user_->SetUser(user_fd, "user", "user", "user", "user");
-		std::cout << "USER is comming" << std::endl;
-		tester_++;
-	} else if (box[0] == "PRIVMSG")
+	if (box[0] == "PRIVMSG")
 	{
 		Privmsg(box, user_fd, message);
 	} else if (box[0] == "TOPIC")
