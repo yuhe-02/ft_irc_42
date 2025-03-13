@@ -177,7 +177,8 @@ void MessageTranslator::Ping(std::vector<std::string> av, int player_fd)
 	std::string server2 = "";
 	std::string pongMessage;
 
-	if (av.size() < 2) {
+	if (av.size() < 2)
+	{
 		sender_.SendMessage(create_code_message(ERR_NOORIGIN, "PING"), player_fd);
 		return ;
 	}
@@ -188,8 +189,12 @@ void MessageTranslator::Ping(std::vector<std::string> av, int player_fd)
 }
 void MessageTranslator::Pong(std::vector<std::string> av, int player_fd)
 {
-	(void)av;
-	sender_.SendMessage(ChannelResult(-1, "PONG"), player_fd);
+	if (av.size() < 2)
+	{
+		sender_.SendMessage(create_code_message(ERR_NOORIGIN, "PONG"), player_fd);
+		return ;
+	}
+	// sender_.SendMessage(ChannelResult(-1, "PONG"), player_fd);
 }
 
 void	MessageTranslator::Unknown(std::vector<std::string> av, int player_fd)
