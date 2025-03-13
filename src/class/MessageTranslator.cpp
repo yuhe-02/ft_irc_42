@@ -401,6 +401,11 @@ void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
 		return ;
 	}
 	ChannelResult tmp = channel_->InviteToChannel(player_fd, av[1], av[2]);
+	if (tmp.first != RPL_INVITING)
+	{
+		sender_.SendMessage(tmp, player_fd);
+		return ;
+	}
 	sender_.SendMessage(tmp, player_fd);
 	sender_.SendMessage(ChannelResult(-1, user_->GetSomeone(player_fd).nick_name.back() + " INVITE " + av[1] + " :" + av[2]), user_->GetUserIdNick(av[1]));
 	if (channel_->GetChannelInfo(av[2]).topic != "")

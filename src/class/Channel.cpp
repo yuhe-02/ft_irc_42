@@ -88,6 +88,8 @@ ChannelResult	Channel::InviteToChannel(int player_fd, const std::string &focas_u
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	if (!tmp->ExistUserNick(focas_user_str))
 		return (create_code_message(ERR_NOSUCHNICK, focas_user_str));
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 	if (!IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if (IsJoined(tmp->GetUserIdNick(focas_user_str), channel_str))
