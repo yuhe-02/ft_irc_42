@@ -174,9 +174,17 @@ void MessageTranslator::SetOpePass(std::string pass)
 
 void MessageTranslator::Ping(std::vector<std::string> av, int player_fd)
 {
-	(void)av;
-	(void)player_fd;
-	return;
+	std::string server2 = "";
+	std::string pongMessage;
+
+	if (av.size() < 2) {
+		sender_.SendMessage(create_code_message(ERR_NOORIGIN, "PING"), player_fd);
+		return ;
+	}
+	server2 = av[1];
+	std::string serverName = "ft_irc";
+	pongMessage = ":" + serverName + " PONG " + serverName + " :" + server2;
+	sender_.SendMessage(ChannelResult(-1, pongMessage), player_fd);
 }
 void MessageTranslator::Pong(std::vector<std::string> av, int player_fd)
 {
