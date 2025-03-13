@@ -152,11 +152,11 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 	Sender sender;
 	if (flag)
 	{
-		sender.SendMessage(ChannelResult(1, mess), player_fd);
+		sender.SendMessage(ChannelResult(-1, mess), player_fd);
 		if (channels_[channel_str].joined_player.size())
 		{
 			for (std::set<int>::iterator it = channels_[channel_str].joined_player.begin(); it != channels_[channel_str].joined_player.end(); it++)
-				sender.SendMessage(ChannelResult(1, mess), *it);
+				sender.SendMessage(ChannelResult(-1, mess), *it);
 		}
 	}
 	return (ChannelResult(-1, mess));
@@ -165,8 +165,6 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_str, const std::string& channel_str, std::string message)
 {
 	IntrusivePtr<Everyone> eve = Everyone::GetInstance();
-	if (!eve->ExistUserNick(focas_user_str))
-		return (create_code_message(ERR_NOSUCHNICK, focas_user_str));
 	if (!eve->IsRegister(player_fd))
 		return (create_code_message(ERR_NOTREGISTERED));
 	if (!ExistChannel(channel_str))
@@ -175,6 +173,8 @@ ChannelResult	Channel::KickChannel(int player_fd, const std::string &focas_user_
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if (!IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
+	if (!IsJoined(eve->GetUserIdNick(focas_user_str), channel_str))
+		return (create_code_message(ERR_NOSUCHNICK, focas_user_str));
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	LeaveChannel(tmp->GetUserIdNick(focas_user_str), channel_str, message, 0);
 	std::string msg = ":" + eve->GetSomeone(player_fd).nick_name.back() + "!" + eve->GetSomeone(player_fd).user_name + "@" + eve->GetSomeone(player_fd).host_name + " KICK " + channel_str + " " + focas_user_str + " " + message;
