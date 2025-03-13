@@ -403,6 +403,12 @@ void MessageTranslator::Whois(std::vector<std::string> av, int player_fd)
 		sender_.SendMessage(create_code_message(ERR_NONICKNAMEGIVEN), player_fd);
 		return ;
 	}
+	if (av.size() > 2)
+	{
+		sender_.SendMessage(create_code_message(ERR_NOSUCHNICK), player_fd);
+		sender_.SendMessage(create_code_message(RPL_ENDOFWHOIS), player_fd);
+		return ;
+	}
 	user_->SendLog(av[1], player_fd);
 }
 

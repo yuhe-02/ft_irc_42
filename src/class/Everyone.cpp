@@ -205,7 +205,8 @@ void Everyone::SendLog(std::string nick, int player_fd)
 	Sender sender;
 	if (!ExistUserNick(nick))
 	{
-		sender.SendMessage(create_code_message(ERR_NOSUCHNICK, nick), player_fd);
+		sender.SendMessage(create_code_message(ERR_NOSUCHNICK), player_fd);
+		sender.SendMessage(create_code_message(RPL_ENDOFWHOIS), player_fd);
 		return ;
 	}
 	Someone some = *everyone_id_[GetUserIdNick(nick)];
