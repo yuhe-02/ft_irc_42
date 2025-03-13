@@ -102,7 +102,7 @@ ChannelResult	Everyone::SetUser(int player_fd, const std::string &username, cons
 	{
 		// TODO 切断動作をする
 		return ChannelResult(-1, "ERROR: Access denied: Bad password?");
-	} 
+	}
 	everyone_id_[player_fd]->user_name = username;
 	everyone_id_[player_fd]->host_name = hostname;
 	everyone_id_[player_fd]->server_name = servername;
@@ -142,7 +142,7 @@ ChannelResult	Everyone::SetNickname(int player_fd, const std::string &nickname)
 		// TODO 切断動作をする
 		// welcome message前のバリデーション
 		return ChannelResult(-1, "ERROR: Access denied: Bad password?");
-	} 
+	}
 	// ニックネームを変更する場合は既存の値を削除する
 	if (everyone_id_[player_fd]->nick_name.size() > 0)
 	{

@@ -100,7 +100,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 	box = Translate(message);
 	if (!user_->IsCreated(user_fd))
 	{
-		user_->CreateUser(user_fd, 1);
+		user_->CreateUser(user_fd);
 		std::string tester("default");
 		for (int n = 0; n < tester_; n++)
 			tester += "0";
@@ -120,7 +120,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		tester_++;
 		sender_.SendMessage(create_code_message(1), user_fd);
 		return ;
-	} 
+	}
 	else if (box[0] == "SKIP")
 	{
 		std::string tester("user");
@@ -225,7 +225,7 @@ void	MessageTranslator::Nick(std::vector<std::string> av, int player_fd)
 		return ;
 	}
 	ChannelResult result = user_->SetNickname(player_fd, av[1]);
-	if (result.first == RPL_NOSEND) 
+	if (result.first == RPL_NOSEND)
 	{
 		return ;
 	}
@@ -248,7 +248,7 @@ void	MessageTranslator::User(std::vector<std::string> av, int player_fd)
 	}
 	// TODO 無効な文字がオプションに入ってきた時の対策
 	ChannelResult result = user_->SetUser(player_fd, av[1], av[2], av[3], av[4]);
-	if (result.first == RPL_NOSEND) 
+	if (result.first == RPL_NOSEND)
 	{
 		return ;
 	}
@@ -374,7 +374,11 @@ void	MessageTranslator::Topic(std::vector<std::string> av, int player_fd, std::s
 	std::string tmp2 = str.substr(str.find(' ', str.find(' ') + 1) + 1);
 	ChannelResult tmp = channel_->ChangeTopic(player_fd, av[1], tmp2);
 	if (tmp.first == 1)
-		sender_.SendMessage(channel_->GetTopic(av[1]), player_fd);
+	{
+		for (std::set<int>::iterator it = channel_->GetChannelInfo(av[1]).joined_player.begin(); it != channel_->GetChannelInfo(av[1]).joined_player.end(); it++)
+			sender_.SendMessage(channel_->GetTopic(av[1]), *it);
+
+	}
 	else
 		sender_.SendMessage(tmp, player_fd);
 }
@@ -397,6 +401,11 @@ void	MessageTranslator::Invite(std::vector<std::string> av, int player_fd)
 		return ;
 	}
 	ChannelResult tmp = channel_->InviteToChannel(player_fd, av[1], av[2]);
+	if (tmp.first != RPL_INVITING)
+	{
+		sender_.SendMessage(tmp, player_fd);
+		return ;
+	}
 	sender_.SendMessage(tmp, player_fd);
 	sender_.SendMessage(ChannelResult(-1, user_->GetSomeone(player_fd).nick_name.back() + " INVITE " + av[1] + " :" + av[2]), user_->GetUserIdNick(av[1]));
 	if (channel_->GetChannelInfo(av[2]).topic != "")

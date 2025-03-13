@@ -88,6 +88,8 @@ ChannelResult	Channel::InviteToChannel(int player_fd, const std::string &focas_u
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	if (!tmp->ExistUserNick(focas_user_str))
 		return (create_code_message(ERR_NOSUCHNICK, focas_user_str));
+	if (!ExistChannel(channel_str))
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 	if (!IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if (IsJoined(tmp->GetUserIdNick(focas_user_str), channel_str))
@@ -142,7 +144,10 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	tmp->DeleteJoinChannel(player_fd, channel_str);
 	if (channels_[channel_str].joined_player.size() == 0)
+	{
 		DeleteChannel(channel_str);
+		flag = 0;
+	}
 	std::string mess = ":" + eve->GetSomeone(player_fd).nick_name.back() + " PART " + channel_str + " " + message;
 	Sender sender;
 	if (flag)
@@ -189,7 +194,7 @@ ChannelResult	Channel::ChangeTopic(int player_fd, const std::string& channel_str
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
 	if (!eve->IsAdmin(player_fd) && !IsJoined(player_fd, channel_str))
 		return (create_code_message(ERR_NOTONCHANNEL, channel_str));
-	if ((channels_[channel_str].is_topic) && !IsOperator(player_fd, channel_str))
+	if (channels_[channel_str].is_topic && !IsOperator(player_fd, channel_str))
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
 
 
