@@ -1,7 +1,7 @@
 CPP = c++
 # CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g
 # CPP_FLAGS = -Wall -Werror -Wextra -std=c++98
-CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -D DEBUG
+CPP_FLAGS = -Wall -Werror -Wextra -std=c++98 -D DEBUG -fsanitize=address -g
 
 PROGRAM_NAME = ircserv
 
