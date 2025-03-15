@@ -152,7 +152,7 @@ ChannelResult	Channel::LeaveChannel(int player_fd, const std::string& channel_st
 	Sender sender;
 	if (flag)
 	{
-		sender.SendMessage(ChannelResult(-1, mess), player_fd);
+		// sender.SendMessage(ChannelResult(-1, mess), player_fd);
 		if (channels_[channel_str].joined_player.size())
 		{
 			for (std::set<int>::iterator it = channels_[channel_str].joined_player.begin(); it != channels_[channel_str].joined_player.end(); it++)
