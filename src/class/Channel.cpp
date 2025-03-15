@@ -365,6 +365,8 @@ bool	Channel::IsJoined(int player_fd, const std::string& channel_str) const
 
 ChannelResult	Channel::GetTopic(const std::string& channel_str)
 {
+	if (channels_.find(channel_str) == channels_.end())
+		return (create_code_message(ERR_NOSUCHCHANNEL, channel_str));
 	if (channels_[channel_str].topic == "")
 		return (create_code_message(RPL_NOTOPIC, channel_str));
 	return (create_code_message(RPL_TOPIC, channel_str, channels_[channel_str].topic));
