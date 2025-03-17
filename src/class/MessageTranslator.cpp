@@ -292,7 +292,7 @@ void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 			result = channel_->JoinedChannel(player_fd, tmp);
 		} else
 		{
-			result = channel_->JoinedChannel(player_fd, tmp, 0, av[2]);
+			result = channel_->JoinedChannel(player_fd, tmp, av[2]);
 		}
 		sender_.SendMessage(result, player_fd);
 		if (result.first == RPL_TOPIC || result.first == RPL_NOTOPIC)
@@ -367,8 +367,6 @@ void	MessageTranslator::Mode(std::vector<std::string> av, int player_fd)
 	const char *tmp = av[2].c_str() + 1;
 	if (av.size() == 3)
 	{
-		if (av[2] == "+i")
-			return ;
 		sender_.SendMessage(channel_->ChangeChannelMode(player_fd, tmp, av[2][0] == '+', av[1]), player_fd);
 		return ;
 	}
