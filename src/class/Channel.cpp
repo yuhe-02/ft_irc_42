@@ -120,6 +120,7 @@ ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_s
 			return (create_code_message(ERR_CHANNELISFULL, channel_str));
 		if (tmp->GetSomeone(player_fd).join_channel.size() > 10)
 			return (create_code_message(ERR_TOOMANYCHANNELS, channel_str));
+		std::cout << channels_[channel_str].password << ", " << pass << std::endl;
 		if (channels_[channel_str].is_key && channels_[channel_str].password != pass)
 			return (create_code_message(ERR_BADCHANNELKEY, channel_str));
 	}
