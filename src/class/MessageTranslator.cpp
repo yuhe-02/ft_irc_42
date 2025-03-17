@@ -292,13 +292,16 @@ void	MessageTranslator::Join(std::vector<std::string> av, int player_fd)
 			result = channel_->JoinedChannel(player_fd, tmp);
 		} else
 		{
-			result = channel_->JoinedChannel(player_fd, tmp);
+			result = channel_->JoinedChannel(player_fd, tmp, 0, av[2]);
 		}
 		sender_.SendMessage(result, player_fd);
-		std::string str = ":" + user_->GetSomeone(player_fd).nick_name.back() + " JOIN :" + tmp;
-		for (std::set<int>::iterator it = channel_->GetChannelInfo(tmp).joined_player.begin(); it != channel_->GetChannelInfo(tmp).joined_player.end(); it++)
+		if (result.first == RPL_TOPIC || result.first == RPL_NOTOPIC)
 		{
-			sender_.SendMessage(ChannelResult(-1, str), *it);
+			std::string str = ":" + user_->GetSomeone(player_fd).nick_name.back() + " JOIN :" + tmp;
+			for (std::set<int>::iterator it = channel_->GetChannelInfo(tmp).joined_player.begin(); it != channel_->GetChannelInfo(tmp).joined_player.end(); it++)
+			{
+				sender_.SendMessage(ChannelResult(-1, str), *it);
+			}
 		}
 	}
 }
