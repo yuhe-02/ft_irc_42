@@ -42,7 +42,7 @@ ChannelResult	Channel::CreateChannel(int player_fd, const std::string& name)
 	if (name.size() > 200)
 		return (ChannelResult(FATAL, ""));
 	if (name == "" || !(name[0] == '#' || name[0] == '&'))
-		return (ChannelResult(FATAL, ""));
+		return (create_code_message(ERR_NOSUCHCHANNEL, name));
 	if (name.find(' ') != std::string::npos)
 		return (ChannelResult(FATAL, ""));
 	if (name.find(',') != std::string::npos)
@@ -98,11 +98,11 @@ ChannelResult	Channel::InviteToChannel(int player_fd, const std::string &focas_u
 		return (create_code_message(ERR_CHANOPRIVSNEEDED, channel_str));
 	if (channels_[channel_str].joined_player.size() == static_cast<size_t>(channels_[channel_str].limit_member))
 		return (create_code_message(ERR_CHANNELISFULL, channel_str));
-	JoinedChannel(tmp->GetUserIdNick(focas_user_str), channel_str, 1);
+	channels_[channel_str].register_player.insert(tmp->GetUserIdNick(focas_user_str));
 	return (create_code_message(RPL_INVITING, channel_str, focas_user_str));
 }
 
-ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_str, int flag, std::string pass)
+ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_str, std::string pass)
 {
 	IntrusivePtr<Everyone> tmp = Everyone::GetInstance();
 	if (!tmp->IsRegister(player_fd))
@@ -114,7 +114,7 @@ ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_s
 		return (create_code_message(ERR_USERONCHANNEL, tmp->GetSomeone(player_fd).nick_name.back(), channel_str));
 	if (!tmp->IsAdmin(player_fd))
 	{
-		if (flag == 0 && channels_[channel_str].is_invite)
+		if (channels_[channel_str].register_player.find(player_fd) == channels_[channel_str].register_player.end() && channels_[channel_str].is_invite)
 			return (create_code_message(ERR_INVITEONLYCHAN, channel_str));
 		if (channels_[channel_str].is_limit && channels_[channel_str].joined_player.size() == static_cast<size_t>(channels_[channel_str].limit_member))
 			return (create_code_message(ERR_CHANNELISFULL, channel_str));
@@ -125,6 +125,7 @@ ChannelResult	Channel::JoinedChannel(int player_fd, const std::string& channel_s
 			return (create_code_message(ERR_BADCHANNELKEY, channel_str));
 	}
 	channels_[channel_str].joined_player.insert(player_fd);
+	channels_[channel_str].register_player.erase(player_fd);
 	tmp->AddJoinChannel(player_fd, channel_str);
 	if (channels_[channel_str].topic != "")
 		return (create_code_message(RPL_TOPIC, channel_str, channels_[channel_str].topic));
