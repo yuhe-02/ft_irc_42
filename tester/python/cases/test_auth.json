@@ -72,5 +72,41 @@
             "PRIVMSG #testchannel :Hello",
             "QUIT"
         ]
+    },
+    {
+        "title": "Test 8 (valid command before login)",
+        "cmds": [
+            "PASS test",
+            "JOIN #testchannel",
+            "NICK testuser",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 9 (valid command before login)",
+        "cmds": [
+            "PASS test",
+            "NICK testuser",
+            "JOIN #testchannel",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 10 (valid command before login)",
+        "cmds": [
+            "PASS test",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "NICK testuser",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
     }
 ]
