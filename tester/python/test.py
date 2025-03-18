@@ -6,6 +6,7 @@ import os
 import glob
 import select
 import multiprocessing
+
 from tqdm import tqdm
 
 HOST = "127.0.0.1"
@@ -18,16 +19,19 @@ class IRCTester:
 	def __init__(self, host: str = HOST, port: str = PORT, test_dir: str = TEST_DIR, log_dir: str = LOG_DIR) -> None:
 		self.host: str = host
 		self.port: str = port
-		self.log_dir: str = self.__setup_log_dir(log_dir)
-		self.test_files: list[str] = self.__setup_test_files(test_dir)
+		self.log_dir: str = IRCTester.__setup_log_dir(log_dir)
+		self.test_files: list[str] = IRCTester.__setup_test_files(test_dir)
 		self.manager = multiprocessing.Manager()
-		self.result_log = self.manager.list()
+		self.result_dict: multiprocessing.DictProxy[str, multiprocessing.DictProxy[int, str]] = self.manager.dict()
+		self.lock = multiprocessing.Lock()
 
-	def __setup_log_dir(self, log_dir: str) -> str:
+	@staticmethod
+	def __setup_log_dir(log_dir: str) -> str:
 		os.makedirs(log_dir, exist_ok=True)
 		return log_dir
 
-	def __setup_test_files(self, test_dir: str) -> list[str]:
+	@staticmethod
+	def __setup_test_files(test_dir: str) -> list[str]:
 		return glob.glob(os.path.join(test_dir, "**", "*.json"), recursive=True)
 
 	def __subprocess_loop(self, child_stdout):
@@ -64,12 +68,15 @@ class IRCTester:
 		output_log.append("=" * 67)
 		return output_log
 
-	def __exec_one_node(self, test_file: str, node: dict, progress_bar):
+	def __exec_one_node(self, test_file: str, node: dict, index: int, progress_bar):
 		""" 各 `node` を並列に実行 """
 		log_output = [f"Executing: {node.get('title', 'Untitled')}"]
 		command_str = "\r\n".join(node.get("cmds", [])) + "\r\n"
 		log_output.extend(self.__run_subprocess(command_str))
-		self.result_log.append((test_file, log_output))
+		with self.lock:
+			if self.result_dict.get(test_file) is None:
+				self.result_dict[test_file] = self.manager.dict()
+			self.result_dict[test_file][index] = log_output 
 		progress_bar.update(1)
 
 	def __exec_one_file(self, test_file: str):
@@ -86,8 +93,8 @@ class IRCTester:
 				return
 		with tqdm(total=len(commands_data), desc=f"Processing {os.path.basename(test_file)}", position=1, leave=False) as progress_bar:
 			processes = []
-			for node in commands_data:
-				p = multiprocessing.Process(target=self.__exec_one_node, args=(test_file, node, progress_bar))
+			for index, node in enumerate(commands_data):
+				p = multiprocessing.Process(target=self.__exec_one_node, args=(test_file, node, index, progress_bar))
 				p.daemon = False
 				processes.append(p)
 				p.start()
@@ -107,17 +114,13 @@ class IRCTester:
 
 			for p in processes:
 				p.join()
-		log_dict = {}
-		for test_file, log_content in self.result_log:
-			log_key = os.path.basename(test_file).replace(".json", "")
-			if log_key not in log_dict:
-				log_dict[log_key] = []
-			log_dict[log_key].extend(log_content)
 
-		for key, content in log_dict.items():
+		for key, sub_dict in self.result_dict.items():
+			key = os.path.basename(key).replace(".json", "")
 			log_file = os.path.join(self.log_dir, f"out_{key}.log")
-			with open(log_file, "w", encoding="utf-8") as log_fd:
-				log_fd.write("\n".join(content) + "\n")
+			with open(log_file, "a", encoding="utf-8") as log_fd:
+				for index in sorted(sub_dict.keys()):
+					log_fd.write("\n".join(sub_dict[index]) + "\n")
 
 def main():
 	parser = argparse.ArgumentParser()
