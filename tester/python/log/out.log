@@ -1,87 +1,5 @@
 Executing: Test 1 (normal)
 ===================================================================
-Response: :localhost 001 testuser1 :Welcome to the Internet Relay Network
-Response: :localhost 331 testuser1 #testchannel :No topic is set
-Response: :testuser1 JOIN :#testchannel
-Response: 001
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 2 (without PASS)
-===================================================================
-Response: :localhost 461 testuser2 USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 3 (without NICK)
-===================================================================
-Response: :localhost 461 * USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:23 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 4 (without USER)
-===================================================================
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 5 (double PASS)
-===================================================================
-Response: :localhost 462 * :Connection already registered
-Response: :localhost 461 testuser5 USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:23 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 6 (double NICK)
-===================================================================
-Response: :localhost 433 testuser6 testuser6 :Nickname is already in use
-Response: :localhost 461 testuser6 USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 7 (double USER)
-===================================================================
-Response: :localhost 461 testuser7 USER :Not enough parameters
-Response: :localhost 461 testuser7 USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 7-2 (double USER)
-===================================================================
-Response: :localhost 461 * USER :Not enough parameters
-Response: :localhost 461 * USER :Not enough parameters
-Response: :localhost 433 * testuser7 :Nickname is already in use
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 8 (valid command before login)
-===================================================================
-Response: :localhost 451 :You have not registered
-Response: :localhost 461 testuser8 USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 9 (valid command before login)
-===================================================================
-Response: :localhost 451 :You have not registered
-Response: :localhost 461 testuser9 USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:18 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 10 (valid command before login)
-===================================================================
-Response: :localhost 461 * USER :Not enough parameters
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-Response: :localhost 451 :You have not registered
-2025-03-19 15:38:23 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 1 (normal)
-===================================================================
 Response: :irc.example.net 001 testuser1 :Welcome to the Internet Relay Network testuser1!~testuser@localhost
 Response: :irc.example.net 002 testuser1 :Your host is irc.example.net, running version ngircd-26.1 (aarch64/unknown/linux-gnu)
 Response: :irc.example.net 003 testuser1 :This server has been started Tue Feb 25 2025 at 13:09:06 (UTC)
@@ -89,12 +7,12 @@ Response: :irc.example.net 004 testuser1 irc.example.net ngircd-26.1 abBcCFiIoqr
 Response: :irc.example.net 005 testuser1 RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=#&+:10 :are supported on this server
 Response: :irc.example.net 005 testuser1 CHANNELLEN=50 NICKLEN=9 TOPICLEN=490 AWAYLEN=127 KICKLEN=400 MODES=5 MAXLIST=beI:50 EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server
 Response: :irc.example.net 251 testuser1 :There are 1 users and 0 services on 1 servers
-Response: :irc.example.net 253 testuser1 1 :unknown connection(s)
+Response: :irc.example.net 253 testuser1 2 :unknown connection(s)
 Response: :irc.example.net 254 testuser1 1 :channels formed
 Response: :irc.example.net 255 testuser1 :I have 1 users, 0 services and 0 servers
 Response: :irc.example.net 265 testuser1 1 4 :Current local users: 1, Max: 4
 Response: :irc.example.net 266 testuser1 1 4 :Current global users: 1, Max: 4
-Response: :irc.example.net 250 testuser1 :Highest connection count: 10 (701 connections received)
+Response: :irc.example.net 250 testuser1 :Highest connection count: 10 (655 connections received)
 Response: :irc.example.net 375 testuser1 :- irc.example.net message of the day
 Response: :irc.example.net 372 testuser1 :- **************************************************
 Response: :irc.example.net 372 testuser1 :- *             H    E    L    L    O              *
@@ -109,25 +27,25 @@ Response: :irc.example.net 372 testuser1 :- *  server.                          
 Response: :irc.example.net 372 testuser1 :- **************************************************
 Response: :irc.example.net 376 testuser1 :End of MOTD command
 Response: :testuser1!~testuser@localhost JOIN :#testchannel
-2025-03-19 15:52:47 timeout (no response for 5 sec)
+2025-03-18 14:28:38 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 2 (without PASS)
 ===================================================================
 Response: ERROR :Access denied: Bad password?
-2025-03-19 15:52:45 timeout (no response for 5 sec)
+2025-03-18 14:28:36 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 3 (without NICK)
 ===================================================================
 Response: :irc.example.net 451 * :Connection not registered
 Response: ERROR :Closing connection
-2025-03-19 15:52:48 timeout (no response for 5 sec)
+2025-03-18 14:28:39 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 4 (without USER)
 ===================================================================
 Response: :irc.example.net 451 testuser4 :Connection not registered
 Response: :irc.example.net 451 testuser4 :Connection not registered
 Response: ERROR :Closing connection
-2025-03-19 15:52:50 timeout (no response for 5 sec)
+2025-03-18 14:28:41 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 5 (double PASS)
 ===================================================================
@@ -138,13 +56,13 @@ Response: :irc.example.net 003 testuser5 :This server has been started Tue Feb 2
 Response: :irc.example.net 004 testuser5 irc.example.net ngircd-26.1 abBcCFiIoqrRswx abehiIklmMnoOPqQrRstvVz
 Response: :irc.example.net 005 testuser5 RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=#&+:10 :are supported on this server
 Response: :irc.example.net 005 testuser5 CHANNELLEN=50 NICKLEN=9 TOPICLEN=490 AWAYLEN=127 KICKLEN=400 MODES=5 MAXLIST=beI:50 EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server
-Response: :irc.example.net 251 testuser5 :There are 4 users and 0 services on 1 servers
-Response: :irc.example.net 253 testuser5 6 :unknown connection(s)
+Response: :irc.example.net 251 testuser5 :There are 3 users and 0 services on 1 servers
+Response: :irc.example.net 253 testuser5 5 :unknown connection(s)
 Response: :irc.example.net 254 testuser5 1 :channels formed
-Response: :irc.example.net 255 testuser5 :I have 4 users, 0 services and 0 servers
-Response: :irc.example.net 265 testuser5 4 4 :Current local users: 4, Max: 4
-Response: :irc.example.net 266 testuser5 4 4 :Current global users: 4, Max: 4
-Response: :irc.example.net 250 testuser5 :Highest connection count: 10 (709 connections received)
+Response: :irc.example.net 255 testuser5 :I have 3 users, 0 services and 0 servers
+Response: :irc.example.net 265 testuser5 3 4 :Current local users: 3, Max: 4
+Response: :irc.example.net 266 testuser5 3 4 :Current global users: 3, Max: 4
+Response: :irc.example.net 250 testuser5 :Highest connection count: 10 (661 connections received)
 Response: :irc.example.net 375 testuser5 :- irc.example.net message of the day
 Response: :irc.example.net 372 testuser5 :- **************************************************
 Response: :irc.example.net 372 testuser5 :- *             H    E    L    L    O              *
@@ -159,7 +77,7 @@ Response: :irc.example.net 372 testuser5 :- *  server.                          
 Response: :irc.example.net 372 testuser5 :- **************************************************
 Response: :irc.example.net 376 testuser5 :End of MOTD command
 Response: :testuser5!~testuser@localhost JOIN :#testchannel
-2025-03-19 15:52:48 timeout (no response for 5 sec)
+2025-03-18 14:28:39 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 6 (double NICK)
 ===================================================================
@@ -170,12 +88,12 @@ Response: :irc.example.net 004 testuser6 irc.example.net ngircd-26.1 abBcCFiIoqr
 Response: :irc.example.net 005 testuser6 RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=#&+:10 :are supported on this server
 Response: :irc.example.net 005 testuser6 CHANNELLEN=50 NICKLEN=9 TOPICLEN=490 AWAYLEN=127 KICKLEN=400 MODES=5 MAXLIST=beI:50 EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server
 Response: :irc.example.net 251 testuser6 :There are 3 users and 0 services on 1 servers
-Response: :irc.example.net 253 testuser6 7 :unknown connection(s)
+Response: :irc.example.net 253 testuser6 6 :unknown connection(s)
 Response: :irc.example.net 254 testuser6 1 :channels formed
 Response: :irc.example.net 255 testuser6 :I have 3 users, 0 services and 0 servers
 Response: :irc.example.net 265 testuser6 3 4 :Current local users: 3, Max: 4
 Response: :irc.example.net 266 testuser6 3 4 :Current global users: 3, Max: 4
-Response: :irc.example.net 250 testuser6 :Highest connection count: 10 (709 connections received)
+Response: :irc.example.net 250 testuser6 :Highest connection count: 10 (661 connections received)
 Response: :irc.example.net 375 testuser6 :- irc.example.net message of the day
 Response: :irc.example.net 372 testuser6 :- **************************************************
 Response: :irc.example.net 372 testuser6 :- *             H    E    L    L    O              *
@@ -190,7 +108,7 @@ Response: :irc.example.net 372 testuser6 :- *  server.                          
 Response: :irc.example.net 372 testuser6 :- **************************************************
 Response: :irc.example.net 376 testuser6 :End of MOTD command
 Response: :testuser6!~testuser@localhost JOIN :#testchannel
-2025-03-19 15:52:47 timeout (no response for 5 sec)
+2025-03-18 14:28:38 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 7 (double USER)
 ===================================================================
@@ -206,7 +124,7 @@ Response: :irc.example.net 254 testuser7 1 :channels formed
 Response: :irc.example.net 255 testuser7 :I have 2 users, 0 services and 0 servers
 Response: :irc.example.net 265 testuser7 2 4 :Current local users: 2, Max: 4
 Response: :irc.example.net 266 testuser7 2 4 :Current global users: 2, Max: 4
-Response: :irc.example.net 250 testuser7 :Highest connection count: 10 (705 connections received)
+Response: :irc.example.net 250 testuser7 :Highest connection count: 10 (658 connections received)
 Response: :irc.example.net 375 testuser7 :- irc.example.net message of the day
 Response: :irc.example.net 372 testuser7 :- **************************************************
 Response: :irc.example.net 372 testuser7 :- *             H    E    L    L    O              *
@@ -222,16 +140,7 @@ Response: :irc.example.net 372 testuser7 :- ************************************
 Response: :irc.example.net 376 testuser7 :End of MOTD command
 Response: :irc.example.net 462 testuser7 :Connection already registered
 Response: :testuser7!~testuser@localhost JOIN :#testchannel
-2025-03-19 15:52:49 timeout (no response for 5 sec)
-===================================================================
-Executing: Test 7-2 (double USER)
-===================================================================
-Response: :irc.example.net 451 * :Connection not registered
-Response: :irc.example.net 433 * testuser7 :Nickname already in use
-Response: :irc.example.net 451 * :Connection not registered
-Response: :irc.example.net 451 * :Connection not registered
-Response: ERROR :Closing connection
-2025-03-19 15:52:54 timeout (no response for 5 sec)
+2025-03-18 14:28:40 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 8 (valid command before login)
 ===================================================================
@@ -242,13 +151,13 @@ Response: :irc.example.net 003 testuser8 :This server has been started Tue Feb 2
 Response: :irc.example.net 004 testuser8 irc.example.net ngircd-26.1 abBcCFiIoqrRswx abehiIklmMnoOPqQrRstvVz
 Response: :irc.example.net 005 testuser8 RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=#&+:10 :are supported on this server
 Response: :irc.example.net 005 testuser8 CHANNELLEN=50 NICKLEN=9 TOPICLEN=490 AWAYLEN=127 KICKLEN=400 MODES=5 MAXLIST=beI:50 EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server
-Response: :irc.example.net 251 testuser8 :There are 4 users and 0 services on 1 servers
-Response: :irc.example.net 253 testuser8 5 :unknown connection(s)
+Response: :irc.example.net 251 testuser8 :There are 3 users and 0 services on 1 servers
+Response: :irc.example.net 253 testuser8 4 :unknown connection(s)
 Response: :irc.example.net 254 testuser8 1 :channels formed
-Response: :irc.example.net 255 testuser8 :I have 4 users, 0 services and 0 servers
-Response: :irc.example.net 265 testuser8 4 4 :Current local users: 4, Max: 4
-Response: :irc.example.net 266 testuser8 4 4 :Current global users: 4, Max: 4
-Response: :irc.example.net 250 testuser8 :Highest connection count: 10 (709 connections received)
+Response: :irc.example.net 255 testuser8 :I have 3 users, 0 services and 0 servers
+Response: :irc.example.net 265 testuser8 3 4 :Current local users: 3, Max: 4
+Response: :irc.example.net 266 testuser8 3 4 :Current global users: 3, Max: 4
+Response: :irc.example.net 250 testuser8 :Highest connection count: 10 (661 connections received)
 Response: :irc.example.net 375 testuser8 :- irc.example.net message of the day
 Response: :irc.example.net 372 testuser8 :- **************************************************
 Response: :irc.example.net 372 testuser8 :- *             H    E    L    L    O              *
@@ -263,7 +172,7 @@ Response: :irc.example.net 372 testuser8 :- *  server.                          
 Response: :irc.example.net 372 testuser8 :- **************************************************
 Response: :irc.example.net 376 testuser8 :End of MOTD command
 Response: :testuser8!~testuser@localhost JOIN :#testchannel
-2025-03-19 15:52:48 timeout (no response for 5 sec)
+2025-03-18 14:28:39 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 9 (valid command before login)
 ===================================================================
@@ -275,12 +184,12 @@ Response: :irc.example.net 004 testuser9 irc.example.net ngircd-26.1 abBcCFiIoqr
 Response: :irc.example.net 005 testuser9 RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=#&+:10 :are supported on this server
 Response: :irc.example.net 005 testuser9 CHANNELLEN=50 NICKLEN=9 TOPICLEN=490 AWAYLEN=127 KICKLEN=400 MODES=5 MAXLIST=beI:50 EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server
 Response: :irc.example.net 251 testuser9 :There are 2 users and 0 services on 1 servers
-Response: :irc.example.net 253 testuser9 3 :unknown connection(s)
+Response: :irc.example.net 253 testuser9 2 :unknown connection(s)
 Response: :irc.example.net 254 testuser9 1 :channels formed
 Response: :irc.example.net 255 testuser9 :I have 2 users, 0 services and 0 servers
 Response: :irc.example.net 265 testuser9 2 4 :Current local users: 2, Max: 4
 Response: :irc.example.net 266 testuser9 2 4 :Current global users: 2, Max: 4
-Response: :irc.example.net 250 testuser9 :Highest connection count: 10 (709 connections received)
+Response: :irc.example.net 250 testuser9 :Highest connection count: 10 (661 connections received)
 Response: :irc.example.net 375 testuser9 :- irc.example.net message of the day
 Response: :irc.example.net 372 testuser9 :- **************************************************
 Response: :irc.example.net 372 testuser9 :- *             H    E    L    L    O              *
@@ -295,7 +204,7 @@ Response: :irc.example.net 372 testuser9 :- *  server.                          
 Response: :irc.example.net 372 testuser9 :- **************************************************
 Response: :irc.example.net 376 testuser9 :End of MOTD command
 Response: :testuser9!~testuser@localhost JOIN :#testchannel
-2025-03-19 15:52:49 timeout (no response for 5 sec)
+2025-03-18 14:28:40 timeout (no response for 5 sec)
 ===================================================================
 Executing: Test 10 (valid command before login)
 ===================================================================
@@ -304,5 +213,5 @@ Response: :irc.example.net 432 * testuser10 :Nickname too long, max. 9 character
 Response: :irc.example.net 451 * :Connection not registered
 Response: :irc.example.net 451 * :Connection not registered
 Response: ERROR :Closing connection
-2025-03-19 15:52:54 timeout (no response for 5 sec)
+2025-03-18 14:28:45 timeout (no response for 5 sec)
 ===================================================================
