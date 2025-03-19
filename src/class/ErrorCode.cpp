@@ -58,7 +58,7 @@ std::pair<int, std::string> create_code_message(int code, std::string str1, std:
 		case ERR_NEEDMOREPARAMS:
 			return std::make_pair(code, str1 + " :Not enough parameters");
 		case ERR_ALREADYREGISTRED:
-			return std::make_pair(code, ":You may not reregister");
+			return std::make_pair(code, ":Connection already registered");
 		case ERR_PASSWDMISMATCH:
 			return std::make_pair(code, ":Password incorrect");
 		case ERR_YOUREBANNEDCREEP:

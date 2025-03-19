@@ -37,6 +37,8 @@ std::string Sender::createResponse(ChannelResult &result, int fd) const
 			if (user_->IsRegisterNick(fd))
 			{
 				ss << " " << user_->GetSomeone(fd).nick_name.back();
+			} else {
+				ss << " " << "*";
 			}
 		}
 		if (result.second != "")

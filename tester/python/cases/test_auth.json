@@ -3,7 +3,7 @@
         "title": "Test 1 (normal)",
         "cmds": [
             "PASS test",
-            "NICK testuser",
+            "NICK testuser1",
             "USER testuser * * :test",
             "JOIN #testchannel",
             "QUIT"
@@ -12,7 +12,7 @@
     {
         "title": "Test 2 (without PASS)",
         "cmds": [
-            "NICK testuser",
+            "NICK testuser2",
             "USER testuser 0 * :Test User",
             "JOIN #testchannel",
             "QUIT"
@@ -31,7 +31,7 @@
         "title": "Test 4 (without USER)",
         "cmds": [
             "PASS test",
-            "NICK testuser",
+            "NICK testuser4",
             "JOIN #testchannel",
             "PRIVMSG #testchannel :Hello",
             "QUIT"
@@ -42,7 +42,7 @@
         "cmds": [
             "PASS test",
             "PASS test",
-            "NICK testuser",
+            "NICK testuser5",
             "USER testuser 0 * :Test User",
             "JOIN #testchannel",
             "PRIVMSG #testchannel :Hello",
@@ -53,8 +53,8 @@
         "title": "Test 6 (double NICK)",
         "cmds": [
             "PASS test",
-            "NICK testuser",
-            "NICK testuser",
+            "NICK testuser6",
+            "NICK testuser6",
             "USER testuser 0 * :Test User",
             "JOIN #testchannel",
             "PRIVMSG #testchannel :Hello",
@@ -65,9 +65,57 @@
         "title": "Test 7 (double USER)",
         "cmds": [
             "PASS test",
-            "NICK testuser",
+            "NICK testuser7",
             "USER testuser 0 * :Test User",
             "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 7-2 (double USER)",
+        "cmds": [
+            "PASS test",
+            "USER testuser 0 * :Test User",
+            "USER testuser 0 * :Test User",
+            "NICK testuser7",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 8 (valid command before login)",
+        "cmds": [
+            "PASS test",
+            "JOIN #testchannel",
+            "NICK testuser8",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 9 (valid command before login)",
+        "cmds": [
+            "PASS test",
+            "NICK testuser9",
+            "JOIN #testchannel",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "PRIVMSG #testchannel :Hello",
+            "QUIT"
+        ]
+    },
+    {
+        "title": "Test 10 (valid command before login)",
+        "cmds": [
+            "PASS test",
+            "USER testuser 0 * :Test User",
+            "JOIN #testchannel",
+            "NICK testuser10",
             "JOIN #testchannel",
             "PRIVMSG #testchannel :Hello",
             "QUIT"
