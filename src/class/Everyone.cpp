@@ -57,10 +57,15 @@ ChannelResult	Everyone::DeleteUser(int player_fd)
 	std::set<std::string> copy = tmp->join_channel;
 	for (std::set<std::string>::iterator i = copy.begin(); i != copy.end(); i++)
 		channel->LeaveChannel(player_fd, *i);
-	if (everyone_id_[player_fd]->nick_name.size())
+	if (everyone_id_[player_fd]->nick_name.size()) 
+	{
 		nick_list_.erase(everyone_id_[player_fd]->nick_name.back());
-	everyone_nickname_.erase(everyone_id_[player_fd]->nick_name.back());
-	everyone_username_.erase(everyone_id_[player_fd]->user_name);
+		everyone_nickname_.erase(everyone_id_[player_fd]->nick_name.back());
+	}
+	if (everyone_id_[player_fd]->user_name.size())
+	{
+		everyone_username_.erase(everyone_id_[player_fd]->user_name);
+	}
 	Someone *del = everyone_id_[player_fd];
 	delete (del);
 	everyone_id_.erase(player_fd);
