@@ -8,3 +8,5 @@ objs
 sample_test
 debug
 ircserv
+venv
+.venv
