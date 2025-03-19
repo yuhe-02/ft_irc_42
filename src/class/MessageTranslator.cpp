@@ -1,4 +1,4 @@
-#include "MessageTranslator.h"
+#include "../../includes/MessageTranslator.h"
 
 MessageTranslator::MessageTranslator()
 {
@@ -22,7 +22,7 @@ MessageTranslator::MessageTranslator(std::string pass) : pass_(pass)
 	func_["QUIT"]      = &MessageTranslator::Quit;
 	func_["EXIT"]      = &MessageTranslator::Exit;
 	func_["LOG"]       = &MessageTranslator::Log;
-	func_["WHOIS"]       = &MessageTranslator::Whois;
+	func_["WHOIS"]     = &MessageTranslator::Whois;
 	func_["PONG"]      = &MessageTranslator::Pong;
 	func_["PING"]      = &MessageTranslator::Ping;
 	tester_ = 1;
@@ -144,7 +144,7 @@ void	MessageTranslator::Execute(std::string message, int user_fd)
 		} else if (box[0] == "USER") {
 			this->User(box, user_fd);
 		} else {
-			sender_.SendMessage(ChannelResult(451, ""), user_fd);
+			sender_.SendMessage(create_code_message(451, ""), user_fd);
 		}
 		return ;
 	}
